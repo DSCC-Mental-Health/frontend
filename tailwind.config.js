@@ -8,8 +8,15 @@ module.exports = {
 			colors: {
 				ink: '#2e2721',
 				'ink-muted': '#73675d',
-				'ink-faint': '#a39990',
+				// Darkened from #a39990 (2.6:1 on cream) to pass 4.5:1 as text.
+				'ink-faint': '#786c62',
 				accent: '#d9682d',
+				// Orange for text. #d9682d is 3.3:1 on cream, below the 4.5:1 small
+				// text needs, so fills keep `accent` and text uses this (4.8:1).
+				'accent-text': '#b3501c',
+				// Same value as a surface: the Home check-in card, so white text on it
+				// passes 4.5:1 (5.2:1) where the button orange gives 3.5:1.
+				'accent-strong': '#b3501c',
 				hairline: '#e0d4c5',
 				surface: 'rgba(255, 255, 255, 0.65)',
 				'aura-outer': '#fbf6ec',
@@ -26,6 +33,19 @@ module.exports = {
 				'insight-ink': '#2b524d',
 				// Log out confirm sheet (node 274:45).
 				scrim: 'rgba(46, 39, 33, 0.45)',
+				// Insights weekly summary card (node 175:12).
+				'insight-tag': 'rgba(255, 255, 255, 0.14)',
+				'insight-label': '#c7dbd6',
+				'insight-body': '#d9e5e3',
+				'insight-meta': '#adc7c2',
+				// Breathing player (node 33:2).
+				// Raised from 0.1 / 0.16 so the rings you breathe with read as layers.
+				'breath-ring-outer': 'rgba(255, 255, 255, 0.16)',
+				'breath-ring-inner': 'rgba(255, 255, 255, 0.28)',
+				'breath-count': 'rgba(255, 255, 255, 0.7)',
+				'breath-outline': 'rgba(255, 255, 255, 0.5)',
+				'breath-meta': '#c7d6d1',
+				'breath-hint': '#b8c9c4',
 			},
 			borderRadius: {
 				control: '14px',

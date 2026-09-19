@@ -50,6 +50,14 @@ export default function RootLayout() {
 						options={{ presentation: 'modal' }}
 					/>
 					<Stack.Screen name="write" options={{ presentation: 'modal' }} />
+					<Stack.Screen
+						name="breathe"
+						options={{ presentation: 'fullScreenModal' }}
+					/>
+					<Stack.Screen
+						name="grounding"
+						options={{ presentation: 'fullScreenModal' }}
+					/>
 				</Stack>
 				{/* Onboarding sits on a light warm background in both system themes. */}
 				<StatusBar style="dark" />

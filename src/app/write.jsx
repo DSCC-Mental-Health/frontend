@@ -1,9 +1,12 @@
+import DiscardSheet from '@/components/DiscardSheet';
 import { PROMPTS } from '@/data/check-in-prompts';
 import { add } from '@/data/journal-store';
+import { HOME_PROMPT } from '@/data/tools';
 import { useAuth } from '@clerk/expo';
-import { Redirect, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { Redirect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
+	BackHandler,
 	KeyboardAvoidingView,
 	Platform,
 	Pressable,
@@ -14,11 +17,8 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const PLACEHOLDER = '#a39990';
+const PLACEHOLDER = '#786c62';
 const GUTTER = 20;
-
-/** The frame's one concrete suggestion (node 29:51). */
-const HOME_PROMPT = "What's one thing about today I'd tell someone at home?";
 
 /** Every prompt in the L5 bank, for "Give me a question instead". */
 const BANK = Object.values(PROMPTS).flat();
@@ -28,7 +28,7 @@ function SuggestionRow({ label, onPress }) {
 		<Pressable
 			accessibilityRole="button"
 			onPress={onPress}
-			className="w-full overflow-hidden rounded-field border border-hairline bg-white px-3.5 py-3 active:opacity-80"
+			className="min-h-11 w-full justify-center overflow-hidden rounded-field border border-hairline bg-white px-3.5 py-3 active:opacity-80"
 		>
 			<Text className="w-full font-inter-medium text-[13px] leading-[18.2px] text-ink">
 				{label}
@@ -42,23 +42,50 @@ function SuggestionRow({ label, onPress }) {
  *
  * Picking a suggestion attaches it as the entry's prompt, which turns it into a
  * prompted entry; the frame doesn't specify this, so it's a stated assumption.
+ * The Worry list and Three good things tools open it with `?prompt=` preset.
  */
 export default function WriteScreen() {
 	const insets = useSafeAreaInsets();
 	const router = useRouter();
+	const navigation = useNavigation();
 	const { isLoaded, isSignedIn } = useAuth();
+	const { prompt: promptParam } = useLocalSearchParams();
 
 	const [text, setText] = useState('');
-	const [prompt, setPrompt] = useState(null);
+	const [prompt, setPrompt] = useState(
+		typeof promptParam === 'string' && promptParam ? promptParam : null,
+	);
+	const [confirmingClose, setConfirmingClose] = useState(false);
+
+	const canSave = text.trim().length > 0;
+
+	// Swiping the sheet down or Android back would lose the writing, so both go
+	// through the same "Keep what you wrote?" confirm as Cancel.
+	useEffect(() => {
+		navigation.setOptions({ gestureEnabled: !canSave });
+	}, [navigation, canSave]);
+
+	useEffect(() => {
+		if (!canSave) return undefined;
+		const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+			setConfirmingClose(true);
+			return true;
+		});
+		return () => sub.remove();
+	}, [canSave]);
 
 	if (!isLoaded) return null;
 	if (!isSignedIn) return <Redirect href="/login" />;
 
-	const canSave = text.trim().length > 0;
-
 	function dismiss() {
+		setConfirmingClose(false);
 		if (router.canGoBack()) router.back();
 		else router.replace('/journal');
+	}
+
+	function cancel() {
+		if (canSave) setConfirmingClose(true);
+		else dismiss();
 	}
 
 	function save() {
@@ -92,22 +119,21 @@ export default function WriteScreen() {
 					className="w-full flex-row items-center justify-between"
 					style={{ paddingHorizontal: GUTTER }}
 				>
-					<Pressable accessibilityRole="button" onPress={dismiss} hitSlop={10}>
-						<Text className="font-inter-medium text-[14px] text-ink-muted">
-							Cancel
-						</Text>
+					{/* 14pt text is ~17pt tall; 14 either side reaches 44pt. */}
+					<Pressable accessibilityRole="button" onPress={cancel} hitSlop={14}>
+						<Text className="font-inter-medium text-[14px] text-ink-muted">Cancel</Text>
 					</Pressable>
 					<Pressable
 						accessibilityRole="button"
 						accessibilityState={{ disabled: !canSave }}
 						disabled={!canSave}
 						onPress={save}
-						hitSlop={10}
+						hitSlop={14}
 					>
 						<Text
 							className={
 								canSave
-									? 'font-inter-semibold text-[14px] text-accent'
+									? 'font-inter-semibold text-[14px] text-accent-text'
 									: 'font-inter-medium text-[14px] text-ink-faint'
 							}
 						>
@@ -119,17 +145,23 @@ export default function WriteScreen() {
 				<ScrollView
 					className="flex-1"
 					keyboardShouldPersistTaps="handled"
+					keyboardDismissMode="interactive"
 					showsVerticalScrollIndicator={false}
 					contentContainerStyle={{ flexGrow: 1, paddingHorizontal: GUTTER, paddingTop: 24 }}
 				>
-					<Text className="w-full font-inter-bold text-[24px] leading-[34.8px] text-ink">
+					<Text
+						accessibilityRole="header"
+						className="w-full font-inter-bold text-[24px] leading-[34.8px] text-ink"
+					>
 						What&rsquo;s on your mind?
 					</Text>
 
 					<View className="h-2" />
 
 					<Text className="w-full font-inter text-[14px] leading-[20.3px] text-ink-muted">
-						No prompt, no structure. Write whatever.
+						{prompt
+							? 'Answer the question below, or clear it and write whatever.'
+							: 'No prompt, no structure. Write whatever.'}
 					</Text>
 
 					<View className="h-5" />
@@ -138,18 +170,16 @@ export default function WriteScreen() {
 						<>
 							<View className="w-full gap-1.5 overflow-hidden rounded-control bg-avatar px-4 py-3.5">
 								<View className="w-full flex-row items-center justify-between">
-									<Text className="font-inter-semibold text-[10px] tracking-[0.8px] text-ink-faint">
+									<Text className="font-inter-semibold text-[11px] tracking-[0.8px] text-ink-faint">
 										A QUESTION FOR YOU
 									</Text>
 									<Pressable
 										accessibilityRole="button"
 										accessibilityLabel="Remove question"
 										onPress={() => setPrompt(null)}
-										hitSlop={10}
+										hitSlop={14}
 									>
-										<Text className="font-inter-medium text-[12px] text-ink-muted">
-											Clear
-										</Text>
+										<Text className="font-inter-medium text-[12px] text-ink-muted">Clear</Text>
 									</Pressable>
 								</View>
 								<Text className="w-full font-inter-medium text-[14px] leading-[20.3px] text-ink">
@@ -168,6 +198,7 @@ export default function WriteScreen() {
 						<TextInput
 							value={text}
 							onChangeText={setText}
+							accessibilityLabel={prompt ?? 'Your entry'}
 							placeholder="Start typing…"
 							placeholderTextColor={PLACEHOLDER}
 							multiline
@@ -178,7 +209,10 @@ export default function WriteScreen() {
 
 					<View className="h-4" />
 
-					<Text className="w-full font-inter-semibold text-[13px] leading-[18.85px] text-ink">
+					<Text
+						accessibilityRole="header"
+						className="w-full font-inter-semibold text-[13px] leading-[18.85px] text-ink"
+					>
 						Stuck?
 					</Text>
 
@@ -191,12 +225,19 @@ export default function WriteScreen() {
 
 					<View className="min-h-6 flex-1" />
 
-					{/* Kept from the frame, though today entries live only in memory. */}
+					{/* The frame said "Saved only to your device account" — not true yet. */}
 					<Text className="w-full text-center font-inter text-[12px] leading-[17.4px] text-ink-muted">
-						Saved only to your device account. You can delete it anytime.
+						Only you can read this. You can delete it anytime.
 					</Text>
 				</ScrollView>
 			</View>
+
+			<DiscardSheet
+				visible={confirmingClose}
+				onSave={save}
+				onDiscard={dismiss}
+				onKeep={() => setConfirmingClose(false)}
+			/>
 		</KeyboardAvoidingView>
 	);
 }

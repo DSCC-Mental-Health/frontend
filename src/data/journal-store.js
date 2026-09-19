@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { daysAgoAt, startOfDay } from './dates';
 
 /**
  * In-memory journal store. Entries are shared by the Journal tab, the entry
@@ -11,37 +12,8 @@ import { useSyncExternalStore } from 'react';
  *     kind: 'prompted'|'free', parts: [{ prompt?: string, text: string }] }
  */
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-function startOfDay(date) {
-	const d = new Date(date);
-	d.setHours(0, 0, 0, 0);
-	return d;
-}
-
-function daysAgoAt(days, hours, minutes) {
-	const d = startOfDay(new Date());
-	d.setDate(d.getDate() - days);
-	d.setHours(hours, minutes, 0, 0);
-	// A seeded "today" time that hasn't happened yet would sort above anything
-	// the user writes now, so clamp it into the past.
-	const latest = Date.now() - 60 * 1000;
-	return d.getTime() > latest ? new Date(latest) : d;
-}
-
-/**
- * Day 1 of BMT, placed so that today reads "Day 23" — matching the dashboard's
- * placeholder "Day 23 · Week 4 of 9".
- */
-export const BMT_START = (() => {
-	const d = startOfDay(new Date());
-	d.setDate(d.getDate() - 22);
-	return d;
-})();
-
-export function bmtDay(date) {
-	return Math.round((startOfDay(date) - BMT_START) / DAY_MS) + 1;
-}
+// Re-exported so existing screens keep importing date helpers from here.
+export { BMT_START, bmtDay, dayLabel, timeLabel } from './dates';
 
 /** Seeded with the four entries drawn in M1 (node 28:2); the first is M3's (29:2). */
 const SEED = [
@@ -134,6 +106,16 @@ export function add(entry) {
 	return created;
 }
 
+/** Replaces an entry's answers (M3 edit). Prompts stay as they were asked. */
+export function update(id, texts) {
+	entries = entries.map((e) =>
+		e.id === id
+			? { ...e, parts: e.parts.map((part, i) => ({ ...part, text: texts[i] ?? part.text })) }
+			: e,
+	);
+	emit();
+}
+
 export function remove(id) {
 	entries = entries.filter((e) => e.id !== id);
 	emit();
@@ -145,27 +127,6 @@ export function get(id) {
 
 export function useJournal() {
 	return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
-}
-
-// Fixed tables rather than toLocaleDateString: its output varies by engine
-// (Node's en-GB gives "Sept"; Hermes' Intl support differs again), and the
-// frame's format is exactly three letters.
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-/** "Today" / "Yesterday" / "Sun 12 Oct" — the day headings in M1 (node 28:19). */
-export function dayLabel(date) {
-	const diff = Math.round((startOfDay(new Date()) - startOfDay(date)) / DAY_MS);
-	if (diff === 0) return 'Today';
-	if (diff === 1) return 'Yesterday';
-	return `${WEEKDAYS[date.getDay()]} ${date.getDate()} ${MONTHS[date.getMonth()]}`;
-}
-
-/** 24-hour "22:14", as M1 and M3 show it. */
-export function timeLabel(date) {
-	const h = String(date.getHours()).padStart(2, '0');
-	const m = String(date.getMinutes()).padStart(2, '0');
-	return `${h}:${m}`;
 }
 
 /** Group entries under their day, newest day first. */

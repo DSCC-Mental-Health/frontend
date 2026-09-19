@@ -8,6 +8,12 @@
  * just wrote. Until that API exists, step 1 uses the first prompt for the mood
  * and step 2 the second, and "Ask me something else" cycles between them.
  */
+/**
+ * The four moods, worst to best — the one list Home, the check-in, onboarding
+ * I3 and the Journal all use.
+ */
+export const MOODS = ['Rough', 'Mixed', 'Okay', 'Good'];
+
 export const PROMPTS = {
 	Rough: [
 		'What was the hardest part of today — the training itself, or something else?',
@@ -50,5 +56,9 @@ export const MOOD_CHIP_TEXT = {
 /** From L2 (node 22:48): a 118-character sample reading "182 characters left". */
 export const MAX_CHARS = 300;
 
-/** Offered on L4 (nodes 23:16, 23:18). */
-export const FOLLOW_ON_TOOLS = ['60-second reset', 'Sleep wind-down  ·  6 min'];
+/**
+ * Tool ids offered on L4 (nodes 23:16, 23:18). The frame names "60-second reset" and
+ * "Sleep wind-down", which don't exist in the N1 library, so these are the
+ * nearest real tools: one for calming down, one for sleep.
+ */
+export const FOLLOW_ON_TOOLS = ['box', 'worry'];

@@ -15,7 +15,7 @@ const ICONS = {
 };
 
 const ACTIVE_ICON = '#d9682d';
-const INACTIVE_ICON = '#a39990';
+const INACTIVE_ICON = '#786c62';
 
 const TABS = [
 	{ name: 'home', label: 'Home' },

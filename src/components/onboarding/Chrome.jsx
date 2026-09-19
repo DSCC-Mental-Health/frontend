@@ -1,16 +1,23 @@
+import { Image } from 'expo-image';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const breathingRings = require('@/assets/images/breathing-rings.svg');
 
 /**
  * Shared frame for every onboarding step (I1–I8).
  *
- * Every frame is the same stack: progress bar, eyebrow, title, body, content,
- * footnote, flex spacer, full-width CTA. 60/44/28 padding, floored by the device
- * insets the way the other screens do it.
+ * Every frame is the same stack: back link, progress bar, eyebrow, title, body,
+ * content, footnote, flex spacer, full-width CTA. 60/44/28 padding, floored by
+ * the device insets the way the other screens do it.
  */
 export default function Chrome({
 	progress,
-	/** I1 drops the title 80px down the screen (node 16:3). */
+	/** Omitted on I1. Onboarding is one route, so this is the only way back on iOS. */
+	onBack,
+	/** Size of the welcome screen's breathing rings, shown above the title. */
+	rings,
+	/** I1 drops the title down the screen (node 16:3). */
 	topSpace = 0,
 	eyebrow,
 	title,
@@ -22,6 +29,8 @@ export default function Chrome({
 	cta,
 	ctaTone = 'accent',
 	ctaDisabled = false,
+	/** Shown above the button when the step's action failed. */
+	ctaError,
 	/** I1 only: a line under the button rather than above it (node 16:11). */
 	ctaFootnote,
 	onPress,
@@ -37,9 +46,29 @@ export default function Chrome({
 				paddingBottom: Math.max(44, insets.bottom + 12),
 			}}
 		>
+			{onBack ? (
+				<>
+					<Pressable
+						accessibilityRole="button"
+						accessibilityLabel="Back to the previous step"
+						onPress={onBack}
+						hitSlop={14}
+						className="self-start active:opacity-60"
+					>
+						<Text className="font-inter-medium text-[14px] text-ink-muted">Back</Text>
+					</Pressable>
+					<View className="h-3.5" />
+				</>
+			) : null}
+
 			{progress === null ? null : (
 				<>
-					<View className="h-1.5 w-full overflow-hidden rounded-progress bg-hairline">
+					<View
+						accessibilityRole="progressbar"
+						accessibilityLabel="Setup progress"
+						accessibilityValue={{ min: 0, max: 100, now: progress }}
+						className="h-1.5 w-full overflow-hidden rounded-progress bg-hairline"
+					>
 						<View
 							className="h-1.5 rounded-progress bg-accent"
 							style={{ width: `${progress}%` }}
@@ -56,16 +85,30 @@ export default function Chrome({
 			>
 				{topSpace ? <View style={{ height: topSpace }} /> : null}
 
+				{rings ? (
+					<>
+						<Image
+							source={breathingRings}
+							style={{ width: rings, height: rings }}
+							contentFit="contain"
+							accessibilityIgnoresInvertColors
+						/>
+						<View className="h-6" />
+					</>
+				) : null}
+
 				{eyebrow ? (
 					<>
-						<Text className="w-full font-inter-semibold text-[12px] tracking-[0.96px] text-accent">
+						<Text className="w-full font-inter-semibold text-[12px] tracking-[0.96px] text-accent-text">
 							{eyebrow}
 						</Text>
 						<View className="h-2.5" />
 					</>
 				) : null}
 
-				<Text className={`w-full ${titleClassName}`}>{title}</Text>
+				<Text accessibilityRole="header" className={`w-full ${titleClassName}`}>
+					{title}
+				</Text>
 
 				{body ? (
 					<>
@@ -92,8 +135,20 @@ export default function Chrome({
 					</>
 				) : null}
 
-				<View className="flex-1" />
+				<View className="min-h-4 flex-1" />
 			</ScrollView>
+
+			{ctaError ? (
+				<>
+					<Text
+						accessibilityRole="alert"
+						className="w-full text-center font-inter-semibold text-[13px] leading-[18.2px] text-danger"
+					>
+						{ctaError}
+					</Text>
+					<View className="h-3" />
+				</>
+			) : null}
 
 			<Pressable
 				accessibilityRole="button"
@@ -108,13 +163,15 @@ export default function Chrome({
 							: 'bg-accent active:opacity-85'
 				}`}
 			>
+				{/* Bold, not semibold: white on the brand orange is 3.5:1, which only
+				    passes the contrast minimum as bold text. */}
 				<Text
-					className={`font-inter-semibold text-[16px] ${
+					className={`text-[16px] ${
 						ctaDisabled
-							? 'text-ink-faint'
+							? 'font-inter-semibold text-ink-faint'
 							: ctaTone === 'warn'
-								? 'text-ink'
-								: 'text-white'
+								? 'font-inter-semibold text-ink'
+								: 'font-inter-bold text-white'
 					}`}
 				>
 					{cta}

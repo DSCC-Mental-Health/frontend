@@ -2,7 +2,9 @@ import { useAuth, useUser } from '@clerk/expo';
 import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import Sheet from '@/components/Sheet';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useAiSummaries } from '@/lib/ai-summaries';
+import { cancelDailyReminder } from '@/lib/reminders';
+import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
@@ -37,6 +39,40 @@ function Row({ label, value, onPress, disabled }) {
 				</Text>
 			</View>
 		</Pressable>
+	);
+}
+
+/**
+ * The AI summaries consent from Insights. Off until they say yes; never
+ * "not asked yet" here, since this screen is where they change their mind.
+ */
+function AiSummariesRow() {
+	const { enabled, set, saving, error } = useAiSummaries();
+
+	return (
+		<View className="w-full gap-1.5 overflow-hidden rounded-control border border-hairline bg-white px-4 py-3.5">
+			<View className="w-full flex-row items-center justify-between gap-3">
+				<Text className="flex-1 font-inter-semibold text-[15px] text-ink">
+					AI weekly summaries
+				</Text>
+				<Switch
+					accessibilityLabel="AI weekly summaries"
+					value={enabled === true}
+					disabled={saving}
+					onValueChange={set}
+					trackColor={{ true: '#4d8a81' }}
+				/>
+			</View>
+			<Text className="w-full font-inter text-[12px] leading-[17.4px] text-ink-muted">
+				When on, your check-ins and journal entries are sent to an AI model (Claude) to
+				write a short summary on Insights. Your unit never sees it.
+			</Text>
+			{error ? (
+				<Text accessibilityRole="alert" className="w-full font-inter-semibold text-[12px] text-danger">
+					{error}
+				</Text>
+			) : null}
+		</View>
 	);
 }
 
@@ -92,8 +128,8 @@ function LogOutSheet({ visible, busy, onConfirm, onCancel }) {
 				}`}
 			>
 				<Text
-					className={`font-inter-semibold text-[16px] ${
-						busy ? 'text-ink-faint' : 'text-white'
+					className={`text-[16px] ${
+						busy ? 'font-inter-semibold text-ink-faint' : 'font-inter-bold text-white'
 					}`}
 				>
 					{busy ? 'Logging out…' : 'Log out'}
@@ -116,6 +152,68 @@ function LogOutSheet({ visible, busy, onConfirm, onCancel }) {
 	);
 }
 
+/**
+ * Account deletion confirm. No frame — it follows the log out sheet. Required
+ * once people can create an account in the app (App Store guideline 5.1.1(v)).
+ */
+function DeleteAccountSheet({ visible, busy, error, onConfirm, onCancel }) {
+	return (
+		<Sheet visible={visible} onClose={onCancel} dismissable={!busy}>
+			<Text className="font-inter-bold text-[20px] leading-[29px] text-ink">
+				Delete your account?
+			</Text>
+
+			<View className="h-2.5" />
+
+			<Text className="w-full font-inter text-[14px] leading-[20.3px] text-ink-muted">
+				Your account and everything saved to it are deleted straight away. This
+				can&rsquo;t be undone.
+			</Text>
+
+			{error ? (
+				<>
+					<View className="h-3.5" />
+					<Text
+						accessibilityRole="alert"
+						className="w-full font-inter-semibold text-[13px] leading-[18.2px] text-danger"
+					>
+						{error}
+					</Text>
+				</>
+			) : null}
+
+			<View className="h-5" />
+
+			<Pressable
+				accessibilityRole="button"
+				accessibilityState={{ disabled: busy, busy }}
+				disabled={busy}
+				onPress={onConfirm}
+				className={`w-full items-center justify-center overflow-hidden rounded-control p-4 ${
+					busy ? 'bg-hairline' : 'bg-danger active:opacity-85'
+				}`}
+			>
+				<Text
+					className={`font-inter-bold text-[16px] ${busy ? 'text-ink-faint' : 'text-white'}`}
+				>
+					{busy ? 'Deleting…' : 'Delete account'}
+				</Text>
+			</Pressable>
+
+			<View className="h-2.5" />
+
+			<Pressable
+				accessibilityRole="button"
+				disabled={busy}
+				onPress={onCancel}
+				className="w-full items-center justify-center overflow-hidden rounded-control border border-hairline bg-white p-4 active:opacity-80"
+			>
+				<Text className="font-inter-semibold text-[16px] text-ink">Keep my account</Text>
+			</Pressable>
+		</Sheet>
+	);
+}
+
 export default function SettingsScreen() {
 	const insets = useSafeAreaInsets();
 	const router = useRouter();
@@ -124,6 +222,9 @@ export default function SettingsScreen() {
 
 	const [confirming, setConfirming] = useState(false);
 	const [busy, setBusy] = useState(false);
+	const [deleting, setDeleting] = useState(false);
+	const [deleteBusy, setDeleteBusy] = useState(false);
+	const [deleteError, setDeleteError] = useState(null);
 
 	if (!authLoaded || !userLoaded) return null;
 	if (!isSignedIn) return <Redirect href="/login" />;
@@ -145,6 +246,24 @@ export default function SettingsScreen() {
 			// Keep them on the sheet with the button live rather than stranding
 			// them in a half-signed-out state.
 			setBusy(false);
+		}
+	}
+
+	async function handleDelete() {
+		setDeleteBusy(true);
+		setDeleteError(null);
+		try {
+			await user.delete();
+			await cancelDailyReminder();
+			router.replace('/');
+		} catch (error) {
+			// e.g. self-deletion is switched off in the Clerk dashboard, or Clerk
+			// wants the password confirmed again first.
+			setDeleteError(
+				error?.errors?.[0]?.longMessage ??
+					"Couldn't delete your account. Check your connection and try again.",
+			);
+			setDeleteBusy(false);
 		}
 	}
 
@@ -198,6 +317,10 @@ export default function SettingsScreen() {
 					<Row label="Change password" onPress={() => {}} />
 				</Section>
 
+				<Section title="PRIVACY">
+					<AiSummariesRow />
+				</Section>
+
 				<View className="flex-1" />
 
 				<Pressable
@@ -209,6 +332,19 @@ export default function SettingsScreen() {
 						Log out
 					</Text>
 				</Pressable>
+
+				<Pressable
+					accessibilityRole="button"
+					onPress={() => {
+						setDeleteError(null);
+						setDeleting(true);
+					}}
+					className="w-full items-center justify-center overflow-hidden rounded-control border border-danger bg-white px-4 py-3.75 active:opacity-80"
+				>
+					<Text className="font-inter-semibold text-[15px] text-danger">
+						Delete account
+					</Text>
+				</Pressable>
 			</ScrollView>
 
 			<LogOutSheet
@@ -216,6 +352,14 @@ export default function SettingsScreen() {
 				busy={busy}
 				onConfirm={handleLogOut}
 				onCancel={() => setConfirming(false)}
+			/>
+
+			<DeleteAccountSheet
+				visible={deleting}
+				busy={deleteBusy}
+				error={deleteError}
+				onConfirm={handleDelete}
+				onCancel={() => setDeleting(false)}
 			/>
 		</View>
 	);

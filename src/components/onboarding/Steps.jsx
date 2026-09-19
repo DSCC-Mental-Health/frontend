@@ -1,35 +1,25 @@
+import PrivacyPanels from '@/components/PrivacyPanels';
 import {
 	ALWAYS_ON_TOOL,
 	COPING,
-	EXAMPLE_INSIGHTS,
 	MOODS,
-	PRIVACY_PANELS,
 	REACH_OUT,
+	REMINDER_PROBLEMS,
 	REMINDERS,
 	STEPS,
 } from '@/data/onboarding';
+import { findTool } from '@/data/tools';
 import { Text, View } from 'react-native';
 import Chrome from './Chrome';
 import { InfoCard, OptionCard, OptionRow } from './Options';
 
-const PANEL_BG = {
-	sand: 'bg-avatar',
-	teal: 'bg-insight',
-	white: 'bg-white',
-};
-
-const PANEL_TITLE = {
-	sand: 'text-ink',
-	teal: 'text-insight-ink',
-	white: 'text-ink',
-};
-
-/** I1 Welcome (16:2) — no progress bar, larger title, footnote under the CTA. */
+/** I1 Welcome (16:2) — no progress bar or back link, larger title, footnote under the CTA. */
 export function Welcome({ step, onNext }) {
 	return (
 		<Chrome
 			progress={step.progress}
-			topSpace={80}
+			topSpace={24}
+			rings={112}
 			contentSpace={14}
 			title={step.title}
 			titleClassName="font-inter-bold text-[34px] leading-[47.6px] text-ink"
@@ -51,50 +41,26 @@ export function Welcome({ step, onNext }) {
 }
 
 /** I2 Privacy (16:12) — three tinted panels. */
-export function Privacy({ step, onNext }) {
+export function Privacy({ step, onNext, onBack }) {
 	return (
-		<Chrome progress={step.progress} title={step.title} cta={step.cta} onPress={onNext}>
-			<View className="w-full gap-3">
-				{PRIVACY_PANELS.map((panel) => (
-					<View
-						key={panel.title}
-						className={`w-full gap-2 overflow-hidden rounded-control px-4 py-3.75 ${PANEL_BG[panel.tone]}`}
-					>
-						<Text
-							className={`w-full font-inter-semibold text-[14px] ${PANEL_TITLE[panel.tone]}`}
-						>
-							{panel.title}
-						</Text>
-						{panel.body ? (
-							<Text className="w-full font-inter text-[14px] leading-[19.88px] text-ink-muted">
-								{panel.body}
-							</Text>
-						) : null}
-						{panel.lines?.map((line) => (
-							<Text
-								key={line}
-								className="w-full font-inter text-[14px] leading-[19.88px] text-ink-muted"
-							>
-								{line}
-							</Text>
-						))}
-						{panel.note ? (
-							<Text className="w-full font-inter-medium text-[12px] leading-[17.4px] text-ink">
-								{panel.note}
-							</Text>
-						) : null}
-					</View>
-				))}
-			</View>
+		<Chrome
+			progress={step.progress}
+			onBack={onBack}
+			title={step.title}
+			cta={step.cta}
+			onPress={onNext}
+		>
+			<PrivacyPanels />
 		</Chrome>
 	);
 }
 
 /** I3 Notice (16:34) — single-select mood. */
-export function Notice({ step, answers, setAnswer, onNext }) {
+export function Notice({ step, answers, setAnswer, onNext, onBack }) {
 	return (
 		<Chrome
 			progress={step.progress}
+			onBack={onBack}
 			eyebrow={step.eyebrow}
 			title={step.title}
 			body={step.body}
@@ -102,7 +68,7 @@ export function Notice({ step, answers, setAnswer, onNext }) {
 			cta={step.cta}
 			onPress={onNext}
 		>
-			<View className="w-full gap-2.5">
+			<View accessibilityRole="radiogroup" className="w-full gap-2.5">
 				{MOODS.map((mood) => (
 					<OptionRow
 						key={mood}
@@ -116,29 +82,8 @@ export function Notice({ step, answers, setAnswer, onNext }) {
 	);
 }
 
-/** I4 Understand (16:58) — example insight cards, nothing to pick. */
-export function Understand({ step, onNext }) {
-	return (
-		<Chrome
-			progress={step.progress}
-			eyebrow={step.eyebrow}
-			title={step.title}
-			body={step.body}
-			footnote={step.footnote}
-			cta={step.cta}
-			onPress={onNext}
-		>
-			<View className="w-full gap-3">
-				{EXAMPLE_INSIGHTS.map((insight, i) => (
-					<InfoCard key={i} title={insight.title} body={insight.body} />
-				))}
-			</View>
-		</Chrome>
-	);
-}
-
-/** I5 Cope (17:2) — multi-select; drives the I8 summary. */
-export function Cope({ step, answers, setAnswer, onNext }) {
+/** I5 Cope (17:2) — multi-select; drives the I8 summary and the home screen tools. */
+export function Cope({ step, answers, setAnswer, onNext, onBack }) {
 	function toggle(id) {
 		const next = answers.coping.includes(id)
 			? answers.coping.filter((c) => c !== id)
@@ -149,6 +94,7 @@ export function Cope({ step, answers, setAnswer, onNext }) {
 	return (
 		<Chrome
 			progress={step.progress}
+			onBack={onBack}
 			eyebrow={step.eyebrow}
 			title={step.title}
 			body={step.body}
@@ -161,6 +107,7 @@ export function Cope({ step, answers, setAnswer, onNext }) {
 					<OptionRow
 						key={option.id}
 						label={option.label}
+						role="checkbox"
 						selected={answers.coping.includes(option.id)}
 						onPress={() => toggle(option.id)}
 					/>
@@ -171,10 +118,11 @@ export function Cope({ step, answers, setAnswer, onNext }) {
 }
 
 /** I6 Reach Out (17:26) — single-select card. */
-export function ReachOut({ step, answers, setAnswer, onNext }) {
+export function ReachOut({ step, answers, setAnswer, onNext, onBack }) {
 	return (
 		<Chrome
 			progress={step.progress}
+			onBack={onBack}
 			eyebrow={step.eyebrow}
 			title={step.title}
 			body={step.body}
@@ -182,7 +130,7 @@ export function ReachOut({ step, answers, setAnswer, onNext }) {
 			cta={step.cta}
 			onPress={onNext}
 		>
-			<View className="w-full gap-3">
+			<View accessibilityRole="radiogroup" className="w-full gap-3">
 				{REACH_OUT.map((option) => (
 					<OptionCard
 						key={option.id}
@@ -197,23 +145,30 @@ export function ReachOut({ step, answers, setAnswer, onNext }) {
 	);
 }
 
-/** I7 Reminder (17:48) — single-select time; drives the I8 closing line. */
-export function Reminder({ step, answers, setAnswer, onNext }) {
+/**
+ * I7 Reminder (17:48) — single-select time. Continue asks for notification
+ * permission and schedules it (see onboarding.jsx), so `busy` covers that wait.
+ */
+export function Reminder({ step, answers, setAnswer, onNext, onBack, busy }) {
 	return (
 		<Chrome
 			progress={step.progress}
+			onBack={onBack}
 			title={step.title}
 			body={step.body}
-			cta={step.cta}
+			cta={busy ? 'Setting reminder…' : step.cta}
+			ctaDisabled={busy}
 			onPress={onNext}
 		>
-			<View className="w-full gap-2.5">
+			<View accessibilityRole="radiogroup" className="w-full gap-2.5">
 				{REMINDERS.map((option) => (
 					<OptionRow
 						key={option.id}
 						label={option.label}
 						selected={answers.reminder === option.id}
-						onPress={() => setAnswer('reminder', option.id)}
+						onPress={() =>
+							setAnswer('reminder', answers.reminder === option.id ? null : option.id)
+						}
 					/>
 				))}
 			</View>
@@ -222,27 +177,39 @@ export function Reminder({ step, answers, setAnswer, onNext }) {
 }
 
 /** I8 Ready (17:68) — summarises the picks; amber CTA into the dashboard. */
-export function Ready({ step, answers, onNext, busy }) {
+export function Ready({ step, answers, onNext, onBack, busy, error }) {
 	const picked = COPING.filter((c) => answers.coping.includes(c.id));
 	const reminder = REMINDERS.find((r) => r.id === answers.reminder);
+
+	// Only claim the reminder is set if it actually was.
+	let reminderLine = null;
+	if (reminder) {
+		reminderLine =
+			answers.reminderStatus === 'scheduled'
+				? reminder.summary
+				: REMINDER_PROBLEMS[answers.reminderStatus] ?? REMINDER_PROBLEMS.unavailable;
+	}
 
 	return (
 		<Chrome
 			progress={step.progress}
+			onBack={busy ? undefined : onBack}
+			rings={64}
 			title={step.title}
 			titleClassName="font-inter-bold text-[28px] leading-[39.2px] text-ink"
 			body={step.body}
-			footnote={reminder?.summary}
+			footnote={reminderLine}
 			cta={busy ? 'Setting up…' : step.cta}
 			ctaTone="warn"
 			ctaDisabled={busy}
+			ctaError={error}
 			onPress={onNext}
 		>
 			<View className="w-full gap-2.5">
 				{picked.map((option) => (
 					<InfoCard
 						key={option.id}
-						title={option.tool}
+						title={findTool(option.toolId)?.name}
 						body={`From "${option.label.toLowerCase()}"`}
 					/>
 				))}
@@ -253,15 +220,6 @@ export function Ready({ step, answers, onNext, busy }) {
 }
 
 /** Ordered to match STEPS in src/data/onboarding.js. */
-export const STEP_COMPONENTS = [
-	Welcome,
-	Privacy,
-	Notice,
-	Understand,
-	Cope,
-	ReachOut,
-	Reminder,
-	Ready,
-];
+export const STEP_COMPONENTS = [Welcome, Privacy, Notice, Cope, ReachOut, Reminder, Ready];
 
 export { STEPS };

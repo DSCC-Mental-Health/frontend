@@ -1,55 +1,210 @@
-import { Spacing } from '@/constants/theme';
-import { Image } from 'expo-image';
+import AuthScreen, { ErrorBanner, SubmitButton, TextLink } from '@/components/auth/AuthScreen';
+import { fieldError, formError } from '@/components/auth/errors';
+import Field from '@/components/auth/Field';
+import { useSignIn } from '@clerk/expo';
 import { useRouter } from 'expo-router';
-import { Pressable, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRef, useState } from 'react';
+import { Text, View } from 'react-native';
 
-const backIcon = require('@/assets/images/back.svg');
+const FALLBACK = "Couldn't reset your password. Check the details and try again.";
 
 /**
- * Placeholder — there is no Figma frame for this screen yet. It exists so the
- * link on the log in screen navigates somewhere instead of dead-ending.
+ * Password reset — no Figma frame yet, so it reuses the W1 log in layout.
+ *
+ * Clerk's email-code reset: start a sign-in for the address, email a code,
+ * verify it, then set the new password, which also logs them in.
  */
 export default function ForgotPasswordScreen() {
-	const insets = useSafeAreaInsets();
 	const router = useRouter();
+	const { signIn, errors, fetchStatus } = useSignIn();
+
+	const passwordRef = useRef(null);
+	const [step, setStep] = useState('email');
+	const [email, setEmail] = useState('');
+	const [code, setCode] = useState('');
+	const [password, setPassword] = useState('');
+	// A verified code can't be verified twice, so a rejected new password
+	// retries only the password step.
+	const [codeVerified, setCodeVerified] = useState(false);
+	const [failure, setFailure] = useState(null);
+	const [resent, setResent] = useState(false);
+
+	const busy = fetchStatus === 'fetching';
+	const shown = failure?.clerk ? errors : null;
+
+	function edit(setter) {
+		return (value) => {
+			setter(value);
+			setFailure(null);
+		};
+	}
+
+	async function sendCode() {
+		if (busy) return;
+		setFailure(null);
+
+		const { error } = await signIn.create({ identifier: email.trim() });
+		if (error) return setFailure({ clerk: error });
+
+		const { error: sendError } = await signIn.resetPasswordEmailCode.sendCode();
+		if (sendError) return setFailure({ clerk: sendError });
+
+		setStep('reset');
+	}
+
+	async function resend() {
+		setFailure(null);
+		const { error } = await signIn.resetPasswordEmailCode.sendCode();
+		if (error) return setFailure({ clerk: error });
+		setResent(true);
+	}
+
+	async function reset() {
+		if (busy) return;
+		setFailure(null);
+
+		if (!codeVerified) {
+			const { error } = await signIn.resetPasswordEmailCode.verifyCode({
+				code: code.trim(),
+			});
+			if (error) return setFailure({ clerk: error });
+			setCodeVerified(true);
+		}
+
+		const { error } = await signIn.resetPasswordEmailCode.submitPassword({ password });
+		if (error) return setFailure({ clerk: error });
+
+		if (signIn.status !== 'complete') {
+			return setFailure({ message: 'One more step is needed to finish logging in.' });
+		}
+
+		const { error: finalizeError } = await signIn.finalize();
+		if (finalizeError) return setFailure({ clerk: finalizeError });
+
+		router.replace('/home');
+	}
+
+	if (step === 'reset') {
+		const codeError = fieldError(shown, 'code');
+		const passwordError = fieldError(shown, 'password');
+		const banner = failure
+			? (failure.message ??
+				formError(shown, ['code', 'password'], failure.clerk, FALLBACK))
+			: null;
+
+		return (
+			<AuthScreen
+				onBack={() => {
+					setStep('email');
+					setCodeVerified(false);
+					setFailure(null);
+				}}
+				title="Check your email"
+				body={`Enter the 6-digit code sent to ${email.trim()}, then choose a new password.`}
+			>
+				{codeVerified ? null : (
+					<>
+						<Field
+							label="Code"
+							value={code}
+							onChangeText={edit(setCode)}
+							error={codeError}
+							placeholder="123456"
+							keyboardType="number-pad"
+							autoComplete="one-time-code"
+							textContentType="oneTimeCode"
+							maxLength={6}
+							returnKeyType="next"
+							submitBehavior="submit"
+							onSubmitEditing={() => passwordRef.current?.focus()}
+						/>
+
+						<View className="h-3.5" />
+
+						<View className="w-full flex-row items-center gap-2">
+							<TextLink label="Send a new code" onPress={resend} />
+							{resent ? (
+								<Text className="font-inter text-[13px] text-ink-muted">Sent.</Text>
+							) : null}
+						</View>
+
+						<View className="h-4.5" />
+					</>
+				)}
+
+				<Field
+					ref={passwordRef}
+					label="New password"
+					secure
+					value={password}
+					onChangeText={edit(setPassword)}
+					error={passwordError}
+					placeholder="At least 8 characters"
+					autoComplete="new-password"
+					textContentType="newPassword"
+					returnKeyType="go"
+					onSubmitEditing={reset}
+				/>
+
+				{banner ? (
+					<>
+						<View className="h-2.5" />
+						<ErrorBanner message={banner} />
+					</>
+				) : null}
+
+				<View className="h-6.5" />
+
+				<SubmitButton
+					label="Reset password"
+					busyLabel="Resetting…"
+					busy={busy}
+					disabled={(!codeVerified && code.trim().length < 6) || !password}
+					onPress={reset}
+				/>
+			</AuthScreen>
+		);
+	}
+
+	const emailError = fieldError(shown, 'identifier');
+	const banner = failure
+		? (failure.message ?? formError(shown, ['identifier'], failure.clerk, FALLBACK))
+		: null;
 
 	return (
-		<View
-			className="flex-1 bg-aura-outer px-6.5"
-			style={{
-				paddingTop: Math.max(54, insets.top + Spacing.two),
-				paddingBottom: Math.max(24, insets.bottom + Spacing.two),
-			}}
+		<AuthScreen
+			title="Reset your password"
+			body="Enter the email you log in with and a 6-digit code will be sent to it."
 		>
-			<View className="w-full flex-row">
-				<Pressable
-					accessibilityRole="button"
-					accessibilityLabel="Go back"
-					onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-					hitSlop={12}
-					className="active:opacity-60"
-				>
-					<Image
-						source={backIcon}
-						style={{ width: 24, height: 24 }}
-						contentFit="contain"
-						accessibilityIgnoresInvertColors
-					/>
-				</Pressable>
-			</View>
+			<Field
+				label="Email"
+				value={email}
+				onChangeText={edit(setEmail)}
+				error={emailError}
+				placeholder="you@example.com"
+				keyboardType="email-address"
+				autoComplete="email"
+				textContentType="emailAddress"
+				returnKeyType="go"
+				onSubmitEditing={sendCode}
+			/>
+
+			{banner ? (
+				<>
+					<View className="h-2.5" />
+					<ErrorBanner message={banner} />
+				</>
+			) : null}
 
 			<View className="h-6.5" />
 
-			<Text className="font-inter-bold text-[28px] leading-[35.28px] text-ink">
-				Reset your password
-			</Text>
-
-			<View className="h-2" />
-
-			<Text className="font-inter text-[14px] leading-[20.44px] text-ink-muted">
-				Enter the email you signed up with and we'll send you a reset link.
-			</Text>
-		</View>
+			<SubmitButton
+				label="Send code"
+				busyLabel="Sending…"
+				busy={busy}
+				disabled={!email.trim()}
+				onPress={sendCode}
+			/>
+		</AuthScreen>
 	);
 }
