@@ -1,9 +1,10 @@
 import ToolIcon from '@/components/ToolIcon';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import { TOOL_SECTIONS } from '@/data/tools';
 import { useRouter } from 'expo-router';
 import { Fragment } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const GUTTER = 20;
 
@@ -38,18 +39,14 @@ function ToolCard({ tool, onPress }) {
 
 /** Tools — "N1 Tools library" (node 31:2). */
 export default function ToolsScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding();
 	const router = useRouter();
 
 	return (
 		<View className="flex-1 bg-aura-outer">
 			<View
 				className="w-full"
-				style={{
-					paddingTop: Math.max(56, insets.top + 12),
-					paddingHorizontal: GUTTER,
-					paddingBottom: 12,
-				}}
+				style={{ ...padding, paddingHorizontal: GUTTER, paddingBottom: 12 }}
 			>
 				<Text accessibilityRole="header" className="w-full font-inter-bold text-[26px] text-ink">
 					Tools
@@ -106,17 +103,13 @@ export default function ToolsScreen() {
 
 				<View className="h-2" />
 
-				<Pressable
-					accessibilityRole="link"
+				<TextButton
+					label="Go to Support"
+					variant="linkStrong"
+					role="link"
 					onPress={() => router.push('/support')}
-					// 13pt text is ~16pt tall; 14 either side reaches 44pt.
-					hitSlop={14}
-					className="self-start active:opacity-60"
-				>
-					<Text className="font-inter-semibold text-[13px] text-accent-text">
-						Go to Support
-					</Text>
-				</Pressable>
+					className="self-start"
+				/>
 			</ScrollView>
 		</View>
 	);

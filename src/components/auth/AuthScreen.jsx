@@ -1,3 +1,5 @@
+import Button from '@/components/ui/Button';
+import TextButton from '@/components/ui/TextButton';
 import { Spacing } from '@/constants/theme';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -108,18 +110,9 @@ export function AuthFooter({ prompt, action, onPress }) {
 	);
 }
 
-/** Inline orange link, with enough slop around 13pt text to reach 44pt. */
+/** Inline orange link ("Forgot password?", "Create an account"). */
 export function TextLink({ label, onPress }) {
-	return (
-		<Pressable
-			accessibilityRole="button"
-			onPress={onPress}
-			hitSlop={14}
-			className="active:opacity-60"
-		>
-			<Text className="font-inter-semibold text-[13px] text-accent-text">{label}</Text>
-		</Pressable>
-	);
+	return <TextButton label={label} variant="linkStrong" onPress={onPress} />;
 }
 
 /** Errors that don't belong to one field, e.g. "Too many attempts". */
@@ -137,28 +130,16 @@ export function ErrorBanner({ message }) {
 	);
 }
 
-/** The full-width orange action at the bottom of each form. */
+/** The full-width orange action at the bottom of each form (W1's 13px corners). */
 export function SubmitButton({ label, busyLabel, busy, disabled, onPress }) {
-	const live = !disabled && !busy;
-
 	return (
-		<Pressable
-			accessibilityRole="button"
-			accessibilityState={{ disabled: !live, busy }}
-			disabled={!live}
+		<Button
+			label={label}
+			busyLabel={busyLabel}
+			busy={busy}
+			disabled={disabled}
 			onPress={onPress}
-			className={`w-full items-center justify-center overflow-hidden rounded-button py-4 ${
-				live ? 'bg-accent active:opacity-85' : 'bg-hairline'
-			}`}
-		>
-			{/* Bold: white on the brand orange (3.5:1) only passes as bold text. */}
-			<Text
-				className={`text-[16px] ${
-					live ? 'font-inter-bold text-white' : 'font-inter-semibold text-ink-faint'
-				}`}
-			>
-				{busy ? busyLabel : label}
-			</Text>
-		</Pressable>
+			radius="button"
+		/>
 	);
 }

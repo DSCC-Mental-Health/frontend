@@ -1,10 +1,12 @@
+import Button from '@/components/ui/Button';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import { GROUNDING_STEPS } from '@/data/tools';
 import { useAuth } from '@clerk/expo';
 import { Image } from 'expo-image';
 import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const breathingRings = require('@/assets/images/breathing-rings.svg');
 
@@ -38,34 +40,12 @@ function NamedRow({ ticked, onPress }) {
 	);
 }
 
-/** Header text button, sized to a 44pt target. */
-function HeaderButton({ label, onPress, a11yLabel }) {
-	return (
-		<Pressable
-			accessibilityRole="button"
-			accessibilityLabel={a11yLabel}
-			onPress={onPress}
-			// 14pt text is ~17pt tall; 14 either side reaches 44pt.
-			hitSlop={14}
-			className="active:opacity-60"
-		>
-			<Text className="font-inter-medium text-[14px] text-ink-muted">{label}</Text>
-		</Pressable>
-	);
-}
-
 /** Shown after step 5, so finishing is a moment rather than the screen vanishing. */
 function Finished({ onDone }) {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ top: 80, topGap: 36, bottom: 40, bottomGap: 16 });
 
 	return (
-		<View
-			className="flex-1 bg-aura-outer px-6"
-			style={{
-				paddingTop: Math.max(80, insets.top + 36),
-				paddingBottom: Math.max(40, insets.bottom + 16),
-			}}
-		>
+		<View className="flex-1 bg-aura-outer px-6" style={padding}>
 			<Image
 				source={breathingRings}
 				style={{ width: 56, height: 56 }}
@@ -85,14 +65,7 @@ function Finished({ onDone }) {
 				this any time.
 			</Text>
 			<View className="flex-1" />
-			<Pressable
-				accessibilityRole="button"
-				onPress={onDone}
-				className="w-full items-center justify-center overflow-hidden rounded-control bg-calm py-3.75 active:opacity-85"
-			>
-				{/* Bold: white on teal is 4.0:1, which passes only as bold text. */}
-				<Text className="font-inter-bold text-[15px] text-white">Close</Text>
-			</Pressable>
+			<Button label="Close" tone="calm" size="md" onPress={onDone} />
 		</View>
 	);
 }
@@ -104,7 +77,7 @@ function Finished({ onDone }) {
  * at your own pace." — and Back returns to the previous step.
  */
 export default function GroundingScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ bottom: 40, bottomGap: 16 });
 	const router = useRouter();
 	const { isLoaded, isSignedIn } = useAuth();
 
@@ -142,21 +115,15 @@ export default function GroundingScreen() {
 	}
 
 	return (
-		<View
-			className="flex-1 bg-aura-outer"
-			style={{
-				paddingTop: Math.max(56, insets.top + 12),
-				paddingBottom: Math.max(40, insets.bottom + 16),
-			}}
-		>
+		<View className="flex-1 bg-aura-outer" style={padding}>
 			<View className="w-full px-6">
 				<View className="w-full flex-row items-center justify-between">
-					<HeaderButton label="Close" onPress={close} />
+					<TextButton label="Close" onPress={close} />
 					<View className="flex-row items-center gap-4">
 						{stepIndex > 0 ? (
-							<HeaderButton
+							<TextButton
 								label="Back"
-								a11yLabel="Back to the previous step"
+								accessibilityLabel="Back to the previous step"
 								onPress={() => goTo(stepIndex - 1)}
 							/>
 						) : null}
@@ -226,15 +193,7 @@ export default function GroundingScreen() {
 			</ScrollView>
 
 			<View className="w-full px-6">
-				<Pressable
-					accessibilityRole="button"
-					onPress={next}
-					className="w-full items-center justify-center overflow-hidden rounded-control bg-calm py-3.75 active:opacity-85"
-				>
-					<Text className="font-inter-bold text-[15px] text-white">
-						{isLast ? 'Finish' : 'Next'}
-					</Text>
-				</Pressable>
+				<Button label={isLast ? 'Finish' : 'Next'} tone="calm" size="md" onPress={next} />
 
 				<View className="h-2.5" />
 

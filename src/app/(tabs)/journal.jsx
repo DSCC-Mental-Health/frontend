@@ -1,4 +1,7 @@
 import MoodMark from '@/components/MoodMark';
+import Button from '@/components/ui/Button';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import { MOODS } from '@/data/check-in-prompts';
 import { describe, onDay, useCheckins } from '@/data/checkin-store';
 import { dayKey } from '@/data/dates';
@@ -13,7 +16,6 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
  * Mood filter chips (node 28:9). The frame had no "Okay" chip; it now uses the
@@ -93,16 +95,12 @@ function EntryCard({ entry, onPress }) {
 
 /** M2 Journal empty (node 27:82). */
 function Empty({ onWrite }) {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding();
 
 	return (
 		<View
 			className="flex-1 bg-aura-outer"
-			style={{
-				paddingTop: Math.max(56, insets.top + 12),
-				paddingHorizontal: GUTTER,
-				paddingBottom: 16,
-			}}
+			style={{ ...padding, paddingHorizontal: GUTTER, paddingBottom: 16 }}
 		>
 			<Text accessibilityRole="header" className="font-inter-bold text-[26px] text-ink">
 				Journal
@@ -136,15 +134,7 @@ function Empty({ onWrite }) {
 
 			<View className="flex-1" />
 
-			<Pressable
-				accessibilityRole="button"
-				onPress={onWrite}
-				className="w-full items-center justify-center overflow-hidden rounded-control bg-accent py-3.75 active:opacity-85"
-			>
-				<Text className="font-inter-bold text-[15px] text-white">
-					Write your first entry
-				</Text>
-			</Pressable>
+			<Button label="Write your first entry" size="md" onPress={onWrite} />
 		</View>
 	);
 }
@@ -166,7 +156,7 @@ function emptyMessage(filter, dayDate, dayCheckins, query) {
 
 /** Journal — "M1 Journal list" (node 28:2), or M2 when there are no entries. */
 export default function JournalScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding();
 	const router = useRouter();
 	const entries = useJournal();
 	const checkins = useCheckins();
@@ -193,26 +183,17 @@ export default function JournalScreen() {
 		<View className="flex-1 bg-aura-outer">
 			<View
 				className="w-full"
-				style={{
-					paddingTop: Math.max(56, insets.top + 12),
-					paddingHorizontal: GUTTER,
-					paddingBottom: 14,
-				}}
+				style={{ ...padding, paddingHorizontal: GUTTER, paddingBottom: 14 }}
 			>
 				<View className="w-full flex-row items-center justify-between">
 					<Text accessibilityRole="header" className="font-inter-bold text-[26px] text-ink">
 						Journal
 					</Text>
 					{/* No search frame: a field under the title that filters as you type. */}
-					<Pressable
-						accessibilityRole="button"
+					<TextButton
+						label={query === null ? 'Search' : 'Done'}
 						onPress={() => setQuery(query === null ? '' : null)}
-						hitSlop={14}
-					>
-						<Text className="font-inter-medium text-[14px] text-ink-muted">
-							{query === null ? 'Search' : 'Done'}
-						</Text>
-					</Pressable>
+					/>
 				</View>
 
 				{query === null ? null : (
@@ -277,15 +258,11 @@ export default function JournalScreen() {
 							<Text className="flex-1 font-inter-semibold text-[13px] text-ink">
 								Showing {dayLabel(dayDate)}
 							</Text>
-							<Pressable
-								accessibilityRole="button"
+							<TextButton
+								label="Show all days"
+								variant="linkStrong"
 								onPress={() => router.setParams({ day: undefined })}
-								hitSlop={14}
-							>
-								<Text className="font-inter-semibold text-[13px] text-accent-text">
-									Show all days
-								</Text>
-							</Pressable>
+							/>
 						</View>
 					</>
 				) : null}
@@ -337,15 +314,7 @@ export default function JournalScreen() {
 				className="w-full bg-aura-outer"
 				style={{ paddingHorizontal: GUTTER, paddingTop: 10, paddingBottom: 12 }}
 			>
-				<Pressable
-					accessibilityRole="button"
-					onPress={write}
-					className="w-full items-center justify-center overflow-hidden rounded-control bg-accent py-3.75 active:opacity-85"
-				>
-					<Text className="font-inter-bold text-[15px] text-white">
-						Write something
-					</Text>
-				</Pressable>
+				<Button label="Write something" size="md" onPress={write} />
 			</View>
 		</View>
 	);

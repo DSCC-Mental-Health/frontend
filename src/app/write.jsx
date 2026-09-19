@@ -1,4 +1,7 @@
 import DiscardSheet from '@/components/DiscardSheet';
+import Eyebrow from '@/components/ui/Eyebrow';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import { PROMPTS } from '@/data/check-in-prompts';
 import { add } from '@/data/journal-store';
 import { HOME_PROMPT } from '@/data/tools';
@@ -15,7 +18,6 @@ import {
 	TextInput,
 	View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PLACEHOLDER = '#786c62';
 const GUTTER = 20;
@@ -45,7 +47,7 @@ function SuggestionRow({ label, onPress }) {
  * The Worry list and Three good things tools open it with `?prompt=` preset.
  */
 export default function WriteScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ bottom: 16, bottomGap: 8 });
 	const router = useRouter();
 	const navigation = useNavigation();
 	const { isLoaded, isSignedIn } = useAuth();
@@ -108,38 +110,13 @@ export default function WriteScreen() {
 			className="flex-1 bg-aura-outer"
 			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 		>
-			<View
-				className="flex-1"
-				style={{
-					paddingTop: Math.max(56, insets.top + 12),
-					paddingBottom: Math.max(16, insets.bottom + 8),
-				}}
-			>
+			<View className="flex-1" style={padding}>
 				<View
 					className="w-full flex-row items-center justify-between"
 					style={{ paddingHorizontal: GUTTER }}
 				>
-					{/* 14pt text is ~17pt tall; 14 either side reaches 44pt. */}
-					<Pressable accessibilityRole="button" onPress={cancel} hitSlop={14}>
-						<Text className="font-inter-medium text-[14px] text-ink-muted">Cancel</Text>
-					</Pressable>
-					<Pressable
-						accessibilityRole="button"
-						accessibilityState={{ disabled: !canSave }}
-						disabled={!canSave}
-						onPress={save}
-						hitSlop={14}
-					>
-						<Text
-							className={
-								canSave
-									? 'font-inter-semibold text-[14px] text-accent-text'
-									: 'font-inter-medium text-[14px] text-ink-faint'
-							}
-						>
-							Save
-						</Text>
-					</Pressable>
+					<TextButton label="Cancel" onPress={cancel} />
+					<TextButton label="Save" variant="navStrong" disabled={!canSave} onPress={save} />
 				</View>
 
 				<ScrollView
@@ -170,17 +147,13 @@ export default function WriteScreen() {
 						<>
 							<View className="w-full gap-1.5 overflow-hidden rounded-control bg-avatar px-4 py-3.5">
 								<View className="w-full flex-row items-center justify-between">
-									<Text className="font-inter-semibold text-[11px] tracking-[0.8px] text-ink-faint">
-										A QUESTION FOR YOU
-									</Text>
-									<Pressable
-										accessibilityRole="button"
+									<Eyebrow>A QUESTION FOR YOU</Eyebrow>
+									<TextButton
+										label="Clear"
+										variant="small"
 										accessibilityLabel="Remove question"
 										onPress={() => setPrompt(null)}
-										hitSlop={14}
-									>
-										<Text className="font-inter-medium text-[12px] text-ink-muted">Clear</Text>
-									</Pressable>
+									/>
 								</View>
 								<Text className="w-full font-inter-medium text-[14px] leading-[20.3px] text-ink">
 									{prompt}

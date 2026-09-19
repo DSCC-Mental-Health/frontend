@@ -1,3 +1,6 @@
+import Button from '@/components/ui/Button';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import { BREATHING } from '@/data/tools';
 import { keepAwake, lightTap, releaseAwake } from '@/lib/device';
 import { useAuth } from '@clerk/expo';
@@ -8,13 +11,11 @@ import {
 	AccessibilityInfo,
 	Animated,
 	Easing,
-	Pressable,
 	ScrollView,
 	Text,
 	useWindowDimensions,
 	View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // 240/180/124px (nodes 33:8–33:10) aren't on Tailwind v3's spacing scale.
 const OUTER_RING = 240;
@@ -70,7 +71,7 @@ function useReduceMotion() {
  * is announced to VoiceOver and, if on, marked with one light vibration.
  */
 export default function BreatheScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ bottom: 40, bottomGap: 16 });
 	const router = useRouter();
 	const { fontScale } = useWindowDimensions();
 	const { isLoaded, isSignedIn } = useAuth();
@@ -176,37 +177,20 @@ export default function BreatheScreen() {
 			<ScrollView
 				className="flex-1"
 				showsVerticalScrollIndicator={false}
-				contentContainerStyle={{
-					flexGrow: 1,
-					paddingHorizontal: 24,
-					paddingTop: Math.max(56, insets.top + 12),
-					paddingBottom: Math.max(40, insets.bottom + 16),
-				}}
+				contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, ...padding }}
 			>
 				<View className="w-full flex-row items-center justify-between">
-					<Pressable
-						accessibilityRole="button"
-						onPress={close}
-						// 14pt text is ~17pt tall; 14 either side reaches 44pt.
-						hitSlop={14}
-						className="active:opacity-60"
-					>
-						<Text className="font-inter-medium text-[14px] text-white">Close</Text>
-					</Pressable>
+					<TextButton label="Close" variant="navLight" onPress={close} />
 					{/* Replaces the frame's static "Sound off": the player is always silent,
 					    so the one real choice is whether phase changes vibrate. */}
-					<Pressable
-						accessibilityRole="switch"
+					<TextButton
+						label={`Vibrate: ${vibrate ? 'On' : 'Off'}`}
+						variant="navLight"
+						role="switch"
 						accessibilityLabel="Vibrate on each phase"
 						accessibilityState={{ checked: vibrate }}
 						onPress={toggleVibrate}
-						hitSlop={14}
-						className="active:opacity-60"
-					>
-						<Text className="font-inter-medium text-[14px] text-white">
-							Vibrate: {vibrate ? 'On' : 'Off'}
-						</Text>
-					</Pressable>
+					/>
 				</View>
 
 				<View className="min-h-8 flex-1" />
@@ -282,15 +266,12 @@ export default function BreatheScreen() {
 
 				<View className="min-h-8 flex-1" />
 
-				<Pressable
-					accessibilityRole="button"
+				<Button
+					label={done ? 'Finish' : running ? 'Pause' : 'Resume'}
+					tone="onDark"
+					size="md"
 					onPress={done ? close : () => setRunning((r) => !r)}
-					className="w-full items-center justify-center overflow-hidden rounded-control border-1.5 border-breath-outline py-3.75 active:opacity-70"
-				>
-					<Text className="font-inter-semibold text-[15px] text-white">
-						{done ? 'Finish' : running ? 'Pause' : 'Resume'}
-					</Text>
-				</Pressable>
+				/>
 
 				<View className="h-2.5" />
 

@@ -1,5 +1,7 @@
+import Button from '@/components/ui/Button';
+import TextButton from '@/components/ui/TextButton';
 import { Image } from 'expo-image';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const breathingRings = require('@/assets/images/breathing-rings.svg');
@@ -48,15 +50,12 @@ export default function Chrome({
 		>
 			{onBack ? (
 				<>
-					<Pressable
-						accessibilityRole="button"
+					<TextButton
+						label="Back"
 						accessibilityLabel="Back to the previous step"
 						onPress={onBack}
-						hitSlop={14}
-						className="self-start active:opacity-60"
-					>
-						<Text className="font-inter-medium text-[14px] text-ink-muted">Back</Text>
-					</Pressable>
+						className="self-start"
+					/>
 					<View className="h-3.5" />
 				</>
 			) : null}
@@ -150,33 +149,12 @@ export default function Chrome({
 				</>
 			) : null}
 
-			<Pressable
-				accessibilityRole="button"
-				accessibilityState={{ disabled: ctaDisabled }}
+			<Button
+				label={cta}
+				tone={ctaTone === 'warn' ? 'warn' : 'primary'}
 				disabled={ctaDisabled}
 				onPress={onPress}
-				className={`w-full items-center justify-center overflow-hidden rounded-control py-4 ${
-					ctaDisabled
-						? 'bg-hairline'
-						: ctaTone === 'warn'
-							? 'bg-warn active:opacity-85'
-							: 'bg-accent active:opacity-85'
-				}`}
-			>
-				{/* Bold, not semibold: white on the brand orange is 3.5:1, which only
-				    passes the contrast minimum as bold text. */}
-				<Text
-					className={`text-[16px] ${
-						ctaDisabled
-							? 'font-inter-semibold text-ink-faint'
-							: ctaTone === 'warn'
-								? 'font-inter-semibold text-ink'
-								: 'font-inter-bold text-white'
-					}`}
-				>
-					{cta}
-				</Text>
-			</Pressable>
+			/>
 
 			{ctaFootnote ? (
 				<>

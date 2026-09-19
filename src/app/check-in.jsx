@@ -1,4 +1,8 @@
 import DiscardSheet from '@/components/DiscardSheet';
+import Button from '@/components/ui/Button';
+import Eyebrow from '@/components/ui/Eyebrow';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import {
 	FOLLOW_ON_TOOLS,
 	MAX_CHARS,
@@ -23,7 +27,6 @@ import {
 	TextInput,
 	View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const breathingRings = require('@/assets/images/breathing-rings.svg');
 
@@ -54,9 +57,7 @@ function StepDots({ step }) {
 function QuestionCard({ question }) {
 	return (
 		<View className="w-full gap-2.5 overflow-hidden rounded-prompt border border-hairline bg-white px-4.5 py-4">
-			<Text className="font-inter-semibold text-[11px] tracking-[0.8px] text-ink-faint">
-				A QUESTION FOR YOU
-			</Text>
+			<Eyebrow>A QUESTION FOR YOU</Eyebrow>
 			<Text className="w-full font-inter-semibold text-[19px] leading-[25.65px] text-ink">
 				{question}
 			</Text>
@@ -64,56 +65,15 @@ function QuestionCard({ question }) {
 	);
 }
 
-/** Secondary white button: "Next question" and the L4 tools. */
-function GhostButton({ label, onPress }) {
-	return (
-		<Pressable
-			accessibilityRole="button"
-			onPress={onPress}
-			className="w-full items-center justify-center overflow-hidden rounded-control border border-hairline bg-white py-4 active:opacity-80"
-		>
-			<Text className="font-inter-semibold text-[16px] text-ink">{label}</Text>
-		</Pressable>
-	);
-}
-
-function PrimaryButton({ label, disabled = false, onPress }) {
-	return (
-		<Pressable
-			accessibilityRole="button"
-			accessibilityState={{ disabled }}
-			disabled={disabled}
-			onPress={onPress}
-			className={`w-full items-center justify-center overflow-hidden rounded-control py-4 ${
-				disabled ? 'bg-hairline' : 'bg-accent active:opacity-85'
-			}`}
-		>
-			{/* Bold: white on the brand orange (3.5:1) only passes as bold text. */}
-			<Text
-				className={`text-[16px] ${
-					disabled ? 'font-inter-semibold text-ink-faint' : 'font-inter-bold text-white'
-				}`}
-			>
-				{label}
-			</Text>
-		</Pressable>
-	);
-}
-
 /** L4 Saved (node 23:2). Scrolls so the tools and button survive large text. */
 function Saved({ onDone, onOpenTool }) {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ top: 80, topGap: 36, bottom: 20, bottomGap: 8 });
 
 	return (
 		<ScrollView
 			className="flex-1 bg-aura-outer"
 			showsVerticalScrollIndicator={false}
-			contentContainerStyle={{
-				flexGrow: 1,
-				paddingHorizontal: 24,
-				paddingTop: Math.max(80, insets.top + 36),
-				paddingBottom: Math.max(20, insets.bottom + 8),
-			}}
+			contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, ...padding }}
 		>
 			{/* The frame's empty teal disc (node 23:4), given the welcome screen's rings. */}
 			<Image
@@ -157,9 +117,10 @@ function Saved({ onDone, onOpenTool }) {
 					Feeling like doing one more thing?
 				</Text>
 				{FOLLOW_ON_TOOLS.map(findTool).map((tool) => (
-					<GhostButton
+					<Button
 						key={tool.id}
 						label={`${tool.name}  ·  ${tool.duration}`}
+						tone="secondary"
 						onPress={() => onOpenTool(tool)}
 					/>
 				))}
@@ -167,13 +128,7 @@ function Saved({ onDone, onOpenTool }) {
 
 			<View className="min-h-6 flex-1" />
 
-			<Pressable
-				accessibilityRole="button"
-				onPress={onDone}
-				className="w-full items-center justify-center overflow-hidden rounded-control bg-warn py-4 active:opacity-85"
-			>
-				<Text className="font-inter-semibold text-[16px] text-ink">Back to home</Text>
-			</Pressable>
+			<Button label="Back to home" tone="warn" onPress={onDone} />
 		</ScrollView>
 	);
 }
@@ -186,7 +141,7 @@ function Saved({ onDone, onOpenTool }) {
  * journal entry linked to that check-in; closing keeps the mood either way.
  */
 export default function CheckInScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ bottom: 20, bottomGap: 8 });
 	const router = useRouter();
 	const navigation = useNavigation();
 	const { mood: moodParam, checkin: checkinParam } = useLocalSearchParams();
@@ -301,35 +256,17 @@ export default function CheckInScreen() {
 			className="flex-1 bg-aura-outer"
 			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 		>
-			<View
-				className="flex-1 px-6"
-				style={{
-					paddingTop: Math.max(56, insets.top + 12),
-					paddingBottom: Math.max(20, insets.bottom + 8),
-				}}
-			>
+			<View className="flex-1 px-6" style={padding}>
 				<View className="w-full flex-row items-center justify-between">
-					<Pressable
-						accessibilityRole="button"
-						onPress={close}
-						// 14pt text is ~17pt tall; 14 either side reaches 44pt.
-						hitSlop={14}
-						className="active:opacity-60"
-					>
-						<Text className="font-inter-medium text-[14px] text-ink-muted">Close</Text>
-					</Pressable>
+					<TextButton label="Close" onPress={close} />
 
 					<StepDots step={step} />
 
-					<Pressable
-						accessibilityRole="button"
+					<TextButton
+						label="Skip"
 						accessibilityLabel="Skip this question"
 						onPress={skip}
-						hitSlop={14}
-						className="active:opacity-60"
-					>
-						<Text className="font-inter-medium text-[14px] text-ink-muted">Skip</Text>
-					</Pressable>
+					/>
 				</View>
 
 				<ScrollView
@@ -361,9 +298,7 @@ export default function CheckInScreen() {
 
 					{isFollowUp ? (
 						<View className="w-full gap-1.5 overflow-hidden rounded-field bg-avatar px-3.5 py-3">
-							<Text className="font-inter-semibold text-[11px] tracking-[0.8px] text-ink-faint">
-								YOU WROTE
-							</Text>
+							<Eyebrow>YOU WROTE</Eyebrow>
 							<Text className="w-full font-inter text-[13px] leading-[18.2px] text-ink-muted">
 								{answers[0].trim() || '—'}
 							</Text>
@@ -432,12 +367,12 @@ export default function CheckInScreen() {
 
 				<View className="h-3" />
 
-				<PrimaryButton label="Save entry" disabled={!dirty} onPress={() => finish()} />
+				<Button label="Save entry" disabled={!dirty} onPress={() => finish()} />
 
 				{isFollowUp ? null : (
 					<>
 						<View className="h-2.5" />
-						<GhostButton label="Next question" onPress={() => setStep(1)} />
+						<Button label="Next question" tone="secondary" onPress={() => setStep(1)} />
 					</>
 				)}
 			</View>

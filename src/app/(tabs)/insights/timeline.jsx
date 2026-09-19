@@ -1,8 +1,10 @@
 import MoodMark from '@/components/MoodMark';
+import Eyebrow from '@/components/ui/Eyebrow';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import { BMT_WEEKS, bmtDay, bmtWeek } from '@/data/dates';
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ScrollView, Text, View } from 'react-native';
 
 // TODO: placeholder milestones from the frame — these should come from the
 // schedule entered at setup and the user's own check-ins.
@@ -46,9 +48,7 @@ function Milestone({ milestone, isLast }) {
 					}`}
 				>
 					<View className="w-full flex-row items-center justify-between">
-						<Text className="font-inter-semibold text-[11px] tracking-[0.63px] text-ink-faint">
-							WEEK {milestone.week}
-						</Text>
+						<Eyebrow>WEEK {milestone.week}</Eyebrow>
 						{upcoming ? null : (
 							// Ink, not the mood colour: amber text was 1.9:1 on white.
 							<View className="flex-row items-center gap-1.25">
@@ -77,7 +77,7 @@ function Milestone({ milestone, isLast }) {
 
 /** BMT timeline — "R3 BMT timeline" (node 176:2), opened from R2. */
 export default function TimelineScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ top: 54, topGap: 8 });
 	const router = useRouter();
 
 	const now = new Date();
@@ -93,19 +93,18 @@ export default function TimelineScreen() {
 			className="flex-1 bg-aura-outer"
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{
-				paddingTop: Math.max(54, insets.top + 8),
+				...padding,
 				paddingHorizontal: 18,
 				paddingBottom: 24,
 			}}
 		>
-			<Pressable
-				accessibilityRole="button"
+			<TextButton
+				label="Insights"
+				variant="navAccent"
+				accessibilityLabel="Back to Insights"
 				onPress={back}
-				hitSlop={14}
-				className="self-start active:opacity-60"
-			>
-				<Text className="font-inter-medium text-[14px] text-accent-text">Insights</Text>
-			</Pressable>
+				className="self-start"
+			/>
 
 			<View className="h-3.5" />
 

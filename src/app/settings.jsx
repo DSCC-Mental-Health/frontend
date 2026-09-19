@@ -2,6 +2,7 @@ import { useAuth, useUser } from '@clerk/expo';
 import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import Sheet from '@/components/Sheet';
+import Button from '@/components/ui/Button';
 import { useAiSummaries } from '@/lib/ai-summaries';
 import { cancelDailyReminder } from '@/lib/reminders';
 import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
@@ -118,36 +119,11 @@ function LogOutSheet({ visible, busy, onConfirm, onCancel }) {
 
 			<View className="h-5" />
 
-			<Pressable
-				accessibilityRole="button"
-				accessibilityState={{ disabled: busy, busy }}
-				disabled={busy}
-				onPress={onConfirm}
-				className={`w-full items-center justify-center overflow-hidden rounded-control p-4 ${
-					busy ? 'bg-hairline' : 'bg-accent active:opacity-85'
-				}`}
-			>
-				<Text
-					className={`text-[16px] ${
-						busy ? 'font-inter-semibold text-ink-faint' : 'font-inter-bold text-white'
-					}`}
-				>
-					{busy ? 'Logging out…' : 'Log out'}
-				</Text>
-			</Pressable>
+			<Button label="Log out" busy={busy} busyLabel="Logging out…" onPress={onConfirm} />
 
 			<View className="h-2.5" />
 
-			<Pressable
-				accessibilityRole="button"
-				disabled={busy}
-				onPress={onCancel}
-				className="w-full items-center justify-center overflow-hidden rounded-control border border-hairline bg-white p-4 active:opacity-80"
-			>
-				<Text className="font-inter-semibold text-[16px] text-ink">
-					Cancel
-				</Text>
-			</Pressable>
+			<Button label="Cancel" tone="secondary" disabled={busy} onPress={onCancel} />
 		</Sheet>
 	);
 }
@@ -184,32 +160,17 @@ function DeleteAccountSheet({ visible, busy, error, onConfirm, onCancel }) {
 
 			<View className="h-5" />
 
-			<Pressable
-				accessibilityRole="button"
-				accessibilityState={{ disabled: busy, busy }}
-				disabled={busy}
+			<Button
+				label="Delete account"
+				tone="danger"
+				busy={busy}
+				busyLabel="Deleting…"
 				onPress={onConfirm}
-				className={`w-full items-center justify-center overflow-hidden rounded-control p-4 ${
-					busy ? 'bg-hairline' : 'bg-danger active:opacity-85'
-				}`}
-			>
-				<Text
-					className={`font-inter-bold text-[16px] ${busy ? 'text-ink-faint' : 'text-white'}`}
-				>
-					{busy ? 'Deleting…' : 'Delete account'}
-				</Text>
-			</Pressable>
+			/>
 
 			<View className="h-2.5" />
 
-			<Pressable
-				accessibilityRole="button"
-				disabled={busy}
-				onPress={onCancel}
-				className="w-full items-center justify-center overflow-hidden rounded-control border border-hairline bg-white p-4 active:opacity-80"
-			>
-				<Text className="font-inter-semibold text-[16px] text-ink">Keep my account</Text>
-			</Pressable>
+			<Button label="Keep my account" tone="secondary" disabled={busy} onPress={onCancel} />
 		</Sheet>
 	);
 }
@@ -323,28 +284,22 @@ export default function SettingsScreen() {
 
 				<View className="flex-1" />
 
-				<Pressable
-					accessibilityRole="button"
+				<Button
+					label="Log out"
+					tone="secondary"
+					size="md"
 					onPress={() => setConfirming(true)}
-					className="w-full items-center justify-center overflow-hidden rounded-control border border-hairline bg-white px-4 py-3.75 active:opacity-80"
-				>
-					<Text className="font-inter-semibold text-[15px] text-ink">
-						Log out
-					</Text>
-				</Pressable>
+				/>
 
-				<Pressable
-					accessibilityRole="button"
+				<Button
+					label="Delete account"
+					tone="dangerOutline"
+					size="md"
 					onPress={() => {
 						setDeleteError(null);
 						setDeleting(true);
 					}}
-					className="w-full items-center justify-center overflow-hidden rounded-control border border-danger bg-white px-4 py-3.75 active:opacity-80"
-				>
-					<Text className="font-inter-semibold text-[15px] text-danger">
-						Delete account
-					</Text>
-				</Pressable>
+				/>
 			</ScrollView>
 
 			<LogOutSheet

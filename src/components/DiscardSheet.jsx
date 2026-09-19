@@ -1,30 +1,6 @@
 import Sheet from '@/components/Sheet';
-import { Pressable, Text, View } from 'react-native';
-
-function SheetButton({ label, tone = 'plain', onPress }) {
-	const primary = tone === 'primary';
-	return (
-		<Pressable
-			accessibilityRole="button"
-			onPress={onPress}
-			className={`w-full items-center justify-center overflow-hidden rounded-control py-4 ${
-				primary ? 'bg-accent active:opacity-85' : 'border border-hairline bg-white active:opacity-80'
-			}`}
-		>
-			<Text
-				className={`text-[16px] ${
-					primary
-						? 'font-inter-bold text-white'
-						: tone === 'danger'
-							? 'font-inter-semibold text-danger'
-							: 'font-inter-semibold text-ink'
-				}`}
-			>
-				{label}
-			</Text>
-		</Pressable>
-	);
-}
+import Button from '@/components/ui/Button';
+import { Text, View } from 'react-native';
 
 /**
  * Asked before closing a writing screen would throw words away — the check-in
@@ -45,11 +21,11 @@ export default function DiscardSheet({ visible, body, onSave, onDiscard, onKeep 
 				</>
 			) : null}
 			<View className="h-5" />
-			<SheetButton label="Save entry" tone="primary" onPress={onSave} />
+			<Button label="Save entry" onPress={onSave} />
 			<View className="h-2.5" />
-			<SheetButton label="Discard writing" tone="danger" onPress={onDiscard} />
+			<Button label="Discard writing" tone="secondaryDanger" onPress={onDiscard} />
 			<View className="h-2.5" />
-			<SheetButton label="Keep writing" onPress={onKeep} />
+			<Button label="Keep writing" tone="secondary" onPress={onKeep} />
 		</Sheet>
 	);
 }

@@ -1,5 +1,7 @@
 import MoodMark from '@/components/MoodMark';
 import ToolIcon from '@/components/ToolIcon';
+import SectionHeading from '@/components/ui/SectionHeading';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import { MOODS } from '@/data/check-in-prompts';
 import {
 	add as addCheckin,
@@ -15,7 +17,6 @@ import { findTool } from '@/data/tools';
 import { useUser } from '@clerk/expo';
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /** Shown when onboarding recorded no coping picks. */
 const DEFAULT_TOOLS = ['box', 'worry'];
@@ -104,28 +105,9 @@ function MoodKey() {
 	);
 }
 
-function SectionHeading({ title, action, onPress }) {
-	return (
-		<View className="w-full flex-row items-center justify-between">
-			<Text accessibilityRole="header" className="font-inter-semibold text-[15px] text-ink">
-				{title}
-			</Text>
-			<Pressable
-				accessibilityRole="link"
-				onPress={onPress}
-				// 13pt text is ~16pt tall; 14 either side reaches 44pt.
-				hitSlop={14}
-				className="active:opacity-60"
-			>
-				<Text className="font-inter-medium text-[13px] text-accent-text">{action}</Text>
-			</Pressable>
-		</View>
-	);
-}
-
 /** Home dashboard — "S2 Home dashboard (multi check-in)" (Figma node 178:2). */
 export default function HomeScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ top: 54, topGap: 8 });
 	const { fontScale } = useWindowDimensions();
 	const { user } = useUser();
 	const router = useRouter();
@@ -160,7 +142,7 @@ export default function HomeScreen() {
 			<ScrollView
 				showsVerticalScrollIndicator={false}
 				contentContainerStyle={{
-					paddingTop: Math.max(54, insets.top + 8),
+					...padding,
 					paddingBottom: 10,
 					paddingHorizontal: 18,
 				}}
@@ -257,7 +239,7 @@ export default function HomeScreen() {
 				<SectionHeading
 					title="Insights"
 					action="See all"
-					onPress={() => router.push('/insights')}
+					onAction={() => router.push('/insights')}
 				/>
 
 				<View className="h-2.25" />
@@ -277,7 +259,7 @@ export default function HomeScreen() {
 				<SectionHeading
 					title="Your BMT"
 					action="Timeline"
-					onPress={() => router.push('/insights/timeline')}
+					onAction={() => router.push('/insights/timeline')}
 				/>
 
 				<View className="h-2.25" />
@@ -320,7 +302,7 @@ export default function HomeScreen() {
 				<SectionHeading
 					title="Quick tools"
 					action="All tools"
-					onPress={() => router.push('/tools')}
+					onAction={() => router.push('/tools')}
 				/>
 
 				<View className="h-2.25" />

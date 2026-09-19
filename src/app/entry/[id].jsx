@@ -1,5 +1,9 @@
 import MoodMark from '@/components/MoodMark';
 import Sheet from '@/components/Sheet';
+import Button from '@/components/ui/Button';
+import Eyebrow from '@/components/ui/Eyebrow';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import { detachEntry } from '@/data/checkin-store';
 import {
 	bmtDay,
@@ -15,13 +19,11 @@ import { useState } from 'react';
 import {
 	KeyboardAvoidingView,
 	Platform,
-	Pressable,
 	ScrollView,
 	Text,
 	TextInput,
 	View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const GUTTER = 20;
 const PLACEHOLDER = '#786c62';
@@ -30,38 +32,11 @@ const PLACEHOLDER = '#786c62';
 function PromptCard({ label, prompt }) {
 	return (
 		<View className="w-full gap-1.5 overflow-hidden rounded-control bg-avatar px-4 py-3.5">
-			<Text className="font-inter-semibold text-[11px] tracking-[0.8px] text-ink-faint">
-				{label}
-			</Text>
+			<Eyebrow>{label}</Eyebrow>
 			<Text className="w-full font-inter-medium text-[14px] leading-[20.3px] text-ink">
 				{prompt}
 			</Text>
 		</View>
-	);
-}
-
-/** Header text button, sized to a 44pt target. */
-function HeaderButton({ label, onPress, strong = false, disabled = false }) {
-	return (
-		<Pressable
-			accessibilityRole="button"
-			accessibilityState={{ disabled }}
-			disabled={disabled}
-			onPress={onPress}
-			hitSlop={14}
-		>
-			<Text
-				className={`text-[14px] ${
-					disabled
-						? 'font-inter-medium text-ink-faint'
-						: strong
-							? 'font-inter-semibold text-accent-text'
-							: 'font-inter-medium text-ink-muted'
-				}`}
-			>
-				{label}
-			</Text>
-		</Pressable>
 	);
 }
 
@@ -96,23 +71,11 @@ function DeleteSheet({ visible, onConfirm, onCancel }) {
 
 			<View className="h-5" />
 
-			<Pressable
-				accessibilityRole="button"
-				onPress={onConfirm}
-				className="w-full items-center justify-center overflow-hidden rounded-control bg-danger py-3.75 active:opacity-85"
-			>
-				<Text className="font-inter-bold text-[15px] text-white">Delete entry</Text>
-			</Pressable>
+			<Button label="Delete entry" tone="danger" size="md" onPress={onConfirm} />
 
 			<View className="h-2.5" />
 
-			<Pressable
-				accessibilityRole="button"
-				onPress={onCancel}
-				className="w-full items-center justify-center overflow-hidden rounded-control border border-hairline bg-white py-3.75 active:opacity-80"
-			>
-				<Text className="font-inter-semibold text-[15px] text-ink">Cancel</Text>
-			</Pressable>
+			<Button label="Cancel" tone="secondary" size="md" onPress={onCancel} />
 		</Sheet>
 	);
 }
@@ -125,7 +88,7 @@ function DeleteSheet({ visible, onConfirm, onCancel }) {
  * people expect from Cancel, so it doesn't ask.
  */
 export default function EntryScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ bottom: 16, bottomGap: 8 });
 	const router = useRouter();
 	const { id } = useLocalSearchParams();
 	const { isLoaded, isSignedIn } = useAuth();
@@ -175,29 +138,25 @@ export default function EntryScreen() {
 			className="flex-1 bg-aura-outer"
 			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 		>
-			<View
-				className="flex-1"
-				style={{
-					paddingTop: Math.max(56, insets.top + 12),
-					paddingBottom: Math.max(16, insets.bottom + 8),
-				}}
-			>
+			<View className="flex-1" style={padding}>
 				<View
 					className="w-full flex-row items-center justify-between"
 					style={{ paddingHorizontal: GUTTER }}
 				>
 					{editing ? (
 						<>
-							<HeaderButton label="Cancel" onPress={() => setDraft(null)} />
-							<HeaderButton label="Save" strong disabled={!canSaveEdit} onPress={saveEdit} />
+							<TextButton label="Cancel" onPress={() => setDraft(null)} />
+							<TextButton
+								label="Save"
+								variant="navStrong"
+								disabled={!canSaveEdit}
+								onPress={saveEdit}
+							/>
 						</>
 					) : (
 						<>
-							<HeaderButton label="Back" onPress={back} />
-							<HeaderButton
-								label="Edit"
-								onPress={() => setDraft(entry.parts.map((p) => p.text))}
-							/>
+							<TextButton label="Back" onPress={back} />
+							<TextButton label="Edit" onPress={() => setDraft(entry.parts.map((p) => p.text))} />
 						</>
 					)}
 				</View>
@@ -278,15 +237,12 @@ export default function EntryScreen() {
 						<>
 							<View className="h-3" />
 
-							<Pressable
-								accessibilityRole="button"
+							<Button
+								label="Delete this entry"
+								tone="dangerOutline"
+								size="md"
 								onPress={() => setConfirming(true)}
-								className="w-full items-center justify-center overflow-hidden rounded-control border border-danger bg-white py-3.75 active:opacity-80"
-							>
-								<Text className="font-inter-semibold text-[15px] text-danger">
-									Delete this entry
-								</Text>
-							</Pressable>
+							/>
 						</>
 					)}
 				</ScrollView>

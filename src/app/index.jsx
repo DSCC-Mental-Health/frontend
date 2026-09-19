@@ -1,8 +1,9 @@
+import Button from '@/components/ui/Button';
 import { Spacing } from '@/constants/theme';
 import { useAuth } from '@clerk/expo';
 import { Image } from 'expo-image';
 import { Redirect, useRouter } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const breathingRings = require('@/assets/images/breathing-rings.svg');
@@ -88,27 +89,16 @@ export default function WelcomeScreen() {
 
 				<View className="h-4" />
 
-				<Pressable
-					accessibilityRole="button"
-					accessibilityLabel="Log in"
-					onPress={handleLogIn}
-					className="items-center justify-center overflow-hidden rounded-control bg-accent py-4 active:opacity-85"
-				>
-					{/* Bold: white on the brand orange (3.5:1) only passes as bold text. */}
-					<Text className="font-inter-bold text-[16px] text-white">Log in</Text>
-				</Pressable>
+				<Button label="Log in" onPress={handleLogIn} />
 
 				<View className="h-2.75" />
 
-				<Pressable
-					accessibilityRole="link"
+				<Button
+					label="How Steady handles your data"
+					tone="secondary"
+					role="link"
 					onPress={handleOpenPrivacy}
-					className="items-center justify-center overflow-hidden rounded-control border border-hairline bg-white py-4 active:opacity-85"
-				>
-					<Text className="font-inter-semibold text-[16px] text-ink">
-						How Steady handles your data
-					</Text>
-				</Pressable>
+				/>
 
 				<View className="h-4.5" />
 

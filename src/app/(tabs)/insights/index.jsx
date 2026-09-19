@@ -1,9 +1,12 @@
+import Eyebrow from '@/components/ui/Eyebrow';
+import SectionHeading from '@/components/ui/SectionHeading';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
 import { summarize, useCheckins } from '@/data/checkin-store';
 import { useAiSummaries } from '@/lib/ai-summaries';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /** Text scale at which the three stat cards stack instead of sitting side by side. */
 const LARGE_TEXT = 1.35;
@@ -170,9 +173,7 @@ function SummaryCard({ enabled, set, saving, error, onSettings }) {
 				<Text className="flex-1 font-inter text-[13px] leading-[18.85px] text-ink-muted">
 					AI summaries are off. The counts below come only from your check-ins.
 				</Text>
-				<Pressable accessibilityRole="link" onPress={onSettings} hitSlop={14}>
-					<Text className="font-inter-semibold text-[13px] text-accent-text">Settings</Text>
-				</Pressable>
+				<TextButton label="Settings" variant="linkStrong" role="link" onPress={onSettings} />
 			</View>
 		);
 	}
@@ -180,9 +181,7 @@ function SummaryCard({ enabled, set, saving, error, onSettings }) {
 	return (
 		<View className="w-full gap-2.75 overflow-hidden rounded-control bg-insight-ink px-3.75 py-3.5">
 			<View className="self-start overflow-hidden rounded-dot bg-insight-tag px-2 py-1">
-				<Text className="font-inter-semibold text-[11px] tracking-[0.63px] text-white">
-					EXAMPLE SUMMARY
-				</Text>
+				<Eyebrow className="text-white">EXAMPLE SUMMARY</Eyebrow>
 			</View>
 			<Text className="w-full font-inter-bold text-[18px] leading-[23.76px] text-white">
 				{EXAMPLE_SUMMARY.headline}
@@ -239,25 +238,9 @@ function Driver({ label, effect, strength }) {
 	);
 }
 
-/** Section heading with an optional link (nodes 175:33, 175:80, 175:93). */
-function SectionHeader({ title, action, onAction }) {
-	return (
-		<View className="w-full flex-row items-center justify-between">
-			<Text accessibilityRole="header" className="font-inter-semibold text-[15px] text-ink">
-				{title}
-			</Text>
-			{action ? (
-				<Pressable accessibilityRole="link" onPress={onAction} hitSlop={14}>
-					<Text className="font-inter-medium text-[13px] text-accent-text">{action}</Text>
-				</Pressable>
-			) : null}
-		</View>
-	);
-}
-
 /** Insights — "R2 Insights" (node 175:2). */
 export default function InsightsScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ top: 54, topGap: 8 });
 	const router = useRouter();
 	const { fontScale } = useWindowDimensions();
 	const ai = useAiSummaries();
@@ -268,7 +251,7 @@ export default function InsightsScreen() {
 			className="flex-1 bg-aura-outer"
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{
-				paddingTop: Math.max(54, insets.top + 8),
+				...padding,
 				paddingHorizontal: 18,
 				paddingBottom: 24,
 			}}
@@ -291,7 +274,7 @@ export default function InsightsScreen() {
 
 			<View className="h-4.5" />
 
-			<SectionHeader title="What moves your days" />
+			<SectionHeading title="What moves your days" />
 
 			<View className="h-2.25" />
 
@@ -313,7 +296,7 @@ export default function InsightsScreen() {
 				<>
 					<View className="h-4.5" />
 
-					<SectionHeader title="Patterns noticed" />
+					<SectionHeading title="Patterns noticed" />
 
 					<View className="h-2.25" />
 
@@ -323,9 +306,7 @@ export default function InsightsScreen() {
 								key={pattern.label}
 								className="w-full gap-1.5 overflow-hidden rounded-control border border-hairline bg-white px-3.75 py-3.5"
 							>
-								<Text className="w-full font-inter-semibold text-[11px] tracking-[0.63px] text-ink-faint">
-									EXAMPLE · {pattern.label}
-								</Text>
+								<Eyebrow>EXAMPLE · {pattern.label}</Eyebrow>
 								<Text className="w-full font-inter-medium text-[14px] leading-[19.32px] text-ink">
 									{pattern.text}
 								</Text>
@@ -337,7 +318,7 @@ export default function InsightsScreen() {
 
 			<View className="h-4" />
 
-			<SectionHeader
+			<SectionHeading
 				title="Your BMT timeline"
 				action="Open"
 				onAction={() => router.push('/insights/timeline')}
