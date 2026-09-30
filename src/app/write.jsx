@@ -1,9 +1,17 @@
+import DiscardSheet from '@/components/DiscardSheet';
+import Eyebrow from '@/components/ui/Eyebrow';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
+import { INK_FAINT } from '@/constants/colors';
+import { GUTTER } from '@/constants/layout';
 import { PROMPTS } from '@/data/check-in-prompts';
 import { add } from '@/data/journal-store';
+import { HOME_PROMPT } from '@/data/tools';
 import { useAuth } from '@clerk/expo';
-import { Redirect, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { Redirect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
+	BackHandler,
 	KeyboardAvoidingView,
 	Platform,
 	Pressable,
@@ -12,13 +20,6 @@ import {
 	TextInput,
 	View,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const PLACEHOLDER = '#a39990';
-const GUTTER = 20;
-
-/** The frame's one concrete suggestion (node 29:51). */
-const HOME_PROMPT = "What's one thing about today I'd tell someone at home?";
 
 /** Every prompt in the L5 bank, for "Give me a question instead". */
 const BANK = Object.values(PROMPTS).flat();
@@ -28,9 +29,9 @@ function SuggestionRow({ label, onPress }) {
 		<Pressable
 			accessibilityRole="button"
 			onPress={onPress}
-			className="w-full overflow-hidden rounded-field border border-hairline bg-white px-3.5 py-3 active:opacity-80"
+			className="min-h-11 w-full justify-center overflow-hidden rounded-md border border-hairline bg-white px-4 py-3 active:opacity-80"
 		>
-			<Text className="w-full font-inter-medium text-[13px] leading-[18.2px] text-ink">
+			<Text className="w-full font-inter-medium text-subhead text-ink">
 				{label}
 			</Text>
 		</Pressable>
@@ -42,23 +43,50 @@ function SuggestionRow({ label, onPress }) {
  *
  * Picking a suggestion attaches it as the entry's prompt, which turns it into a
  * prompted entry; the frame doesn't specify this, so it's a stated assumption.
+ * The Worry list and Three good things tools open it with `?prompt=` preset.
  */
 export default function WriteScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ bottom: 16, bottomGap: 8 });
 	const router = useRouter();
+	const navigation = useNavigation();
 	const { isLoaded, isSignedIn } = useAuth();
+	const { prompt: promptParam } = useLocalSearchParams();
 
 	const [text, setText] = useState('');
-	const [prompt, setPrompt] = useState(null);
+	const [prompt, setPrompt] = useState(
+		typeof promptParam === 'string' && promptParam ? promptParam : null,
+	);
+	const [confirmingClose, setConfirmingClose] = useState(false);
+
+	const canSave = text.trim().length > 0;
+
+	// Swiping the sheet down or Android back would lose the writing, so both go
+	// through the same "Keep what you wrote?" confirm as Cancel.
+	useEffect(() => {
+		navigation.setOptions({ gestureEnabled: !canSave });
+	}, [navigation, canSave]);
+
+	useEffect(() => {
+		if (!canSave) return undefined;
+		const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+			setConfirmingClose(true);
+			return true;
+		});
+		return () => sub.remove();
+	}, [canSave]);
 
 	if (!isLoaded) return null;
 	if (!isSignedIn) return <Redirect href="/login" />;
 
-	const canSave = text.trim().length > 0;
-
 	function dismiss() {
+		setConfirmingClose(false);
 		if (router.canGoBack()) router.back();
 		else router.replace('/journal');
+	}
+
+	function cancel() {
+		if (canSave) setConfirmingClose(true);
+		else dismiss();
 	}
 
 	function save() {
@@ -81,78 +109,52 @@ export default function WriteScreen() {
 			className="flex-1 bg-aura-outer"
 			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 		>
-			<View
-				className="flex-1"
-				style={{
-					paddingTop: Math.max(56, insets.top + 12),
-					paddingBottom: Math.max(16, insets.bottom + 8),
-				}}
-			>
+			<View className="flex-1" style={padding}>
 				<View
 					className="w-full flex-row items-center justify-between"
 					style={{ paddingHorizontal: GUTTER }}
 				>
-					<Pressable accessibilityRole="button" onPress={dismiss} hitSlop={10}>
-						<Text className="font-inter-medium text-[14px] text-ink-muted">
-							Cancel
-						</Text>
-					</Pressable>
-					<Pressable
-						accessibilityRole="button"
-						accessibilityState={{ disabled: !canSave }}
-						disabled={!canSave}
-						onPress={save}
-						hitSlop={10}
-					>
-						<Text
-							className={
-								canSave
-									? 'font-inter-semibold text-[14px] text-accent'
-									: 'font-inter-medium text-[14px] text-ink-faint'
-							}
-						>
-							Save
-						</Text>
-					</Pressable>
+					<TextButton label="Cancel" onPress={cancel} />
+					<TextButton label="Save" variant="navStrong" disabled={!canSave} onPress={save} />
 				</View>
 
 				<ScrollView
 					className="flex-1"
 					keyboardShouldPersistTaps="handled"
+					keyboardDismissMode="interactive"
 					showsVerticalScrollIndicator={false}
 					contentContainerStyle={{ flexGrow: 1, paddingHorizontal: GUTTER, paddingTop: 24 }}
 				>
-					<Text className="w-full font-inter-bold text-[24px] leading-[34.8px] text-ink">
+					<Text
+						accessibilityRole="header"
+						className="w-full font-inter-bold text-large-title text-ink"
+					>
 						What&rsquo;s on your mind?
 					</Text>
 
 					<View className="h-2" />
 
-					<Text className="w-full font-inter text-[14px] leading-[20.3px] text-ink-muted">
-						No prompt, no structure. Write whatever.
+					<Text className="w-full font-inter text-callout text-ink-muted">
+						{prompt
+							? 'Answer the question below, or clear it and write whatever.'
+							: 'No prompt, no structure. Write whatever.'}
 					</Text>
 
 					<View className="h-5" />
 
 					{prompt ? (
 						<>
-							<View className="w-full gap-1.5 overflow-hidden rounded-control bg-avatar px-4 py-3.5">
+							<View className="w-full gap-2 overflow-hidden rounded-lg bg-avatar px-4 py-4">
 								<View className="w-full flex-row items-center justify-between">
-									<Text className="font-inter-semibold text-[10px] tracking-[0.8px] text-ink-faint">
-										A QUESTION FOR YOU
-									</Text>
-									<Pressable
-										accessibilityRole="button"
+									<Eyebrow>A QUESTION FOR YOU</Eyebrow>
+									<TextButton
+										label="Clear"
+										variant="small"
 										accessibilityLabel="Remove question"
 										onPress={() => setPrompt(null)}
-										hitSlop={10}
-									>
-										<Text className="font-inter-medium text-[12px] text-ink-muted">
-											Clear
-										</Text>
-									</Pressable>
+									/>
 								</View>
-								<Text className="w-full font-inter-medium text-[14px] leading-[20.3px] text-ink">
+								<Text className="w-full font-inter-medium text-callout text-ink">
 									{prompt}
 								</Text>
 							</View>
@@ -162,27 +164,31 @@ export default function WriteScreen() {
 
 					{/* 200px tall (node 29:42) — not on Tailwind v3's spacing scale. */}
 					<View
-						className="w-full overflow-hidden rounded-control border border-hairline bg-white px-4 py-3.5"
+						className="w-full overflow-hidden rounded-lg border border-hairline bg-white px-4 py-4"
 						style={{ height: 200 }}
 					>
 						<TextInput
 							value={text}
 							onChangeText={setText}
+							accessibilityLabel={prompt ?? 'Your entry'}
 							placeholder="Start typing…"
-							placeholderTextColor={PLACEHOLDER}
+							placeholderTextColor={INK_FAINT}
 							multiline
 							textAlignVertical="top"
-							className="flex-1 p-0 font-inter text-[15px] leading-[21.75px] text-ink"
+							className="flex-1 p-0 font-inter text-body text-ink"
 						/>
 					</View>
 
 					<View className="h-4" />
 
-					<Text className="w-full font-inter-semibold text-[13px] leading-[18.85px] text-ink">
+					<Text
+						accessibilityRole="header"
+						className="w-full font-inter-semibold text-subhead text-ink"
+					>
 						Stuck?
 					</Text>
 
-					<View className="h-2.5" />
+					<View className="h-3" />
 
 					<View className="w-full gap-2">
 						<SuggestionRow label="Give me a question instead" onPress={pickQuestion} />
@@ -191,12 +197,19 @@ export default function WriteScreen() {
 
 					<View className="min-h-6 flex-1" />
 
-					{/* Kept from the frame, though today entries live only in memory. */}
-					<Text className="w-full text-center font-inter text-[12px] leading-[17.4px] text-ink-muted">
-						Saved only to your device account. You can delete it anytime.
+					{/* The frame said "Saved only to your device account" — not true yet. */}
+					<Text className="w-full text-center font-inter text-footnote text-ink-muted">
+						Only you can read this. You can delete it anytime.
 					</Text>
 				</ScrollView>
 			</View>
+
+			<DiscardSheet
+				visible={confirmingClose}
+				onSave={save}
+				onDiscard={dismiss}
+				onKeep={() => setConfirmingClose(false)}
+			/>
 		</KeyboardAvoidingView>
 	);
 }

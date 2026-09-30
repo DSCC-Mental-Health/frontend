@@ -1,3 +1,4 @@
+import { ACCENT, INK_FAINT } from '@/constants/colors';
 import { useAuth, useUser } from '@clerk/expo';
 import { Image } from 'expo-image';
 import { Redirect, Tabs } from 'expo-router';
@@ -14,9 +15,6 @@ const ICONS = {
 	support: require('@/assets/images/icon-support.svg'),
 };
 
-const ACTIVE_ICON = '#d9682d';
-const INACTIVE_ICON = '#a39990';
-
 const TABS = [
 	{ name: 'home', label: 'Home' },
 	{ name: 'insights', label: 'Insights' },
@@ -31,7 +29,7 @@ function TabBar({ state, navigation }) {
 
 	return (
 		<View
-			className="w-full flex-row items-start justify-between border-t border-hairline bg-white px-1 pt-2.25"
+			className="w-full flex-row items-start justify-between border-t border-hairline bg-white px-1 pt-2"
 			// The frame draws its own home indicator (178:116); the OS draws the real
 			// one, so we pad for it instead of rendering a second bar.
 			style={{ paddingBottom: Math.max(5, insets.bottom) }}
@@ -57,20 +55,20 @@ function TabBar({ state, navigation }) {
 							if (!focused && !event.defaultPrevented)
 								navigation.navigate(route.name);
 						}}
-						className="flex-col items-center gap-1.25 px-1.5 active:opacity-60"
+						className="flex-col items-center gap-1 px-2 active:opacity-60"
 					>
 						<Image
 							source={ICONS[tab.name]}
 							style={{ width: 22, height: 22 }}
 							contentFit="contain"
-							tintColor={focused ? ACTIVE_ICON : INACTIVE_ICON}
+							tintColor={focused ? ACCENT : INK_FAINT}
 							accessibilityIgnoresInvertColors
 						/>
 						<Text
 							className={
 								focused
-									? 'font-inter-semibold text-[10px] text-ink'
-									: 'font-inter-medium text-[10px] text-ink-muted'
+									? 'font-inter-semibold text-caption text-ink'
+									: 'font-inter-medium text-caption text-ink-muted'
 							}
 						>
 							{tab.label}

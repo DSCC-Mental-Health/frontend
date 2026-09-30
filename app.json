@@ -6,7 +6,7 @@
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"scheme": "dscc",
-		"userInterfaceStyle": "automatic",
+		"userInterfaceStyle": "light",
 		"android": {
 			"package": "com.anonymous.dsccmentalhealth",
 			"adaptiveIcon": {

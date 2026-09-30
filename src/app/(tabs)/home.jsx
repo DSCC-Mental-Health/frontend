@@ -1,117 +1,127 @@
-import home, { MOODS, WEEK } from '@/data/home-placeholder';
+import MoodMark from '@/components/MoodMark';
+import ToolIcon from '@/components/ToolIcon';
+import SectionHeading from '@/components/ui/SectionHeading';
+import useScreenPadding from '@/components/ui/useScreenPadding';
+import { GUTTER } from '@/constants/layout';
+import { MOODS } from '@/data/check-in-prompts';
+import {
+	add as addCheckin,
+	describe,
+	latestToday,
+	useCheckins,
+	weekOf,
+} from '@/data/checkin-store';
+import { BMT_WEEKS, bmtDay, bmtWeek, dayKey, partOfDay, timeLabel } from '@/data/dates';
+import home from '@/data/home-placeholder';
+import { COPING } from '@/data/onboarding';
+import { findTool } from '@/data/tools';
 import { useUser } from '@clerk/expo';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 
-/** Segment fills, keyed by the tone names used in the placeholder data. */
-const SEGMENT_BG = {
-	accent: 'bg-accent',
-	warn: 'bg-warn',
-	calm: 'bg-calm',
-};
+/** Shown when onboarding recorded no coping picks. */
+const DEFAULT_TOOLS = ['box', 'worry'];
 
-const STAT_TEXT = {
-	calm: 'text-calm',
-	warn: 'text-warn',
-	ink: 'text-ink',
-};
+/** Mood marks are 10pt with 3pt between; the track pads 6pt and never goes below 22pt. */
+const MARK = 10;
+const MARK_GAP = 3;
 
-const TOOL_BG = {
-	accent: 'bg-accent',
-	calm: 'bg-calm',
-};
+/** Text scale at which the four mood chips stop fitting on one row. */
+const LARGE_TEXT = 1.35;
+
+/** The tools picked on I5, which I8 promised would be on the home screen. */
+function quickTools(user) {
+	const picked = user?.unsafeMetadata?.onboarding?.coping ?? [];
+	const ids = COPING.filter((c) => picked.includes(c.id)).map((c) => c.toolId);
+	return (ids.length > 0 ? ids : DEFAULT_TOOLS).map(findTool).filter(Boolean);
+}
+
+function dayA11yLabel(day) {
+	if (day.isFuture) return `${day.name}, not yet`;
+	const today = day.isToday ? ', today' : '';
+	if (day.checkins.length === 0) return `${day.name}${today}: no check-ins`;
+	return `${day.name}${today}: ${describe(day.checkins)}`;
+}
 
 /**
- * One day in the week strip (nodes 178:11–178:38).
- *
- * A day with a single check-in is a flat 22px dot; more than one stacks into a
- * taller column of equal slices — 31px for two, 40px for three, matching the
- * frame's 22 + 9 per extra segment.
+ * One day in the week strip (nodes 178:11–178:38): a letter over a track that
+ * stacks that day's check-ins as mood marks, oldest at the top. Today's track
+ * has a dark outline; days still to come are dashed.
  */
-function WeekDay({ day, selected, onPress }) {
-	const count = day.segments.length;
-	const height = count > 1 ? 22 + (count - 1) * 9 : 22;
+function WeekDay({ day, onPress }) {
+	const count = day.checkins.length;
+	const height = Math.max(22, count * MARK + (count - 1) * MARK_GAP + 6);
 
-	let pill;
-	if (day.state === 'today') {
-		pill = (
-			<View className="size-5.5 rounded-day border-2 border-ink bg-white" />
-		);
-	} else if (count === 0) {
-		pill = (
-			<View className="size-5.5 rounded-day border border-hairline bg-white" />
-		);
-	} else if (count === 1) {
-		pill = (
-			<View className={`size-5.5 rounded-day ${SEGMENT_BG[day.segments[0]]}`} />
-		);
-	} else {
-		pill = (
-			<View
-				className="w-5.5 flex-col gap-0.5 overflow-hidden rounded-day bg-white"
-				style={{ height }}
-			>
-				{day.segments.map((tone, i) => (
-					<View key={i} className={`w-full flex-1 ${SEGMENT_BG[tone]}`} />
-				))}
-			</View>
-		);
-	}
+	let track = 'border border-ink-faint bg-white';
+	if (day.isToday) track = 'border-2 border-ink bg-white';
+	else if (day.isFuture) track = 'border border-dashed border-ink-faint';
 
 	return (
 		<Pressable
 			accessibilityRole="button"
-			accessibilityState={{ selected }}
-			accessibilityLabel={`${day.label}, ${count} check-ins`}
+			accessibilityLabel={dayA11yLabel(day)}
+			accessibilityHint={day.isFuture ? undefined : 'Opens this day in your journal'}
+			accessibilityState={{ disabled: day.isFuture }}
+			disabled={day.isFuture}
 			onPress={onPress}
-			className={`flex-col items-center gap-1.5 ${selected ? 'opacity-100' : 'active:opacity-60'}`}
+			// flex-1 splits the row seven ways (≈48pt each), well over 44pt.
+			className="min-h-11 flex-1 items-center gap-2 py-1 active:opacity-60"
 		>
 			<Text
 				className={
-					selected
-						? 'font-inter-semibold text-[11px] text-ink'
-						: 'font-inter-medium text-[11px] text-ink-faint'
+					day.isToday
+						? 'font-inter-bold text-caption text-ink'
+						: 'font-inter-medium text-caption text-ink-muted'
 				}
 			>
-				{day.label}
+				{day.letter}
 			</Text>
-			{pill}
+			<View
+				className={`w-5.5 items-center justify-center gap-1 rounded-md ${track}`}
+				style={{ height }}
+			>
+				{day.checkins.map((c) => (
+					<MoodMark key={c.id} mood={c.mood} size={MARK} />
+				))}
+			</View>
 		</Pressable>
 	);
 }
 
-function SectionHeading({ title, action }) {
+/** What each mark means — the strip can't rely on colour or shape being guessed. */
+function MoodKey() {
 	return (
-		<View className="w-full flex-row items-center justify-between">
-			<Text className="font-inter-semibold text-[15px] text-ink">{title}</Text>
-			<Pressable
-				accessibilityRole="button"
-				// TODO: no frame exists for these destinations yet.
-				onPress={() => {}}
-				hitSlop={8}
-				className="active:opacity-60"
-			>
-				<Text className="font-inter-medium text-[13px] text-accent">
-					{action}
-				</Text>
-			</Pressable>
+		<View
+			accessible
+			accessibilityLabel="Key: square rough, diamond mixed, ring okay, dot good"
+			className="w-full flex-row flex-wrap items-center gap-x-3 gap-y-1"
+		>
+			{MOODS.map((mood) => (
+				<View key={mood} className="flex-row items-center gap-1">
+					<MoodMark mood={mood} size={9} />
+					<Text className="font-inter-medium text-caption text-ink-muted">{mood}</Text>
+				</View>
+			))}
 		</View>
 	);
 }
 
 /** Home dashboard — "S2 Home dashboard (multi check-in)" (Figma node 178:2). */
 export default function HomeScreen() {
-	const insets = useSafeAreaInsets();
-	const [selectedDay, setSelectedDay] = useState(null);
-	const [mood, setMood] = useState(null);
+	const padding = useScreenPadding();
+	const { fontScale } = useWindowDimensions();
 	const { user } = useUser();
 	const router = useRouter();
+	const checkins = useCheckins();
 
-	function settingRoute() {
-		router.push('/settings');
-	}
+	const now = new Date();
+	const week = weekOf(checkins, now);
+	const latest = latestToday(checkins, now);
+	const chipsWrap = fontScale >= LARGE_TEXT;
+
+	const greeting = user?.firstName
+		? `${partOfDay(now)}, ${user.firstName}`
+		: `Good ${partOfDay(now).toLowerCase()}`;
 
 	// Clerk types firstName/lastName as `string | null`, and email + password
 	// sign-ups have neither, so indexing them directly throws for exactly the
@@ -121,141 +131,139 @@ export default function HomeScreen() {
 		user?.primaryEmailAddress?.emailAddress?.[0]?.toUpperCase() ||
 		'?';
 
+	// The mood is logged on tap, before any writing; the check-in screen only
+	// adds words to it.
+	function logMood(mood) {
+		const checkin = addCheckin(mood);
+		router.push({ pathname: '/check-in', params: { mood, checkin: checkin.id } });
+	}
+
 	return (
 		<View className="flex-1 bg-aura-outer">
 			<ScrollView
 				showsVerticalScrollIndicator={false}
 				contentContainerStyle={{
-					paddingTop: Math.max(54, insets.top + 8),
-					paddingBottom: 10,
-					paddingHorizontal: 18,
+					...padding,
+					paddingBottom: 12,
+					paddingHorizontal: GUTTER,
 				}}
 			>
 				<View className="w-full flex-row items-center justify-between">
-					<View className="flex-col gap-0.5">
-						<Text className="font-inter-bold text-[21px] text-ink">
-							{home.greeting}
+					<View className="flex-1 flex-col gap-0.5">
+						<Text accessibilityRole="header" className="font-inter-bold text-large-title text-ink">
+							{greeting}
 						</Text>
-						<Text className="font-inter text-[12px] text-ink-muted">
-							{home.dayLine}
+						<Text className="font-inter text-footnote text-ink-muted">
+							Day {bmtDay(now)} · Week {bmtWeek(now)} of {BMT_WEEKS}
 						</Text>
 					</View>
 					{/* Avatar placeholder — the frame has no image here either. */}
 					<Pressable
 						accessibilityRole="button"
 						accessibilityLabel="Settings"
-						className="size-8.5 items-center justify-center rounded-pill bg-avatar active:opacity-70"
-						onPress={settingRoute}
+						// 34pt circle + 5 each side = 44pt.
+						hitSlop={5}
+						className="size-8.5 items-center justify-center rounded-full bg-avatar active:opacity-70"
+						onPress={() => router.push('/settings')}
 					>
-						<Text className="font-inter-semibold text-[13px] text-ink-muted">
-							{initials}
-						</Text>
+						<Text className="font-inter-semibold text-subhead text-ink-muted">{initials}</Text>
 					</Pressable>
 				</View>
 
-				<View className="h-3.5" />
+				<View className="h-4" />
 
-				<View className="w-full flex-row items-end justify-between">
-					{WEEK.map((day, i) => (
+				<View className="w-full flex-row items-end">
+					{week.map((day) => (
 						<WeekDay
-							key={i}
+							key={day.letter + day.date.getDate()}
 							day={day}
-							selected={selectedDay === i}
-							onPress={() => setSelectedDay(selectedDay === i ? null : i)}
+							onPress={() => router.push(`/journal?day=${dayKey(day.date)}`)}
 						/>
 					))}
 				</View>
 
-				<View className="h-1.5" />
+				<View className="h-2" />
 
-				<Text className="w-full font-inter text-[11px] leading-[15.62px] text-ink-faint">
-					{home.weekHint}
+				<MoodKey />
+
+				<View className="h-1" />
+
+				<Text className="w-full font-inter text-caption text-ink-muted">
+					Tap a day to open it in your journal.
 				</Text>
 
-				<View className="h-3.5" />
+				<View className="h-4" />
 
-				<View className="w-full gap-2.5 overflow-hidden rounded-control bg-accent px-3.75 py-3.5">
-					<Text className="w-full font-inter-bold text-[18px] leading-[25.56px] text-white">
-						{home.recheck.title}
+				{/* Darker than the button orange so white text passes 4.5:1 (5.2:1). */}
+				<View className="w-full gap-3 overflow-hidden rounded-lg bg-accent-strong px-4 py-4">
+					<Text
+						accessibilityRole="header"
+						className="w-full font-inter-bold text-headline text-white"
+					>
+						{latest ? 'Check in again?' : 'How’s today been?'}
 					</Text>
-					<Text className="w-full font-inter text-[12px] leading-[17.04px] text-on-accent-muted">
-						{home.recheck.subtitle}
+					<Text className="w-full font-inter text-footnote text-white">
+						{latest
+							? `You logged "${latest.mood.toLowerCase()}" at ${timeLabel(latest.createdAt)}. Things can shift.`
+							: 'One tap is enough. Writing more is up to you.'}
 					</Text>
-					<View className="w-full flex-row gap-1.75">
-						{MOODS.map((label) => (
-							<Pressable
-								key={label}
-								accessibilityRole="button"
-								accessibilityState={{ selected: mood === label }}
-								onPress={() => {
-								setMood(label);
-								router.push(
-									`/check-in?mood=${encodeURIComponent(label)}`,
-								);
-							}}
-								className={`flex-1 items-center justify-center overflow-hidden rounded-chip py-2.75 active:opacity-80 ${
-									mood === label ? 'bg-ink' : 'bg-white'
-								}`}
-							>
-								<Text
-									className={`font-inter-semibold text-[12px] ${
-										mood === label ? 'text-white' : 'text-ink'
-									}`}
+					<View className={`w-full flex-row gap-2 ${chipsWrap ? 'flex-wrap' : ''}`}>
+						{MOODS.map((label) => {
+							const current = latest?.mood === label;
+							return (
+								<Pressable
+									key={label}
+									accessibilityRole="button"
+									accessibilityLabel={`Log ${label}`}
+									accessibilityHint={current ? 'Your latest check-in today' : undefined}
+									accessibilityState={{ selected: current }}
+									onPress={() => logMood(label)}
+									className={`min-h-11 items-center justify-center overflow-hidden rounded-md px-1 py-3 active:opacity-80 ${
+										chipsWrap ? 'basis-[47%] grow' : 'flex-1'
+									} ${current ? 'bg-ink' : 'bg-white'}`}
 								>
-									{label}
-								</Text>
-							</Pressable>
-						))}
+									<Text
+										className={`font-inter-semibold text-footnote ${
+											current ? 'text-white' : 'text-ink'
+										}`}
+									>
+										{label}
+									</Text>
+								</Pressable>
+							);
+						})}
 					</View>
 				</View>
 
-				<View className="h-3" />
+				<View className="h-5" />
 
-				<View className="w-full flex-row gap-2.25">
-					{home.stats.map((stat) => (
-						<View
-							key={stat.lines.join(' ')}
-							className="flex-1 gap-0.75 overflow-hidden rounded-control border border-hairline bg-white p-3.25"
-						>
-							<View className="flex-row items-baseline gap-0.75">
-								<Text
-									className={`font-inter-bold text-[24px] ${STAT_TEXT[stat.tone]}`}
-								>
-									{stat.value}
-								</Text>
-								{stat.unit ? (
-									<Text className="font-inter-medium text-[13px] text-ink-faint">
-										{stat.unit}
-									</Text>
-								) : null}
-							</View>
-							<Text className="w-full font-inter-medium text-[11px] leading-[14.85px] text-ink-muted">
-								{stat.lines.join('\n')}
-							</Text>
-						</View>
-					))}
-				</View>
+				<SectionHeading
+					title="Insights"
+					action="See all"
+					onAction={() => router.push('/insights')}
+				/>
 
-				<View className="h-4.5" />
+				<View className="h-2" />
 
-				<SectionHeading title="Insights" action="See all" />
-
-				<View className="h-2.25" />
-
-				<View className="w-full gap-1.75 overflow-hidden rounded-control bg-insight px-3.75 py-3.5">
-					<Text className="w-full font-inter-semibold text-[15px] leading-[20.4px] text-ink">
+				{/* TODO: placeholder insight until the insights API exists. */}
+				<View className="w-full gap-2 overflow-hidden rounded-lg bg-insight px-4 py-4">
+					<Text className="w-full font-inter-semibold text-body text-ink">
 						{home.insight.title}
 					</Text>
-					<Text className="w-full font-inter text-[11px] leading-[15.62px] text-ink-muted">
+					<Text className="w-full font-inter text-caption text-ink-muted">
 						{home.insight.body}
 					</Text>
 				</View>
 
-				<View className="h-3.5" />
+				<View className="h-4" />
 
-				<SectionHeading title="Your BMT" action="Timeline" />
+				<SectionHeading
+					title="Your BMT"
+					action="Timeline"
+					onAction={() => router.push('/insights/timeline')}
+				/>
 
-				<View className="h-2.25" />
+				<View className="h-2" />
 
 				<ScrollView
 					horizontal
@@ -265,49 +273,59 @@ export default function HomeScreen() {
 					{home.milestones.map((milestone) => (
 						<View
 							key={milestone.name}
-							className="gap-1.75 overflow-hidden rounded-tile border border-hairline bg-white px-3 py-2.75"
+							accessible
+							accessibilityLabel={`${milestone.name}, ${milestone.week}, ${
+								milestone.mood ?? 'coming up'
+							}`}
+							className="gap-2 overflow-hidden rounded-md border border-hairline bg-white px-3 py-3"
 						>
-							<View
-								className={`size-2.5 rounded-dot ${
-									milestone.tone === 'upcoming'
-										? 'border-1.5 border-hairline bg-white'
-										: SEGMENT_BG[milestone.tone]
-								}`}
-							/>
+							{milestone.mood ? (
+								<MoodMark mood={milestone.mood} />
+							) : (
+								<View className="size-2.5 rounded-full border-1.5 border-dashed border-ink-faint" />
+							)}
 							<Text
-								className={`font-inter-semibold text-[13px] ${
-									milestone.tone === 'upcoming' ? 'text-ink-muted' : 'text-ink'
+								className={`font-inter-semibold text-subhead ${
+									milestone.mood ? 'text-ink' : 'text-ink-muted'
 								}`}
 							>
 								{milestone.name}
 							</Text>
-							<Text className="font-inter-medium text-[10px] text-ink-faint">
+							<Text className="font-inter-medium text-caption text-ink-faint">
 								{milestone.week}
 							</Text>
 						</View>
 					))}
 				</ScrollView>
 
-				<View className="h-3.5" />
+				<View className="h-4" />
 
-				<SectionHeading title="Quick tools" action="All tools" />
+				<SectionHeading
+					title="Quick tools"
+					action="All tools"
+					onAction={() => router.push('/tools')}
+				/>
 
-				<View className="h-2.25" />
+				<View className="h-2" />
 
-				<View className="w-full flex-row gap-2.25">
-					{home.tools.map((tool) => (
-						<View
-							key={tool.name}
-							className="flex-1 gap-2 overflow-hidden rounded-control border border-hairline bg-white p-3.25"
+				{/* Wraps to a second row when more than two tools were picked. */}
+				<View className="w-full flex-row flex-wrap gap-2">
+					{quickTools(user).map((tool) => (
+						<Pressable
+							key={tool.id}
+							accessibilityRole="button"
+							accessibilityLabel={`${tool.name}, ${tool.duration}`}
+							onPress={() => router.push(tool.href)}
+							className="min-w-[45%] flex-1 gap-2 overflow-hidden rounded-lg border border-hairline bg-white p-3 active:opacity-80"
 						>
-							<View className={`size-6.5 rounded-icon ${TOOL_BG[tool.tone]}`} />
-							<Text className="w-full font-inter-semibold text-[13px] leading-[17.16px] text-ink">
+							<ToolIcon tool={tool} size={26} />
+							<Text className="w-full font-inter-semibold text-subhead text-ink">
 								{tool.name}
 							</Text>
-							<Text className="font-inter-medium text-[11px] text-ink-faint">
+							<Text className="font-inter-medium text-caption text-ink-faint">
 								{tool.duration}
 							</Text>
-						</View>
+						</Pressable>
 					))}
 				</View>
 			</ScrollView>

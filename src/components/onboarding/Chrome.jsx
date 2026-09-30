@@ -1,48 +1,79 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Button from '@/components/ui/Button';
+import TextButton from '@/components/ui/TextButton';
+import useScreenPadding from '@/components/ui/useScreenPadding';
+import { Image } from 'expo-image';
+import { ScrollView, Text, View } from 'react-native';
+
+const breathingRings = require('@/assets/images/breathing-rings.svg');
+
+/**
+ * Title sizes. `large` is I1, which also drops the title down the screen and
+ * sits closer to its content.
+ */
+const SIZES = {
+	default: { title: 'font-inter-bold text-large-title', top: 0, gap: 24 },
+	large: { title: 'font-inter-bold text-display', top: 24, gap: 16 },
+};
 
 /**
  * Shared frame for every onboarding step (I1–I8).
  *
- * Every frame is the same stack: progress bar, eyebrow, title, body, content,
- * footnote, flex spacer, full-width CTA. 60/44/28 padding, floored by the device
- * insets the way the other screens do it.
+ * Every frame is the same stack: back link, progress bar, eyebrow, title, body,
+ * content, footnote, flex spacer, full-width CTA. The wording comes from the
+ * step itself (src/data/onboarding.js); a step only passes what makes it
+ * different. 60/44/28 padding, floored by the device insets.
  */
 export default function Chrome({
-	progress,
-	/** I1 drops the title 80px down the screen (node 16:3). */
-	topSpace = 0,
-	eyebrow,
-	title,
-	titleClassName = 'font-inter-bold text-[26px] leading-[32.5px] text-ink',
-	body,
+	/** The entry from STEPS: progress, eyebrow, title, body, footnote, cta. */
+	step,
+	size = 'default',
+	/** Size of the breathing rings above the title (I1, I8). */
+	rings,
+	/** Omitted on I1. Onboarding is one route, so this is the only way back on iOS. */
+	onBack,
+	onNext,
+	/** While the step's action runs — the button shows `busyLabel` and locks. */
+	busy = false,
+	busyLabel,
+	/** I8's amber "Enter Steady". */
+	tone,
+	/** Overrides the step's own footnote (I8 reports the reminder result). */
 	footnote,
-	/** Gap between the body and the content block; 22px on every frame but I1. */
-	contentSpace = 22,
-	cta,
-	ctaTone = 'accent',
-	ctaDisabled = false,
+	/** Shown above the button when the step's action failed. */
+	error,
 	/** I1 only: a line under the button rather than above it (node 16:11). */
 	ctaFootnote,
-	onPress,
 	children,
 }) {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ bottom: 44, bottomGap: 12 });
+	const look = SIZES[size];
+	const note = footnote ?? step.footnote;
 
 	return (
-		<View
-			className="flex-1 bg-aura-outer px-7"
-			style={{
-				paddingTop: Math.max(60, insets.top + 12),
-				paddingBottom: Math.max(44, insets.bottom + 12),
-			}}
-		>
-			{progress === null ? null : (
+		<View className="flex-1 bg-aura-outer px-5" style={padding}>
+			{onBack ? (
 				<>
-					<View className="h-1.5 w-full overflow-hidden rounded-progress bg-hairline">
+					<TextButton
+						label="Back"
+						accessibilityLabel="Back to the previous step"
+						onPress={onBack}
+						className="self-start"
+					/>
+					<View className="h-4" />
+				</>
+			) : null}
+
+			{step.progress === null ? null : (
+				<>
+					<View
+						accessibilityRole="progressbar"
+						accessibilityLabel="Setup progress"
+						accessibilityValue={{ min: 0, max: 100, now: step.progress }}
+						className="h-1.5 w-full overflow-hidden rounded-full bg-hairline"
+					>
 						<View
-							className="h-1.5 rounded-progress bg-accent"
-							style={{ width: `${progress}%` }}
+							className="h-1.5 rounded-full bg-accent"
+							style={{ width: `${step.progress}%` }}
 						/>
 					</View>
 					<View className="h-7" />
@@ -54,77 +85,85 @@ export default function Chrome({
 				showsVerticalScrollIndicator={false}
 				contentContainerStyle={{ flexGrow: 1 }}
 			>
-				{topSpace ? <View style={{ height: topSpace }} /> : null}
+				{look.top ? <View style={{ height: look.top }} /> : null}
 
-				{eyebrow ? (
+				{rings ? (
 					<>
-						<Text className="w-full font-inter-semibold text-[12px] tracking-[0.96px] text-accent">
-							{eyebrow}
-						</Text>
-						<View className="h-2.5" />
+						<Image
+							source={breathingRings}
+							style={{ width: rings, height: rings }}
+							contentFit="contain"
+							accessibilityIgnoresInvertColors
+						/>
+						<View className="h-6" />
 					</>
 				) : null}
 
-				<Text className={`w-full ${titleClassName}`}>{title}</Text>
-
-				{body ? (
+				{step.eyebrow ? (
 					<>
-						<View className="h-2.5" />
-						<Text className="w-full font-inter text-[15px] leading-[21px] text-ink-muted">
-							{body}
+						<Text className="w-full font-inter-semibold text-footnote tracking-[0.96px] text-accent-text">
+							{step.eyebrow}
+						</Text>
+						<View className="h-3" />
+					</>
+				) : null}
+
+				<Text accessibilityRole="header" className={`w-full ${look.title} text-ink`}>
+					{step.title}
+				</Text>
+
+				{step.body ? (
+					<>
+						<View className="h-3" />
+						<Text className="w-full font-inter text-body text-ink-muted">
+							{step.body}
 						</Text>
 					</>
 				) : null}
 
 				{children ? (
 					<>
-						<View style={{ height: contentSpace }} />
+						<View style={{ height: look.gap }} />
 						{children}
 					</>
 				) : null}
 
-				{footnote ? (
+				{note ? (
 					<>
 						<View className="h-4" />
-						<Text className="w-full font-inter-medium text-[13px] leading-[18.2px] text-ink">
-							{footnote}
+						<Text className="w-full font-inter-medium text-subhead text-ink">
+							{note}
 						</Text>
 					</>
 				) : null}
 
-				<View className="flex-1" />
+				<View className="min-h-4 flex-1" />
 			</ScrollView>
 
-			<Pressable
-				accessibilityRole="button"
-				accessibilityState={{ disabled: ctaDisabled }}
-				disabled={ctaDisabled}
-				onPress={onPress}
-				className={`w-full items-center justify-center overflow-hidden rounded-control py-4 ${
-					ctaDisabled
-						? 'bg-hairline'
-						: ctaTone === 'warn'
-							? 'bg-warn active:opacity-85'
-							: 'bg-accent active:opacity-85'
-				}`}
-			>
-				<Text
-					className={`font-inter-semibold text-[16px] ${
-						ctaDisabled
-							? 'text-ink-faint'
-							: ctaTone === 'warn'
-								? 'text-ink'
-								: 'text-white'
-					}`}
-				>
-					{cta}
-				</Text>
-			</Pressable>
+			{error ? (
+				<>
+					<Text
+						accessibilityRole="alert"
+						className="w-full text-center font-inter-semibold text-subhead text-danger"
+					>
+						{error}
+					</Text>
+					<View className="h-3" />
+				</>
+			) : null}
+
+			<Button
+				label={step.cta}
+				tone={tone}
+				busy={busy}
+				busyLabel={busyLabel}
+				onPress={onNext}
+			/>
 
 			{ctaFootnote ? (
 				<>
-					<View className="h-3.5" />
-					<Text className="w-full text-center font-inter text-[12px] leading-[16.8px] text-ink-muted">
+					<View className="h-4" />
+					<Text className="w-full text-center font-inter text-footnote text-ink-muted">
 						{ctaFootnote}
 					</Text>
 				</>
