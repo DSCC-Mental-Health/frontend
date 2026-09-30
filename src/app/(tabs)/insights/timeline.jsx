@@ -2,6 +2,7 @@ import MoodMark from '@/components/MoodMark';
 import Eyebrow from '@/components/ui/Eyebrow';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
+import { GUTTER } from '@/constants/layout';
 import { BMT_WEEKS, bmtDay, bmtWeek } from '@/data/dates';
 import { useRouter } from 'expo-router';
 import { ScrollView, Text, View } from 'react-native';
@@ -29,7 +30,7 @@ function Milestone({ milestone, isLast }) {
 			accessibilityLabel={`Week ${milestone.week}, ${milestone.title}${
 				upcoming ? ', coming up' : `, ${milestone.mood}`
 			}. ${milestone.note}`}
-			className="w-full flex-row gap-3.25"
+			className="w-full flex-row gap-3"
 		>
 			<View className="w-3.5 items-center">
 				{upcoming ? (
@@ -41,9 +42,9 @@ function Milestone({ milestone, isLast }) {
 				{isLast ? null : <View className="w-0.5 flex-1 bg-hairline" />}
 			</View>
 
-			<View className="flex-1 pb-3.5">
+			<View className="flex-1 pb-4">
 				<View
-					className={`w-full gap-1.25 overflow-hidden rounded-tile border px-3.25 py-2.75 ${
+					className={`w-full gap-1 overflow-hidden rounded-md border px-3 py-3 ${
 						upcoming ? 'border-avatar bg-avatar' : 'border-hairline bg-white'
 					}`}
 				>
@@ -51,22 +52,22 @@ function Milestone({ milestone, isLast }) {
 						<Eyebrow>WEEK {milestone.week}</Eyebrow>
 						{upcoming ? null : (
 							// Ink, not the mood colour: amber text was 1.9:1 on white.
-							<View className="flex-row items-center gap-1.25">
+							<View className="flex-row items-center gap-1">
 								<MoodMark mood={milestone.mood} size={9} />
-								<Text className="font-inter-semibold text-[11px] text-ink">
+								<Text className="font-inter-semibold text-caption text-ink">
 									{milestone.mood}
 								</Text>
 							</View>
 						)}
 					</View>
 					<Text
-						className={`w-full font-inter-semibold text-[15px] ${
+						className={`w-full font-inter-semibold text-body ${
 							upcoming ? 'text-ink-muted' : 'text-ink'
 						}`}
 					>
 						{milestone.title}
 					</Text>
-					<Text className="w-full font-inter text-[12px] leading-[17.04px] text-ink-muted">
+					<Text className="w-full font-inter text-footnote text-ink-muted">
 						{milestone.note}
 					</Text>
 				</View>
@@ -77,7 +78,7 @@ function Milestone({ milestone, isLast }) {
 
 /** BMT timeline — "R3 BMT timeline" (node 176:2), opened from R2. */
 export default function TimelineScreen() {
-	const padding = useScreenPadding({ top: 54, topGap: 8 });
+	const padding = useScreenPadding();
 	const router = useRouter();
 
 	const now = new Date();
@@ -94,7 +95,7 @@ export default function TimelineScreen() {
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{
 				...padding,
-				paddingHorizontal: 18,
+				paddingHorizontal: GUTTER,
 				paddingBottom: 24,
 			}}
 		>
@@ -106,15 +107,15 @@ export default function TimelineScreen() {
 				className="self-start"
 			/>
 
-			<View className="h-3.5" />
+			<View className="h-4" />
 
-			<Text accessibilityRole="header" className="w-full font-inter-bold text-[24px] text-ink">
+			<Text accessibilityRole="header" className="w-full font-inter-bold text-large-title text-ink">
 				Your BMT timeline
 			</Text>
 
-			<View className="h-1.5" />
+			<View className="h-2" />
 
-			<Text className="w-full font-inter text-[13px] leading-[18.46px] text-ink-muted">
+			<Text className="w-full font-inter text-subhead text-ink-muted">
 				Week {week} of {BMT_WEEKS} · {bmtDay(now)} days in
 			</Text>
 
@@ -124,10 +125,10 @@ export default function TimelineScreen() {
 				accessibilityRole="progressbar"
 				accessibilityLabel="BMT progress"
 				accessibilityValue={{ min: 0, max: BMT_WEEKS, now: week }}
-				className="h-2 w-full overflow-hidden rounded-mark bg-hairline"
+				className="h-2 w-full overflow-hidden rounded-full bg-hairline"
 			>
 				<View
-					className="h-2 rounded-mark bg-accent"
+					className="h-2 rounded-full bg-accent"
 					style={{ width: `${Math.min(week / BMT_WEEKS, 1) * 100}%` }}
 				/>
 			</View>
@@ -146,7 +147,7 @@ export default function TimelineScreen() {
 
 			<View className="h-2" />
 
-			<Text className="w-full font-inter text-[11px] leading-[15.62px] text-ink-muted">
+			<Text className="w-full font-inter text-caption text-ink-muted">
 				Milestone dates come from the schedule you entered at setup. Nothing here is
 				shared with your unit.
 			</Text>

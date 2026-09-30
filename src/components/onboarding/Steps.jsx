@@ -6,35 +6,36 @@ import {
 	REACH_OUT,
 	REMINDER_PROBLEMS,
 	REMINDERS,
-	STEPS,
 } from '@/data/onboarding';
 import { findTool } from '@/data/tools';
 import { Text, View } from 'react-native';
 import Chrome from './Chrome';
-import { InfoCard, OptionCard, OptionRow } from './Options';
+import { InfoCard, OptionCard, OptionGroup, OptionRow } from './Options';
+
+/**
+ * One component per Figma frame. Chrome draws the shared furniture and reads
+ * the wording from `step`, so each one below is only what makes it different.
+ */
 
 /** I1 Welcome (16:2) — no progress bar or back link, larger title, footnote under the CTA. */
 export function Welcome({ step, onNext }) {
 	return (
 		<Chrome
-			progress={step.progress}
-			topSpace={24}
+			step={step}
+			size="large"
 			rings={112}
-			contentSpace={14}
-			title={step.title}
-			titleClassName="font-inter-bold text-[34px] leading-[47.6px] text-ink"
-			cta={step.cta}
-			onPress={onNext}
+			onNext={onNext}
 			ctaFootnote="About a minute. Nothing goes to your unit."
 		>
-			<View className="gap-5.5">
-				<Text className="w-full font-inter text-[16px] leading-[22.4px] text-ink-muted">
-					The first weeks of BMT move fast. It&rsquo;s easy to miss the early signs of
-					stress until they&rsquo;ve already built up.
-				</Text>
-				<Text className="w-full font-inter text-[16px] leading-[22.4px] text-ink-muted">
-					Steady helps you notice them sooner.
-				</Text>
+			<View className="gap-6">
+				{step.paragraphs.map((paragraph) => (
+					<Text
+						key={paragraph}
+						className="w-full font-inter text-body-lg text-ink-muted"
+					>
+						{paragraph}
+					</Text>
+				))}
 			</View>
 		</Chrome>
 	);
@@ -43,13 +44,7 @@ export function Welcome({ step, onNext }) {
 /** I2 Privacy (16:12) — three tinted panels. */
 export function Privacy({ step, onNext, onBack }) {
 	return (
-		<Chrome
-			progress={step.progress}
-			onBack={onBack}
-			title={step.title}
-			cta={step.cta}
-			onPress={onNext}
-		>
+		<Chrome step={step} onBack={onBack} onNext={onNext}>
 			<PrivacyPanels />
 		</Chrome>
 	);
@@ -58,17 +53,8 @@ export function Privacy({ step, onNext, onBack }) {
 /** I3 Notice (16:34) — single-select mood. */
 export function Notice({ step, answers, setAnswer, onNext, onBack }) {
 	return (
-		<Chrome
-			progress={step.progress}
-			onBack={onBack}
-			eyebrow={step.eyebrow}
-			title={step.title}
-			body={step.body}
-			footnote={step.footnote}
-			cta={step.cta}
-			onPress={onNext}
-		>
-			<View accessibilityRole="radiogroup" className="w-full gap-2.5">
+		<Chrome step={step} onBack={onBack} onNext={onNext}>
+			<OptionGroup>
 				{MOODS.map((mood) => (
 					<OptionRow
 						key={mood}
@@ -77,7 +63,7 @@ export function Notice({ step, answers, setAnswer, onNext, onBack }) {
 						onPress={() => setAnswer('mood', answers.mood === mood ? null : mood)}
 					/>
 				))}
-			</View>
+			</OptionGroup>
 		</Chrome>
 	);
 }
@@ -92,17 +78,8 @@ export function Cope({ step, answers, setAnswer, onNext, onBack }) {
 	}
 
 	return (
-		<Chrome
-			progress={step.progress}
-			onBack={onBack}
-			eyebrow={step.eyebrow}
-			title={step.title}
-			body={step.body}
-			footnote={step.footnote}
-			cta={step.cta}
-			onPress={onNext}
-		>
-			<View className="w-full gap-2.5">
+		<Chrome step={step} onBack={onBack} onNext={onNext}>
+			<OptionGroup multiple>
 				{COPING.map((option) => (
 					<OptionRow
 						key={option.id}
@@ -112,7 +89,7 @@ export function Cope({ step, answers, setAnswer, onNext, onBack }) {
 						onPress={() => toggle(option.id)}
 					/>
 				))}
-			</View>
+			</OptionGroup>
 		</Chrome>
 	);
 }
@@ -120,17 +97,8 @@ export function Cope({ step, answers, setAnswer, onNext, onBack }) {
 /** I6 Reach Out (17:26) — single-select card. */
 export function ReachOut({ step, answers, setAnswer, onNext, onBack }) {
 	return (
-		<Chrome
-			progress={step.progress}
-			onBack={onBack}
-			eyebrow={step.eyebrow}
-			title={step.title}
-			body={step.body}
-			footnote={step.footnote}
-			cta={step.cta}
-			onPress={onNext}
-		>
-			<View accessibilityRole="radiogroup" className="w-full gap-3">
+		<Chrome step={step} onBack={onBack} onNext={onNext}>
+			<OptionGroup gap="gap-3">
 				{REACH_OUT.map((option) => (
 					<OptionCard
 						key={option.id}
@@ -140,7 +108,7 @@ export function ReachOut({ step, answers, setAnswer, onNext, onBack }) {
 						onPress={() => setAnswer('reachOut', option.id)}
 					/>
 				))}
-			</View>
+			</OptionGroup>
 		</Chrome>
 	);
 }
@@ -152,15 +120,13 @@ export function ReachOut({ step, answers, setAnswer, onNext, onBack }) {
 export function Reminder({ step, answers, setAnswer, onNext, onBack, busy }) {
 	return (
 		<Chrome
-			progress={step.progress}
+			step={step}
 			onBack={onBack}
-			title={step.title}
-			body={step.body}
-			cta={busy ? 'Setting reminder…' : step.cta}
-			ctaDisabled={busy}
-			onPress={onNext}
+			onNext={onNext}
+			busy={busy}
+			busyLabel="Setting reminder…"
 		>
-			<View accessibilityRole="radiogroup" className="w-full gap-2.5">
+			<OptionGroup>
 				{REMINDERS.map((option) => (
 					<OptionRow
 						key={option.id}
@@ -171,7 +137,7 @@ export function Reminder({ step, answers, setAnswer, onNext, onBack, busy }) {
 						}
 					/>
 				))}
-			</View>
+			</OptionGroup>
 		</Chrome>
 	);
 }
@@ -187,25 +153,22 @@ export function Ready({ step, answers, onNext, onBack, busy, error }) {
 		reminderLine =
 			answers.reminderStatus === 'scheduled'
 				? reminder.summary
-				: REMINDER_PROBLEMS[answers.reminderStatus] ?? REMINDER_PROBLEMS.unavailable;
+				: (REMINDER_PROBLEMS[answers.reminderStatus] ?? REMINDER_PROBLEMS.unavailable);
 	}
 
 	return (
 		<Chrome
-			progress={step.progress}
-			onBack={busy ? undefined : onBack}
+			step={step}
 			rings={64}
-			title={step.title}
-			titleClassName="font-inter-bold text-[28px] leading-[39.2px] text-ink"
-			body={step.body}
+			tone="warn"
+			onBack={busy ? undefined : onBack}
+			onNext={onNext}
+			busy={busy}
+			busyLabel="Setting up…"
 			footnote={reminderLine}
-			cta={busy ? 'Setting up…' : step.cta}
-			ctaTone="warn"
-			ctaDisabled={busy}
-			ctaError={error}
-			onPress={onNext}
+			error={error}
 		>
-			<View className="w-full gap-2.5">
+			<View className="w-full gap-3">
 				{picked.map((option) => (
 					<InfoCard
 						key={option.id}
@@ -221,5 +184,3 @@ export function Ready({ step, answers, onNext, onBack, busy, error }) {
 
 /** Ordered to match STEPS in src/data/onboarding.js. */
 export const STEP_COMPONENTS = [Welcome, Privacy, Notice, Cope, ReachOut, Reminder, Ready];
-
-export { STEPS };

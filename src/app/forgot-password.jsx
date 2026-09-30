@@ -1,6 +1,7 @@
-import AuthScreen, { ErrorBanner, SubmitButton, TextLink } from '@/components/auth/AuthScreen';
-import { fieldError, formError } from '@/components/auth/errors';
+import AuthScreen, { ErrorBanner, TextLink } from '@/components/auth/AuthScreen';
 import Field from '@/components/auth/Field';
+import useAuthErrors from '@/components/auth/useAuthErrors';
+import Button from '@/components/ui/Button';
 import { useSignIn } from '@clerk/expo';
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
@@ -26,78 +27,65 @@ export default function ForgotPasswordScreen() {
 	// A verified code can't be verified twice, so a rejected new password
 	// retries only the password step.
 	const [codeVerified, setCodeVerified] = useState(false);
-	const [failure, setFailure] = useState(null);
 	const [resent, setResent] = useState(false);
+	const attempt = useAuthErrors(errors, FALLBACK);
 
 	const busy = fetchStatus === 'fetching';
-	const shown = failure?.clerk ? errors : null;
-
-	function edit(setter) {
-		return (value) => {
-			setter(value);
-			setFailure(null);
-		};
-	}
 
 	async function sendCode() {
 		if (busy) return;
-		setFailure(null);
+		attempt.clear();
 
 		const { error } = await signIn.create({ identifier: email.trim() });
-		if (error) return setFailure({ clerk: error });
+		if (error) return attempt.fail({ clerk: error });
 
 		const { error: sendError } = await signIn.resetPasswordEmailCode.sendCode();
-		if (sendError) return setFailure({ clerk: sendError });
+		if (sendError) return attempt.fail({ clerk: sendError });
 
 		setStep('reset');
 	}
 
 	async function resend() {
-		setFailure(null);
+		attempt.clear();
 		const { error } = await signIn.resetPasswordEmailCode.sendCode();
-		if (error) return setFailure({ clerk: error });
+		if (error) return attempt.fail({ clerk: error });
 		setResent(true);
 	}
 
 	async function reset() {
 		if (busy) return;
-		setFailure(null);
+		attempt.clear();
 
 		if (!codeVerified) {
 			const { error } = await signIn.resetPasswordEmailCode.verifyCode({
 				code: code.trim(),
 			});
-			if (error) return setFailure({ clerk: error });
+			if (error) return attempt.fail({ clerk: error });
 			setCodeVerified(true);
 		}
 
 		const { error } = await signIn.resetPasswordEmailCode.submitPassword({ password });
-		if (error) return setFailure({ clerk: error });
+		if (error) return attempt.fail({ clerk: error });
 
 		if (signIn.status !== 'complete') {
-			return setFailure({ message: 'One more step is needed to finish logging in.' });
+			return attempt.fail({ message: 'One more step is needed to finish logging in.' });
 		}
 
 		const { error: finalizeError } = await signIn.finalize();
-		if (finalizeError) return setFailure({ clerk: finalizeError });
+		if (finalizeError) return attempt.fail({ clerk: finalizeError });
 
 		router.replace('/home');
 	}
 
 	if (step === 'reset') {
-		const codeError = fieldError(shown, 'code');
-		const passwordError = fieldError(shown, 'password');
-		const banner = failure
-			? (failure.message ??
-				formError(shown, ['code', 'password'], failure.clerk, FALLBACK))
-			: null;
+		const banner = attempt.banner(['code', 'password']);
 
 		return (
 			<AuthScreen
 				onBack={() => {
 					setStep('email');
 					setCodeVerified(false);
-					setFailure(null);
+					attempt.clear();
 				}}
 				title="Check your email"
 				body={`Enter the 6-digit code sent to ${email.trim()}, then choose a new password.`}
@@ -107,8 +95,8 @@ export default function ForgotPasswordScreen() {
 						<Field
 							label="Code"
 							value={code}
-							onChangeText={edit(setCode)}
-							error={codeError}
+							onChangeText={attempt.edit(setCode)}
+							error={attempt.field('code')}
 							placeholder="123456"
 							keyboardType="number-pad"
 							autoComplete="one-time-code"
@@ -119,16 +107,16 @@ export default function ForgotPasswordScreen() {
 							onSubmitEditing={() => passwordRef.current?.focus()}
 						/>
 
-						<View className="h-3.5" />
+						<View className="h-4" />
 
 						<View className="w-full flex-row items-center gap-2">
 							<TextLink label="Send a new code" onPress={resend} />
 							{resent ? (
-								<Text className="font-inter text-[13px] text-ink-muted">Sent.</Text>
+								<Text className="font-inter text-subhead text-ink-muted">Sent.</Text>
 							) : null}
 						</View>
 
-						<View className="h-4.5" />
+						<View className="h-5" />
 					</>
 				)}
 
@@ -137,8 +125,8 @@ export default function ForgotPasswordScreen() {
 					label="New password"
 					secure
 					value={password}
-					onChangeText={edit(setPassword)}
-					error={passwordError}
+					onChangeText={attempt.edit(setPassword)}
+					error={attempt.field('password')}
 					placeholder="At least 8 characters"
 					autoComplete="new-password"
 					textContentType="newPassword"
@@ -148,14 +136,14 @@ export default function ForgotPasswordScreen() {
 
 				{banner ? (
 					<>
-						<View className="h-2.5" />
+						<View className="h-3" />
 						<ErrorBanner message={banner} />
 					</>
 				) : null}
 
-				<View className="h-6.5" />
+				<View className="h-7" />
 
-				<SubmitButton
+				<Button
 					label="Reset password"
 					busyLabel="Resetting…"
 					busy={busy}
@@ -166,10 +154,7 @@ export default function ForgotPasswordScreen() {
 		);
 	}
 
-	const emailError = fieldError(shown, 'identifier');
-	const banner = failure
-		? (failure.message ?? formError(shown, ['identifier'], failure.clerk, FALLBACK))
-		: null;
+	const banner = attempt.banner(['identifier']);
 
 	return (
 		<AuthScreen
@@ -179,8 +164,8 @@ export default function ForgotPasswordScreen() {
 			<Field
 				label="Email"
 				value={email}
-				onChangeText={edit(setEmail)}
-				error={emailError}
+				onChangeText={attempt.edit(setEmail)}
+				error={attempt.field('identifier')}
 				placeholder="you@example.com"
 				keyboardType="email-address"
 				autoComplete="email"
@@ -191,14 +176,14 @@ export default function ForgotPasswordScreen() {
 
 			{banner ? (
 				<>
-					<View className="h-2.5" />
+					<View className="h-3" />
 					<ErrorBanner message={banner} />
 				</>
 			) : null}
 
-			<View className="h-6.5" />
+			<View className="h-7" />
 
-			<SubmitButton
+			<Button
 				label="Send code"
 				busyLabel="Sending…"
 				busy={busy}

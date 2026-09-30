@@ -9,22 +9,22 @@ import { Text, View } from 'react-native';
 export default function DiscardSheet({ visible, body, onSave, onDiscard, onKeep }) {
 	return (
 		<Sheet visible={visible} onClose={onKeep}>
-			<Text className="font-inter-bold text-[20px] leading-[29px] text-ink">
+			<Text className="font-inter-bold text-title-sm text-ink">
 				Keep what you wrote?
 			</Text>
 			{body ? (
 				<>
-					<View className="h-2.5" />
-					<Text className="w-full font-inter text-[14px] leading-[20.3px] text-ink-muted">
+					<View className="h-3" />
+					<Text className="w-full font-inter text-callout text-ink-muted">
 						{body}
 					</Text>
 				</>
 			) : null}
 			<View className="h-5" />
 			<Button label="Save entry" onPress={onSave} />
-			<View className="h-2.5" />
-			<Button label="Discard writing" tone="secondaryDanger" onPress={onDiscard} />
-			<View className="h-2.5" />
+			<View className="h-3" />
+			<Button label="Discard writing" tone="dangerOutline" onPress={onDiscard} />
+			<View className="h-3" />
 			<Button label="Keep writing" tone="secondary" onPress={onKeep} />
 		</Sheet>
 	);

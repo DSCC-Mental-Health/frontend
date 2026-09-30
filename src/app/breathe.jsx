@@ -1,6 +1,8 @@
 import Button from '@/components/ui/Button';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
+import { CALM } from '@/constants/colors';
+import { GUTTER } from '@/constants/layout';
 import { BREATHING } from '@/data/tools';
 import { keepAwake, lightTap, releaseAwake } from '@/lib/device';
 import { useAuth } from '@clerk/expo';
@@ -177,7 +179,7 @@ export default function BreatheScreen() {
 			<ScrollView
 				className="flex-1"
 				showsVerticalScrollIndicator={false}
-				contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, ...padding }}
+				contentContainerStyle={{ flexGrow: 1, paddingHorizontal: GUTTER, ...padding }}
 			>
 				<View className="w-full flex-row items-center justify-between">
 					<TextButton label="Close" variant="navLight" onPress={close} />
@@ -214,8 +216,7 @@ export default function BreatheScreen() {
 										width: CORE * ring,
 										height: CORE * ring,
 										borderRadius: (CORE * ring) / 2,
-										// `calm` in tailwind.config.js — inline, as above.
-										backgroundColor: '#4d8a81',
+										backgroundColor: CALM,
 										opacity: fade,
 									}}
 								/>
@@ -231,7 +232,7 @@ export default function BreatheScreen() {
 						>
 							<Text
 								maxFontSizeMultiplier={RING_TEXT_MAX}
-								className="font-inter-semibold text-[18px] text-white"
+								className="font-inter-semibold text-headline text-white"
 							>
 								{done ? 'Done' : phase.label}
 							</Text>
@@ -239,7 +240,7 @@ export default function BreatheScreen() {
 								// Full white: 70% white on the teal core was 2.8:1.
 								<Text
 									maxFontSizeMultiplier={RING_TEXT_MAX}
-									className="font-inter-bold text-[30px] text-white"
+									className="font-inter-bold text-large-title text-white"
 								>
 									{left}
 								</Text>
@@ -250,13 +251,13 @@ export default function BreatheScreen() {
 
 				<View className="h-10" />
 
-				<Text className="w-full text-center font-inter text-[16px] leading-[23.2px] text-white">
+				<Text className="w-full text-center font-inter text-body-lg text-white">
 					{done ? 'That’s the set. Take one normal breath before you get up.' : phase.guide}
 				</Text>
 
-				<View className="h-2.5" />
+				<View className="h-3" />
 
-				<Text className="w-full text-center font-inter text-[13px] leading-[18.85px] text-breath-meta">
+				<Text className="w-full text-center font-inter text-subhead text-breath-meta">
 					{done
 						? `All ${cycles} cycles done`
 						: `Cycle ${cycle + 1} of ${cycles}  ·  ${
@@ -269,13 +270,12 @@ export default function BreatheScreen() {
 				<Button
 					label={done ? 'Finish' : running ? 'Pause' : 'Resume'}
 					tone="onDark"
-					size="md"
 					onPress={done ? close : () => setRunning((r) => !r)}
 				/>
 
-				<View className="h-2.5" />
+				<View className="h-3" />
 
-				<Text className="w-full text-center font-inter text-[12px] leading-[17.4px] text-breath-hint">
+				<Text className="w-full text-center font-inter text-footnote text-breath-hint">
 					You can stop whenever. Nothing is logged.
 				</Text>
 			</ScrollView>

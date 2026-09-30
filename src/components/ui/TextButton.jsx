@@ -10,16 +10,16 @@ import { Pressable, Text } from 'react-native';
  * - link / linkStrong: orange inline links (See all, Forgot password?)
  */
 const VARIANTS = {
-	nav: 'font-inter-medium text-[14px] text-ink-muted',
-	navStrong: 'font-inter-semibold text-[14px] text-accent-text',
-	navAccent: 'font-inter-medium text-[14px] text-accent-text',
-	navLight: 'font-inter-medium text-[14px] text-white',
-	small: 'font-inter-medium text-[12px] text-ink-muted',
-	link: 'font-inter-medium text-[13px] text-accent-text',
-	linkStrong: 'font-inter-semibold text-[13px] text-accent-text',
+	nav: 'font-inter-medium text-callout text-ink-muted',
+	navStrong: 'font-inter-semibold text-callout text-accent-text',
+	navAccent: 'font-inter-medium text-callout text-accent-text',
+	navLight: 'font-inter-medium text-callout text-white',
+	small: 'font-inter-medium text-footnote text-ink-muted',
+	link: 'font-inter-medium text-subhead text-accent-text',
+	linkStrong: 'font-inter-semibold text-subhead text-accent-text',
 };
 
-const DISABLED = 'font-inter-medium text-[14px] text-ink-faint';
+const DISABLED = 'font-inter-medium text-callout text-ink-faint';
 
 /**
  * A text-only button. Text this size is only ~16–17pt tall, so the touch area

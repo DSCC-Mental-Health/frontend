@@ -10,26 +10,12 @@ import {
 } from './dates';
 import { get as getEntry } from './journal-store';
 
-/**
- * In-memory mood check-ins. A check-in is recorded the moment a mood chip on
- * Home is tapped; anything written afterwards becomes a journal entry linked
- * through `entryId`. Resets on every reload.
- *
- * TODO: replace with the check-in API. Nothing here is persisted.
- *
- * Check-in shape: { id, mood: 'Rough'|'Mixed'|'Okay'|'Good', createdAt: Date, entryId: string|null }
- */
-
 /** A check-in that shares its time and mood with a seeded journal entry. */
 function fromEntry(id, entryId) {
 	const entry = getEntry(entryId);
 	return { id, mood: entry.mood, createdAt: entry.createdAt, entryId };
 }
 
-/**
- * A sample week shaped like the S2 frame (node 178:2): several days with more
- * than one check-in, and the seeded journal entries as the ones with writing.
- */
 const SEED = [
 	{ id: 'c-1', mood: 'Good', createdAt: daysAgoAt(5, 21, 30), entryId: null },
 	{ id: 'c-2', mood: 'Mixed', createdAt: daysAgoAt(4, 13, 10), entryId: null },
@@ -63,6 +49,7 @@ function getSnapshot() {
 let counter = 0;
 
 /** Records a mood now. Returns the check-in so writing can be linked to it. */
+// temporary
 export function add(mood) {
 	const created = {
 		id: `checkin-${Date.now()}-${counter++}`,

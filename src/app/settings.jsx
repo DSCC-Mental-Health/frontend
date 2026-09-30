@@ -1,12 +1,15 @@
+import Sheet from '@/components/Sheet';
+import BackButton from '@/components/ui/BackButton';
+import Button from '@/components/ui/Button';
+import useScreenPadding from '@/components/ui/useScreenPadding';
+import { CALM } from '@/constants/colors';
+import { GUTTER } from '@/constants/layout';
+import { useAiSummaries } from '@/lib/ai-summaries';
+import { cancelDailyReminder } from '@/lib/reminders';
 import { useAuth, useUser } from '@clerk/expo';
 import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
-import Sheet from '@/components/Sheet';
-import Button from '@/components/ui/Button';
-import { useAiSummaries } from '@/lib/ai-summaries';
-import { cancelDailyReminder } from '@/lib/reminders';
 import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
  * Horizontal gutter for both the header and the scrolling body (nodes 274:3 and
@@ -14,7 +17,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
  * contentContainerStyle, so the header matches it from the same constant rather
  * than a parallel `px-5` class that could drift.
  */
-const GUTTER = 20;
 
 function Row({ label, value, onPress, disabled }) {
 	return (
@@ -23,19 +25,19 @@ function Row({ label, value, onPress, disabled }) {
 			accessibilityState={{ disabled: Boolean(disabled) }}
 			onPress={onPress}
 			disabled={disabled}
-			className="w-full flex-row items-center justify-between overflow-hidden rounded-control border border-hairline bg-white px-4 py-3.75 active:opacity-80"
+			className="w-full flex-row items-center justify-between overflow-hidden rounded-lg border border-hairline bg-white px-4 py-4 active:opacity-80"
 		>
-			<Text className="font-inter-semibold text-[15px] text-ink">{label}</Text>
-			<View className="flex-row items-center gap-1.5">
+			<Text className="font-inter-semibold text-body text-ink">{label}</Text>
+			<View className="flex-row items-center gap-2">
 				{value ? (
 					<Text
 						numberOfLines={1}
-						className="font-inter text-[13px] text-ink-faint"
+						className="font-inter text-subhead text-ink-faint"
 					>
 						{value}
 					</Text>
 				) : null}
-				<Text className="font-inter-semibold text-[15px] text-ink-faint">
+				<Text className="font-inter-semibold text-body text-ink-faint">
 					›
 				</Text>
 			</View>
@@ -51,9 +53,9 @@ function AiSummariesRow() {
 	const { enabled, set, saving, error } = useAiSummaries();
 
 	return (
-		<View className="w-full gap-1.5 overflow-hidden rounded-control border border-hairline bg-white px-4 py-3.5">
+		<View className="w-full gap-2 overflow-hidden rounded-lg border border-hairline bg-white px-4 py-4">
 			<View className="w-full flex-row items-center justify-between gap-3">
-				<Text className="flex-1 font-inter-semibold text-[15px] text-ink">
+				<Text className="flex-1 font-inter-semibold text-body text-ink">
 					AI weekly summaries
 				</Text>
 				<Switch
@@ -61,15 +63,18 @@ function AiSummariesRow() {
 					value={enabled === true}
 					disabled={saving}
 					onValueChange={set}
-					trackColor={{ true: '#4d8a81' }}
+					trackColor={{ true: CALM }}
 				/>
 			</View>
-			<Text className="w-full font-inter text-[12px] leading-[17.4px] text-ink-muted">
-				When on, your check-ins and journal entries are sent to an AI model (Claude) to
-				write a short summary on Insights. Your unit never sees it.
+			<Text className="w-full font-inter text-footnote text-ink-muted">
+				When on, your check-ins and journal entries are sent to an AI model
+				(Claude) to write a short summary on Insights. Your unit never sees it.
 			</Text>
 			{error ? (
-				<Text accessibilityRole="alert" className="w-full font-inter-semibold text-[12px] text-danger">
+				<Text
+					accessibilityRole="alert"
+					className="w-full font-inter-semibold text-footnote text-danger"
+				>
 					{error}
 				</Text>
 			) : null}
@@ -80,7 +85,7 @@ function AiSummariesRow() {
 function Section({ title, children }) {
 	return (
 		<View className="w-full gap-2">
-			<Text className="font-inter-semibold text-[11px] text-ink-faint">
+			<Text className="font-inter-semibold text-caption text-ink-faint">
 				{title}
 			</Text>
 			{children}
@@ -95,23 +100,23 @@ function Section({ title, children }) {
 function LogOutSheet({ visible, busy, onConfirm, onCancel }) {
 	return (
 		<Sheet visible={visible} onClose={onCancel} dismissable={!busy}>
-			<Text className="font-inter-bold text-[20px] leading-[29px] text-ink">
+			<Text className="font-inter-bold text-title-sm text-ink">
 				Log out?
 			</Text>
 
-			<View className="h-2.5" />
+			<View className="h-3" />
 
-			<Text className="w-full font-inter text-[14px] leading-[20.3px] text-ink-muted">
+			<Text className="w-full font-inter text-callout text-ink-muted">
 				You&rsquo;ll need to log in again to see your check-ins and journal.
 			</Text>
 
-			<View className="h-4.5" />
+			<View className="h-5" />
 
-			<View className="w-full gap-1 overflow-hidden rounded-control border-1.5 border-calm bg-insight px-4 py-3.5">
-				<Text className="font-inter-semibold text-[13px] text-ink">
+			<View className="w-full gap-1 overflow-hidden rounded-lg border-1.5 border-calm bg-insight px-4 py-4">
+				<Text className="font-inter-semibold text-subhead text-ink">
 					Nothing is deleted
 				</Text>
-				<Text className="w-full font-inter text-[12px] leading-[17.4px] text-ink-muted">
+				<Text className="w-full font-inter text-footnote text-ink-muted">
 					Your entries stay saved. Everything will be exactly as you left it
 					when you log back in.
 				</Text>
@@ -119,64 +124,27 @@ function LogOutSheet({ visible, busy, onConfirm, onCancel }) {
 
 			<View className="h-5" />
 
-			<Button label="Log out" busy={busy} busyLabel="Logging out…" onPress={onConfirm} />
-
-			<View className="h-2.5" />
-
-			<Button label="Cancel" tone="secondary" disabled={busy} onPress={onCancel} />
-		</Sheet>
-	);
-}
-
-/**
- * Account deletion confirm. No frame — it follows the log out sheet. Required
- * once people can create an account in the app (App Store guideline 5.1.1(v)).
- */
-function DeleteAccountSheet({ visible, busy, error, onConfirm, onCancel }) {
-	return (
-		<Sheet visible={visible} onClose={onCancel} dismissable={!busy}>
-			<Text className="font-inter-bold text-[20px] leading-[29px] text-ink">
-				Delete your account?
-			</Text>
-
-			<View className="h-2.5" />
-
-			<Text className="w-full font-inter text-[14px] leading-[20.3px] text-ink-muted">
-				Your account and everything saved to it are deleted straight away. This
-				can&rsquo;t be undone.
-			</Text>
-
-			{error ? (
-				<>
-					<View className="h-3.5" />
-					<Text
-						accessibilityRole="alert"
-						className="w-full font-inter-semibold text-[13px] leading-[18.2px] text-danger"
-					>
-						{error}
-					</Text>
-				</>
-			) : null}
-
-			<View className="h-5" />
-
 			<Button
-				label="Delete account"
-				tone="danger"
+				label="Log out"
 				busy={busy}
-				busyLabel="Deleting…"
+				busyLabel="Logging out…"
 				onPress={onConfirm}
 			/>
 
-			<View className="h-2.5" />
+			<View className="h-3" />
 
-			<Button label="Keep my account" tone="secondary" disabled={busy} onPress={onCancel} />
+			<Button
+				label="Cancel"
+				tone="secondary"
+				disabled={busy}
+				onPress={onCancel}
+			/>
 		</Sheet>
 	);
 }
 
 export default function SettingsScreen() {
-	const insets = useSafeAreaInsets();
+	const padding = useScreenPadding({ bottom: 20, bottomGap: 8 });
 	const router = useRouter();
 	const { isLoaded: authLoaded, isSignedIn, signOut } = useAuth();
 	const { isLoaded: userLoaded, user } = useUser();
@@ -189,11 +157,6 @@ export default function SettingsScreen() {
 
 	if (!authLoaded || !userLoaded) return null;
 	if (!isSignedIn) return <Redirect href="/login" />;
-
-	function handleBack() {
-		if (router.canGoBack()) router.back();
-		else router.replace('/home');
-	}
 
 	async function handleLogOut() {
 		setBusy(true);
@@ -233,26 +196,18 @@ export default function SettingsScreen() {
 			<View
 				className="w-full gap-2 overflow-hidden"
 				style={{
-					paddingTop: Math.max(56, insets.top + 12),
+					paddingTop: padding.paddingTop,
 					paddingHorizontal: GUTTER,
 					paddingBottom: 16,
 				}}
 			>
-				<Pressable
-					accessibilityRole="button"
-					accessibilityLabel="Go back"
-					onPress={handleBack}
-					hitSlop={12}
-					className="self-start active:opacity-60"
-				>
-					<Text className="font-inter-semibold text-[20px] text-ink">←</Text>
-				</Pressable>
+				<BackButton fallback="/home" />
 
-				<Text className="w-full font-inter-bold text-[26px] text-ink">
+				<Text className="w-full font-inter-bold text-large-title text-ink">
 					Settings
 				</Text>
 
-				<Text className="w-full font-inter text-[13px] leading-[18.2px] text-ink-muted">
+				<Text className="w-full font-inter text-subhead text-ink-muted">
 					Your account and how Steady works for you.
 				</Text>
 			</View>
@@ -264,8 +219,8 @@ export default function SettingsScreen() {
 					flexGrow: 1,
 					paddingHorizontal: GUTTER,
 					paddingTop: 4,
-					paddingBottom: Math.max(20, insets.bottom + 8),
-					gap: 22,
+					paddingBottom: padding.paddingBottom,
+					gap: 24,
 				}}
 			>
 				{/* Only "Log out" is wired — the rest have no frames yet. */}
@@ -287,18 +242,7 @@ export default function SettingsScreen() {
 				<Button
 					label="Log out"
 					tone="secondary"
-					size="md"
 					onPress={() => setConfirming(true)}
-				/>
-
-				<Button
-					label="Delete account"
-					tone="dangerOutline"
-					size="md"
-					onPress={() => {
-						setDeleteError(null);
-						setDeleting(true);
-					}}
 				/>
 			</ScrollView>
 
@@ -307,14 +251,6 @@ export default function SettingsScreen() {
 				busy={busy}
 				onConfirm={handleLogOut}
 				onCancel={() => setConfirming(false)}
-			/>
-
-			<DeleteAccountSheet
-				visible={deleting}
-				busy={deleteBusy}
-				error={deleteError}
-				onConfirm={handleDelete}
-				onCancel={() => setDeleting(false)}
 			/>
 		</View>
 	);

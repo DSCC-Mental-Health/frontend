@@ -1,6 +1,7 @@
 import Button from '@/components/ui/Button';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
+import { GUTTER } from '@/constants/layout';
 import { GROUNDING_STEPS } from '@/data/tools';
 import { useAuth } from '@clerk/expo';
 import { Image } from 'expo-image';
@@ -20,7 +21,7 @@ function NamedRow({ ticked, onPress }) {
 			accessibilityRole="checkbox"
 			accessibilityState={{ checked: ticked }}
 			onPress={onPress}
-			className={`w-full flex-row items-center gap-3 overflow-hidden rounded-tile border px-3.5 py-3.25 active:opacity-80 ${
+			className={`w-full flex-row items-center gap-3 overflow-hidden rounded-md border px-4 py-3 active:opacity-80 ${
 				ticked ? 'border-insight bg-insight' : 'border-hairline bg-white'
 			}`}
 		>
@@ -29,10 +30,10 @@ function NamedRow({ ticked, onPress }) {
 					ticked ? 'bg-calm' : 'border-1.5 border-ink-faint'
 				}`}
 			>
-				{ticked ? <Text className="font-inter-bold text-[11px] text-white">✓</Text> : null}
+				{ticked ? <Text className="font-inter-bold text-caption text-white">✓</Text> : null}
 			</View>
 			<Text
-				className={`font-inter-medium text-[14px] ${ticked ? 'text-ink' : 'text-ink-faint'}`}
+				className={`font-inter-medium text-callout ${ticked ? 'text-ink' : 'text-ink-faint'}`}
 			>
 				{ticked ? 'Got one' : 'Tap when you’ve named one'}
 			</Text>
@@ -45,7 +46,7 @@ function Finished({ onDone }) {
 	const padding = useScreenPadding({ top: 80, topGap: 36, bottom: 40, bottomGap: 16 });
 
 	return (
-		<View className="flex-1 bg-aura-outer px-6" style={padding}>
+		<View className="flex-1 bg-aura-outer px-5" style={padding}>
 			<Image
 				source={breathingRings}
 				style={{ width: 56, height: 56 }}
@@ -55,17 +56,17 @@ function Finished({ onDone }) {
 			<View className="h-6" />
 			<Text
 				accessibilityRole="header"
-				className="w-full font-inter-bold text-[28px] leading-[39.2px] text-ink"
+				className="w-full font-inter-bold text-large-title text-ink"
 			>
 				Done.
 			</Text>
-			<View className="h-2.5" />
-			<Text className="w-full font-inter text-[16px] leading-[23.2px] text-ink-muted">
+			<View className="h-3" />
+			<Text className="w-full font-inter text-body-lg text-ink-muted">
 				Notice how you feel now compared with when you started. You can come back to
 				this any time.
 			</Text>
 			<View className="flex-1" />
-			<Button label="Close" tone="calm" size="md" onPress={onDone} />
+			<Button label="Close" tone="calm" onPress={onDone} />
 		</View>
 	);
 }
@@ -116,7 +117,7 @@ export default function GroundingScreen() {
 
 	return (
 		<View className="flex-1 bg-aura-outer" style={padding}>
-			<View className="w-full px-6">
+			<View className="w-full px-5">
 				<View className="w-full flex-row items-center justify-between">
 					<TextButton label="Close" onPress={close} />
 					<View className="flex-row items-center gap-4">
@@ -127,7 +128,7 @@ export default function GroundingScreen() {
 								onPress={() => goTo(stepIndex - 1)}
 							/>
 						) : null}
-						<Text className="font-inter-medium text-[14px] text-ink-muted">
+						<Text className="font-inter-medium text-callout text-ink-muted">
 							Step {stepIndex + 1} of {total}
 						</Text>
 					</View>
@@ -139,10 +140,10 @@ export default function GroundingScreen() {
 					accessibilityRole="progressbar"
 					accessibilityLabel="Grounding progress"
 					accessibilityValue={{ min: 0, max: total, now: stepIndex + 1 }}
-					className="h-1.5 w-full overflow-hidden rounded-progress bg-hairline"
+					className="h-1.5 w-full overflow-hidden rounded-full bg-hairline"
 				>
 					<View
-						className="h-1.5 rounded-progress bg-calm"
+						className="h-1.5 rounded-full bg-calm"
 						style={{ width: `${((stepIndex + 1) / total) * 100}%` }}
 					/>
 				</View>
@@ -151,7 +152,7 @@ export default function GroundingScreen() {
 			<ScrollView
 				className="flex-1"
 				showsVerticalScrollIndicator={false}
-				contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24 }}
+				contentContainerStyle={{ flexGrow: 1, paddingHorizontal: GUTTER }}
 			>
 				<View className="min-h-6 flex-1" />
 
@@ -159,21 +160,21 @@ export default function GroundingScreen() {
 				<View accessible accessibilityRole="header" accessibilityLabel={`${step.count} ${step.title}`}>
 					<Text
 						maxFontSizeMultiplier={COUNT_MAX_SCALE}
-						className="w-full font-inter-bold text-[72px] text-calm"
+						className="w-full font-inter-bold text-hero text-calm"
 					>
 						{step.count}
 					</Text>
 
 					<View className="h-2" />
 
-					<Text className="w-full font-inter-bold text-[26px] leading-[32.5px] text-ink">
+					<Text className="w-full font-inter-bold text-large-title text-ink">
 						{step.title}
 					</Text>
 				</View>
 
 				<View className="h-4" />
 
-				<Text className="w-full font-inter text-[16px] leading-[23.2px] text-ink-muted">
+				<Text className="w-full font-inter text-body-lg text-ink-muted">
 					{step.body}
 				</Text>
 
@@ -192,12 +193,12 @@ export default function GroundingScreen() {
 				<View className="min-h-6 flex-1" />
 			</ScrollView>
 
-			<View className="w-full px-6">
-				<Button label={isLast ? 'Finish' : 'Next'} tone="calm" size="md" onPress={next} />
+			<View className="w-full px-5">
+				<Button label={isLast ? 'Finish' : 'Next'} tone="calm" onPress={next} />
 
-				<View className="h-2.5" />
+				<View className="h-3" />
 
-				<Text className="w-full text-center font-inter text-[12px] leading-[17.4px] text-ink-muted">
+				<Text className="w-full text-center font-inter text-footnote text-ink-muted">
 					No timer. Go at your own pace.
 				</Text>
 			</View>

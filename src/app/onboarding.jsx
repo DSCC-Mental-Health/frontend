@@ -1,5 +1,5 @@
-import { STEP_COMPONENTS, STEPS } from '@/components/onboarding/Steps';
-import { REMINDERS } from '@/data/onboarding';
+import { STEP_COMPONENTS } from '@/components/onboarding/Steps';
+import { REMINDERS, STEPS } from '@/data/onboarding';
 import { cancelDailyReminder, scheduleDailyReminder } from '@/lib/reminders';
 import { useAuth, useUser } from '@clerk/expo';
 import { Redirect, useRouter } from 'expo-router';

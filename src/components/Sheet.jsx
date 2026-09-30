@@ -1,3 +1,4 @@
+import { GUTTER } from '@/constants/layout';
 import { Modal, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,7 +28,7 @@ export default function Sheet({ visible, onClose, dismissable = true, children }
 				style={{
 					flex: 1,
 					justifyContent: 'flex-end',
-					paddingHorizontal: 20,
+					paddingHorizontal: GUTTER,
 					paddingBottom: Math.max(20, insets.bottom + 8),
 				}}
 				onPress={close}
@@ -35,7 +36,7 @@ export default function Sheet({ visible, onClose, dismissable = true, children }
 				{/* Swallow taps on the sheet itself so they don't dismiss it. */}
 				<Pressable
 					onPress={() => {}}
-					className="w-full overflow-hidden rounded-sheet bg-aura-outer px-5.5 pb-5.5 pt-6.5"
+					className="w-full overflow-hidden rounded-xl bg-aura-outer px-6 pb-6 pt-7"
 				>
 					{children}
 				</Pressable>

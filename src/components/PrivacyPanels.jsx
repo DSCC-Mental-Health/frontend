@@ -23,29 +23,29 @@ export default function PrivacyPanels() {
 			{PRIVACY_PANELS.map((panel) => (
 				<View
 					key={panel.title}
-					className={`w-full gap-2 overflow-hidden rounded-control px-4 py-3.75 ${PANEL_BG[panel.tone]}`}
+					className={`w-full gap-2 overflow-hidden rounded-lg px-4 py-4 ${PANEL_BG[panel.tone]}`}
 				>
 					<Text
 						accessibilityRole="header"
-						className={`w-full font-inter-semibold text-[14px] ${PANEL_TITLE[panel.tone]}`}
+						className={`w-full font-inter-semibold text-callout ${PANEL_TITLE[panel.tone]}`}
 					>
 						{panel.title}
 					</Text>
 					{panel.body ? (
-						<Text className="w-full font-inter text-[14px] leading-[19.88px] text-ink-muted">
+						<Text className="w-full font-inter text-callout text-ink-muted">
 							{panel.body}
 						</Text>
 					) : null}
 					{panel.lines?.map((line) => (
 						<Text
 							key={line}
-							className="w-full font-inter text-[14px] leading-[19.88px] text-ink-muted"
+							className="w-full font-inter text-callout text-ink-muted"
 						>
 							{line}
 						</Text>
 					))}
 					{panel.note ? (
-						<Text className="w-full font-inter-medium text-[12px] leading-[17.4px] text-ink">
+						<Text className="w-full font-inter-medium text-footnote text-ink">
 							{panel.note}
 						</Text>
 					) : null}

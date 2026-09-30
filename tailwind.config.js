@@ -5,6 +5,22 @@ module.exports = {
 	presets: [require('nativewind/preset')],
 	theme: {
 		extend: {
+			// The type scale. Every text style in the app uses one of these; each
+			// carries its own line height, so screens never set `leading-*`.
+			fontSize: {
+				hero: ['72px', { lineHeight: '80px' }],
+				display: ['36px', { lineHeight: '44px' }],
+				'large-title': ['28px', { lineHeight: '34px' }],
+				title: ['24px', { lineHeight: '30px' }],
+				'title-sm': ['20px', { lineHeight: '26px' }],
+				headline: ['18px', { lineHeight: '24px' }],
+				'body-lg': ['16px', { lineHeight: '23px' }],
+				body: ['15px', { lineHeight: '21px' }],
+				callout: ['14px', { lineHeight: '20px' }],
+				subhead: ['13px', { lineHeight: '18px' }],
+				footnote: ['12px', { lineHeight: '17px' }],
+				caption: ['11px', { lineHeight: '15px' }],
+			},
 			colors: {
 				ink: '#2e2721',
 				'ink-muted': '#73675d',
@@ -47,27 +63,13 @@ module.exports = {
 				'breath-meta': '#c7d6d1',
 				'breath-hint': '#b8c9c4',
 			},
+			// Four corner radii, plus Tailwind's rounded-full for pills and bars.
+			// These override Tailwind's own sm/md/lg/xl defaults.
 			borderRadius: {
-				control: '14px',
-				mark: '4px',
-				// Log in screen (node 248:2).
-				field: '12px',
-				button: '13px',
-				banner: '10px',
-				// Home dashboard (node 178:2).
-				pill: '17px',
-				day: '11px',
-				chip: '10px',
-				tile: '12px',
-				icon: '8px',
-				dot: '5px',
-				progress: '3px',
-				sheet: '20px',
-				// Check-in flow (nodes 22:16, 22:20).
-				prompt: '18px',
-				tag: '20px',
-				// Journal empty state panel (node 27:87).
-				card: '16px',
+				sm: '8px',
+				md: '12px',
+				lg: '16px',
+				xl: '20px',
 			},
 			borderWidth: {
 				// Focused and error field outlines (nodes 248:60, 248:90).

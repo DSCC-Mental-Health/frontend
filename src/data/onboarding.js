@@ -1,26 +1,5 @@
-/**
- * Copy and options for the first-run onboarding flow, transcribed from Figma
- * frames I1–I8 (nodes 16:2, 16:12, 16:34, 17:2, 17:26, 17:48, 17:68).
- *
- * I4 "Understand" (16:58) was cut after the design review: it was the only
- * screen with nothing to do. Its one essential line now closes I3's footnote.
- * `progress` is re-spread over the remaining six barred screens.
- */
-
-/**
- * I3 — "try it now" check-in. Single select. Same four words as the real
- * check-in on Home; the frame's "Up and down" / "Steady enough" were a second
- * vocabulary for the same thing.
- */
 export { MOODS } from './check-in-prompts';
 
-/**
- * I5 — coping preferences. Multi select.
- *
- * `toolId` is the tool (src/data/tools.js) the pick puts on I8 and the home
- * screen. The frame names "Sleep wind-down" and "60-second reset", which aren't
- * in the N1 library, so each pick maps to the nearest real tool.
- */
 export const COPING = [
 	{ id: 'sleep', label: 'Getting to sleep faster', toolId: 'worry' },
 	{ id: 'calm', label: 'Calming down quickly', toolId: 'box' },
@@ -28,7 +7,6 @@ export const COPING = [
 	{ id: 'home', label: 'Staying connected to home', toolId: 'home' },
 ];
 
-/** I6 — escalation preference. Single select. */
 export const REACH_OUT = [
 	{
 		id: 'ask',
@@ -42,10 +20,6 @@ export const REACH_OUT = [
 	},
 ];
 
-/**
- * I7 — reminder slot. Single select. `summary` is the line I8 shows once the
- * daily notification is actually scheduled; see REMINDER_PROBLEMS otherwise.
- */
 export const REMINDERS = [
 	{
 		id: 'morning',
@@ -63,14 +37,12 @@ export const REMINDERS = [
 	},
 ];
 
-/** I8's line when a reminder was picked but couldn't be scheduled. */
 export const REMINDER_PROBLEMS = {
 	denied:
 		"Reminders are off because notifications aren't allowed. You can turn them on in your phone's Settings.",
 	unavailable: "Couldn't set the reminder on this device. You can still check in any time.",
 };
 
-/** I2 — privacy panels. `tone` selects the panel fill. */
 export const PRIVACY_PANELS = [
 	{
 		tone: 'sand',
@@ -103,15 +75,16 @@ export const PRIVACY_PANELS = [
 	},
 ];
 
-/**
- * Per-step chrome. `progress` is null on I1, which has no bar.
- */
 export const STEPS = [
 	{
 		id: 'welcome',
 		node: '16:2',
 		progress: null,
 		title: 'Steady',
+		paragraphs: [
+			"The first weeks of BMT move fast. It's easy to miss the early signs of stress until they've already built up.",
+			'Steady helps you notice them sooner.',
+		],
 		cta: 'Show me how',
 	},
 	{
@@ -171,7 +144,6 @@ export const STEPS = [
 	},
 ];
 
-/** Always offered on I8, whatever was picked earlier. */
 export const ALWAYS_ON_TOOL = {
 	name: 'Talk to someone',
 	detail: 'Anonymous. Always there.',

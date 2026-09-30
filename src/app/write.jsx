@@ -2,6 +2,8 @@ import DiscardSheet from '@/components/DiscardSheet';
 import Eyebrow from '@/components/ui/Eyebrow';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
+import { INK_FAINT } from '@/constants/colors';
+import { GUTTER } from '@/constants/layout';
 import { PROMPTS } from '@/data/check-in-prompts';
 import { add } from '@/data/journal-store';
 import { HOME_PROMPT } from '@/data/tools';
@@ -19,9 +21,6 @@ import {
 	View,
 } from 'react-native';
 
-const PLACEHOLDER = '#786c62';
-const GUTTER = 20;
-
 /** Every prompt in the L5 bank, for "Give me a question instead". */
 const BANK = Object.values(PROMPTS).flat();
 
@@ -30,9 +29,9 @@ function SuggestionRow({ label, onPress }) {
 		<Pressable
 			accessibilityRole="button"
 			onPress={onPress}
-			className="min-h-11 w-full justify-center overflow-hidden rounded-field border border-hairline bg-white px-3.5 py-3 active:opacity-80"
+			className="min-h-11 w-full justify-center overflow-hidden rounded-md border border-hairline bg-white px-4 py-3 active:opacity-80"
 		>
-			<Text className="w-full font-inter-medium text-[13px] leading-[18.2px] text-ink">
+			<Text className="w-full font-inter-medium text-subhead text-ink">
 				{label}
 			</Text>
 		</Pressable>
@@ -128,14 +127,14 @@ export default function WriteScreen() {
 				>
 					<Text
 						accessibilityRole="header"
-						className="w-full font-inter-bold text-[24px] leading-[34.8px] text-ink"
+						className="w-full font-inter-bold text-large-title text-ink"
 					>
 						What&rsquo;s on your mind?
 					</Text>
 
 					<View className="h-2" />
 
-					<Text className="w-full font-inter text-[14px] leading-[20.3px] text-ink-muted">
+					<Text className="w-full font-inter text-callout text-ink-muted">
 						{prompt
 							? 'Answer the question below, or clear it and write whatever.'
 							: 'No prompt, no structure. Write whatever.'}
@@ -145,7 +144,7 @@ export default function WriteScreen() {
 
 					{prompt ? (
 						<>
-							<View className="w-full gap-1.5 overflow-hidden rounded-control bg-avatar px-4 py-3.5">
+							<View className="w-full gap-2 overflow-hidden rounded-lg bg-avatar px-4 py-4">
 								<View className="w-full flex-row items-center justify-between">
 									<Eyebrow>A QUESTION FOR YOU</Eyebrow>
 									<TextButton
@@ -155,7 +154,7 @@ export default function WriteScreen() {
 										onPress={() => setPrompt(null)}
 									/>
 								</View>
-								<Text className="w-full font-inter-medium text-[14px] leading-[20.3px] text-ink">
+								<Text className="w-full font-inter-medium text-callout text-ink">
 									{prompt}
 								</Text>
 							</View>
@@ -165,7 +164,7 @@ export default function WriteScreen() {
 
 					{/* 200px tall (node 29:42) — not on Tailwind v3's spacing scale. */}
 					<View
-						className="w-full overflow-hidden rounded-control border border-hairline bg-white px-4 py-3.5"
+						className="w-full overflow-hidden rounded-lg border border-hairline bg-white px-4 py-4"
 						style={{ height: 200 }}
 					>
 						<TextInput
@@ -173,10 +172,10 @@ export default function WriteScreen() {
 							onChangeText={setText}
 							accessibilityLabel={prompt ?? 'Your entry'}
 							placeholder="Start typing…"
-							placeholderTextColor={PLACEHOLDER}
+							placeholderTextColor={INK_FAINT}
 							multiline
 							textAlignVertical="top"
-							className="flex-1 p-0 font-inter text-[15px] leading-[21.75px] text-ink"
+							className="flex-1 p-0 font-inter text-body text-ink"
 						/>
 					</View>
 
@@ -184,12 +183,12 @@ export default function WriteScreen() {
 
 					<Text
 						accessibilityRole="header"
-						className="w-full font-inter-semibold text-[13px] leading-[18.85px] text-ink"
+						className="w-full font-inter-semibold text-subhead text-ink"
 					>
 						Stuck?
 					</Text>
 
-					<View className="h-2.5" />
+					<View className="h-3" />
 
 					<View className="w-full gap-2">
 						<SuggestionRow label="Give me a question instead" onPress={pickQuestion} />
@@ -199,7 +198,7 @@ export default function WriteScreen() {
 					<View className="min-h-6 flex-1" />
 
 					{/* The frame said "Saved only to your device account" — not true yet. */}
-					<Text className="w-full text-center font-inter text-[12px] leading-[17.4px] text-ink-muted">
+					<Text className="w-full text-center font-inter text-footnote text-ink-muted">
 						Only you can read this. You can delete it anytime.
 					</Text>
 				</ScrollView>

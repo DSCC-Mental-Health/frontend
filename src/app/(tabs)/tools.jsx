@@ -1,14 +1,12 @@
 import ToolIcon from '@/components/ToolIcon';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
+import { GUTTER } from '@/constants/layout';
 import { TOOL_SECTIONS } from '@/data/tools';
 import { useRouter } from 'expo-router';
 import { Fragment } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
-const GUTTER = 20;
-
-/** One tool card (node 216:5). */
 function ToolCard({ tool, onPress }) {
 	return (
 		<Pressable
@@ -17,19 +15,19 @@ function ToolCard({ tool, onPress }) {
 			// The description is how people pick by situation, so VoiceOver reads it too.
 			accessibilityHint={tool.body}
 			onPress={onPress}
-			className="w-full flex-row items-start gap-3.25 overflow-hidden rounded-control border border-hairline bg-white px-3.25 py-3.5 active:opacity-80"
+			className="w-full flex-row items-start gap-3 overflow-hidden rounded-lg border border-hairline bg-white px-3 py-4 active:opacity-80"
 		>
 			<ToolIcon tool={tool} />
 			<View className="flex-1 gap-1">
 				<View className="w-full flex-row items-center gap-2">
-					<Text className="flex-1 font-inter-semibold text-[15px] leading-[19.8px] text-ink">
+					<Text className="flex-1 font-inter-semibold text-body text-ink">
 						{tool.name}
 					</Text>
-					<Text className="font-inter-medium text-[12px] text-ink-faint">
+					<Text className="font-inter-medium text-footnote text-ink-faint">
 						{tool.duration}
 					</Text>
 				</View>
-				<Text className="w-full font-inter text-[13px] leading-[18.59px] text-ink-muted">
+				<Text className="w-full font-inter text-subhead text-ink-muted">
 					{tool.body}
 				</Text>
 			</View>
@@ -37,7 +35,6 @@ function ToolCard({ tool, onPress }) {
 	);
 }
 
-/** Tools — "N1 Tools library" (node 31:2). */
 export default function ToolsScreen() {
 	const padding = useScreenPadding();
 	const router = useRouter();
@@ -48,19 +45,26 @@ export default function ToolsScreen() {
 				className="w-full"
 				style={{ ...padding, paddingHorizontal: GUTTER, paddingBottom: 12 }}
 			>
-				<Text accessibilityRole="header" className="w-full font-inter-bold text-[26px] text-ink">
+				<Text
+					accessibilityRole="header"
+					className="w-full font-inter-bold text-large-title text-ink"
+				>
 					Tools
 				</Text>
-				<Text className="w-full font-inter text-[13px] leading-[18.85px] text-ink-muted">
-					Pick by what&rsquo;s happening, not by name. Everything works in a bunk, in
-					boots, without sound.
+				<Text className="w-full font-inter text-subhead text-ink-muted">
+					Pick by what&rsquo;s happening, not by name. Everything works in a
+					bunk, in boots, without sound.
 				</Text>
 			</View>
 
 			<ScrollView
 				className="flex-1"
 				showsVerticalScrollIndicator={false}
-				contentContainerStyle={{ paddingHorizontal: GUTTER, paddingTop: 8, paddingBottom: 12 }}
+				contentContainerStyle={{
+					paddingHorizontal: GUTTER,
+					paddingTop: 8,
+					paddingBottom: 12,
+				}}
 			>
 				{TOOL_SECTIONS.map((section, s) => (
 					<Fragment key={section.title}>
@@ -68,19 +72,19 @@ export default function ToolsScreen() {
 
 						<Text
 							accessibilityRole="header"
-							className="w-full font-inter-semibold text-[14px] text-ink"
+							className="w-full font-inter-semibold text-callout text-ink"
 						>
 							{section.title}
 						</Text>
 						{section.hint ? (
-							<Text className="w-full font-inter text-[11px] leading-[15.4px] text-ink-faint">
+							<Text className="w-full font-inter text-caption text-ink-faint">
 								{section.hint}
 							</Text>
 						) : null}
 
-						<View className="h-2.75" />
+						<View className="h-3" />
 
-						<View className="w-full gap-2.25">
+						<View className="w-full gap-2">
 							{section.tools.map((tool) => (
 								<ToolCard
 									key={tool.id}
@@ -96,9 +100,9 @@ export default function ToolsScreen() {
 
 				{/* TODO: the Support tab is still a placeholder — build O1/T1 (nodes
 				    34:2, 181:2) so this link reaches real people. */}
-				<Text className="w-full font-inter text-[11px] leading-[15.95px] text-ink-faint">
-					These are self-help techniques, not treatment. If something isn&rsquo;t
-					shifting, there are people you can talk to.
+				<Text className="w-full font-inter text-caption text-ink-faint">
+					These are self-help techniques, not treatment. If something
+					isn&rsquo;t shifting, there are people you can talk to.
 				</Text>
 
 				<View className="h-2" />

@@ -2,6 +2,7 @@ import Eyebrow from '@/components/ui/Eyebrow';
 import SectionHeading from '@/components/ui/SectionHeading';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
+import { GUTTER } from '@/constants/layout';
 import { summarize, useCheckins } from '@/data/checkin-store';
 import { useAiSummaries } from '@/lib/ai-summaries';
 import { useRouter } from 'expo-router';
@@ -49,7 +50,7 @@ function RangeToggle({ value, onChange }) {
 	return (
 		<View
 			accessibilityRole="radiogroup"
-			className="w-full flex-row gap-0.75 overflow-hidden rounded-banner bg-avatar p-0.75"
+			className="w-full flex-row gap-1 overflow-hidden rounded-md bg-avatar p-1"
 		>
 			{RANGES.map((range) => {
 				const selected = value === range.id;
@@ -59,15 +60,15 @@ function RangeToggle({ value, onChange }) {
 						accessibilityRole="radio"
 						accessibilityState={{ checked: selected }}
 						onPress={() => onChange(range.id)}
-						className={`min-h-11 flex-1 items-center justify-center overflow-hidden rounded-icon ${
+						className={`min-h-11 flex-1 items-center justify-center overflow-hidden rounded-sm ${
 							selected ? 'bg-white' : 'bg-avatar active:opacity-70'
 						}`}
 					>
 						<Text
 							className={
 								selected
-									? 'font-inter-semibold text-[13px] text-ink'
-									: 'font-inter-medium text-[13px] text-ink-muted'
+									? 'font-inter-semibold text-subhead text-ink'
+									: 'font-inter-medium text-subhead text-ink-muted'
 							}
 						>
 							{range.label}
@@ -104,18 +105,18 @@ function Stats({ range, stacked }) {
 	];
 
 	return (
-		<View className={`w-full gap-2.25 ${stacked ? 'flex-col' : 'flex-row'}`}>
+		<View className={`w-full gap-2 ${stacked ? 'flex-col' : 'flex-row'}`}>
 			{stats.map((stat) => (
 				<View
 					key={stat.label}
 					accessible
 					accessibilityLabel={`${stat.value} ${stat.label.replace('\n', ' ')}`}
-					className={`gap-0.75 overflow-hidden rounded-control border border-hairline bg-white p-3.25 ${
+					className={`gap-1 overflow-hidden rounded-lg border border-hairline bg-white p-3 ${
 						stacked ? 'w-full' : 'flex-1'
 					}`}
 				>
-					<Text className={`font-inter-bold text-[24px] ${stat.tone}`}>{stat.value}</Text>
-					<Text className="w-full font-inter-medium text-[11px] leading-[14.85px] text-ink-muted">
+					<Text className={`font-inter-bold text-title ${stat.tone}`}>{stat.value}</Text>
+					<Text className="w-full font-inter-medium text-caption text-ink-muted">
 						{stacked ? stat.label.replace('\n', ' ') : stat.label}
 					</Text>
 				</View>
@@ -128,18 +129,18 @@ function Stats({ range, stacked }) {
 function SummaryCard({ enabled, set, saving, error, onSettings }) {
 	if (enabled === null) {
 		return (
-			<View className="w-full gap-2.75 overflow-hidden rounded-control bg-insight-ink px-3.75 py-3.5">
-				<Text accessibilityRole="header" className="w-full font-inter-bold text-[18px] leading-[23.76px] text-white">
+			<View className="w-full gap-3 overflow-hidden rounded-lg bg-insight-ink px-4 py-4">
+				<Text accessibilityRole="header" className="w-full font-inter-bold text-headline text-white">
 					Want a weekly summary?
 				</Text>
-				<Text className="w-full font-inter text-[13px] leading-[19.24px] text-insight-body">
+				<Text className="w-full font-inter text-subhead text-insight-body">
 					Steady can send this week&rsquo;s check-ins and journal entries to an AI model
 					(Claude) to write a short summary of your patterns. It describes; it
 					doesn&rsquo;t diagnose. Your unit never sees it, and you can turn it off any time
 					in Settings.
 				</Text>
 				{error ? (
-					<Text accessibilityRole="alert" className="w-full font-inter-semibold text-[13px] text-white">
+					<Text accessibilityRole="alert" className="w-full font-inter-semibold text-subhead text-white">
 						{error}
 					</Text>
 				) : null}
@@ -148,9 +149,9 @@ function SummaryCard({ enabled, set, saving, error, onSettings }) {
 						accessibilityRole="button"
 						disabled={saving}
 						onPress={() => set(true)}
-						className="min-h-11 flex-1 items-center justify-center overflow-hidden rounded-field bg-white active:opacity-80"
+						className="min-h-11 flex-1 items-center justify-center overflow-hidden rounded-md bg-white active:opacity-80"
 					>
-						<Text className="font-inter-bold text-[14px] text-insight-ink">
+						<Text className="font-inter-bold text-callout text-insight-ink">
 							{saving ? 'Saving…' : 'Turn on'}
 						</Text>
 					</Pressable>
@@ -158,9 +159,9 @@ function SummaryCard({ enabled, set, saving, error, onSettings }) {
 						accessibilityRole="button"
 						disabled={saving}
 						onPress={() => set(false)}
-						className="min-h-11 flex-1 items-center justify-center overflow-hidden rounded-field border border-insight-meta active:opacity-80"
+						className="min-h-11 flex-1 items-center justify-center overflow-hidden rounded-md border border-insight-meta active:opacity-80"
 					>
-						<Text className="font-inter-semibold text-[14px] text-white">Not now</Text>
+						<Text className="font-inter-semibold text-callout text-white">Not now</Text>
 					</Pressable>
 				</View>
 			</View>
@@ -169,8 +170,8 @@ function SummaryCard({ enabled, set, saving, error, onSettings }) {
 
 	if (enabled === false) {
 		return (
-			<View className="w-full flex-row items-center gap-3 overflow-hidden rounded-control border border-hairline bg-white px-3.75 py-3.5">
-				<Text className="flex-1 font-inter text-[13px] leading-[18.85px] text-ink-muted">
+			<View className="w-full flex-row items-center gap-3 overflow-hidden rounded-lg border border-hairline bg-white px-4 py-4">
+				<Text className="flex-1 font-inter text-subhead text-ink-muted">
 					AI summaries are off. The counts below come only from your check-ins.
 				</Text>
 				<TextButton label="Settings" variant="linkStrong" role="link" onPress={onSettings} />
@@ -179,17 +180,17 @@ function SummaryCard({ enabled, set, saving, error, onSettings }) {
 	}
 
 	return (
-		<View className="w-full gap-2.75 overflow-hidden rounded-control bg-insight-ink px-3.75 py-3.5">
-			<View className="self-start overflow-hidden rounded-dot bg-insight-tag px-2 py-1">
+		<View className="w-full gap-3 overflow-hidden rounded-lg bg-insight-ink px-4 py-4">
+			<View className="self-start overflow-hidden rounded-sm bg-insight-tag px-2 py-1">
 				<Eyebrow className="text-white">EXAMPLE SUMMARY</Eyebrow>
 			</View>
-			<Text className="w-full font-inter-bold text-[18px] leading-[23.76px] text-white">
+			<Text className="w-full font-inter-bold text-headline text-white">
 				{EXAMPLE_SUMMARY.headline}
 			</Text>
-			<Text className="w-full font-inter text-[13px] leading-[19.24px] text-insight-body">
+			<Text className="w-full font-inter text-subhead text-insight-body">
 				{EXAMPLE_SUMMARY.body}
 			</Text>
-			<Text className="w-full font-inter text-[11px] leading-[15.4px] text-insight-meta">
+			<Text className="w-full font-inter text-caption text-insight-meta">
 				Your own summary appears here after a week of check-ins. AI-written, describes
 				patterns only.
 			</Text>
@@ -205,21 +206,21 @@ function Driver({ label, effect, strength }) {
 		<View
 			accessible
 			accessibilityLabel={`${label}: ${STRENGTH_WORDS[strength]} ${effect}, ${strength} of 5`}
-			className="w-full gap-1.75"
+			className="w-full gap-2"
 		>
 			<View className="w-full flex-row items-center gap-2">
-				<Text className="flex-1 font-inter-medium text-[13px] leading-[17.94px] text-ink">
+				<Text className="flex-1 font-inter-medium text-subhead text-ink">
 					{label}
 				</Text>
 				<Text
-					className={`font-inter-semibold text-[11px] ${
+					className={`font-inter-semibold text-caption ${
 						steadier ? 'text-insight-ink' : 'text-accent-text'
 					}`}
 				>
 					{effect}
 				</Text>
 			</View>
-			<View className="w-full flex-row gap-0.75">
+			<View className="w-full flex-row gap-1">
 				{[0, 1, 2, 3, 4].map((i) => (
 					<View
 						key={i}
@@ -240,7 +241,7 @@ function Driver({ label, effect, strength }) {
 
 /** Insights — "R2 Insights" (node 175:2). */
 export default function InsightsScreen() {
-	const padding = useScreenPadding({ top: 54, topGap: 8 });
+	const padding = useScreenPadding();
 	const router = useRouter();
 	const { fontScale } = useWindowDimensions();
 	const ai = useAiSummaries();
@@ -252,11 +253,11 @@ export default function InsightsScreen() {
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{
 				...padding,
-				paddingHorizontal: 18,
+				paddingHorizontal: GUTTER,
 				paddingBottom: 24,
 			}}
 		>
-			<Text accessibilityRole="header" className="font-inter-bold text-[24px] text-ink">
+			<Text accessibilityRole="header" className="font-inter-bold text-large-title text-ink">
 				Insights
 			</Text>
 
@@ -268,17 +269,17 @@ export default function InsightsScreen() {
 
 			<SummaryCard {...ai} onSettings={() => router.push('/settings')} />
 
-			<View className="h-3.5" />
+			<View className="h-4" />
 
 			<Stats range={range} stacked={fontScale >= LARGE_TEXT} />
 
-			<View className="h-4.5" />
+			<View className="h-5" />
 
 			<SectionHeading title="What moves your days" />
 
-			<View className="h-2.25" />
+			<View className="h-2" />
 
-			<View className="w-full gap-3.25 overflow-hidden rounded-control border border-hairline bg-white px-3.75 py-3.5">
+			<View className="w-full gap-3 overflow-hidden rounded-lg border border-hairline bg-white px-4 py-4">
 				{EXAMPLE_DRIVERS.map((driver) => (
 					<Driver key={driver.label} {...driver} />
 				))}
@@ -286,7 +287,7 @@ export default function InsightsScreen() {
 
 			<View className="h-2" />
 
-			<Text className="w-full font-inter text-[11px] leading-[15.62px] text-ink-muted">
+			<Text className="w-full font-inter text-caption text-ink-muted">
 				Examples. Yours appear after a few weeks of check-ins, and show associations in
 				your own logs — not proof of cause.
 			</Text>
@@ -294,20 +295,20 @@ export default function InsightsScreen() {
 			{/* Patterns come from what people write, so they need the AI consent too. */}
 			{ai.enabled ? (
 				<>
-					<View className="h-4.5" />
+					<View className="h-5" />
 
 					<SectionHeading title="Patterns noticed" />
 
-					<View className="h-2.25" />
+					<View className="h-2" />
 
 					<View className="w-full gap-2">
 						{EXAMPLE_PATTERNS.map((pattern) => (
 							<View
 								key={pattern.label}
-								className="w-full gap-1.5 overflow-hidden rounded-control border border-hairline bg-white px-3.75 py-3.5"
+								className="w-full gap-2 overflow-hidden rounded-lg border border-hairline bg-white px-4 py-4"
 							>
 								<Eyebrow>EXAMPLE · {pattern.label}</Eyebrow>
-								<Text className="w-full font-inter-medium text-[14px] leading-[19.32px] text-ink">
+								<Text className="w-full font-inter-medium text-callout text-ink">
 									{pattern.text}
 								</Text>
 							</View>

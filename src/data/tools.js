@@ -1,20 +1,7 @@
-/**
- * Tools library — "N1 Tools library" (node 31:2), with the players for
- * breathing (N2, node 33:2) and grounding (N3, node 33:22).
- *
- * `href` is where a card goes. Worry list and Three good things have no player
- * frame, so they open free write with a matching question.
- *
- * `icon` is an SF Symbol shown on a neutral tile (components/ToolIcon.jsx):
- * orange, amber and teal mean Rough, Mixed and Okay/Good elsewhere, so tool
- * tiles don't borrow them.
- */
-
 export const WORRY_PROMPT =
 	"What's on your mind for tomorrow? For each worry, write one next step.";
 export const GOOD_THINGS_PROMPT =
 	'What are three things that went okay today, and why did they?';
-/** Also offered as a suggestion in free write (M4, node 29:51). */
 export const HOME_PROMPT = "What's one thing about today I'd tell someone at home?";
 
 export const TOOL_SECTIONS = [
@@ -78,10 +65,7 @@ export const TOOL_SECTIONS = [
 	},
 ];
 
-/**
- * Picked on I5 ("Staying connected to home") but not in the N1 library. It's the
- * "Message home" technique from the N4 reference sheet, run as a free write.
- */
+
 const MESSAGE_HOME = {
 	id: 'home',
 	name: 'Message home',
@@ -93,17 +77,10 @@ const MESSAGE_HOME = {
 
 const ALL_TOOLS = [...TOOL_SECTIONS.flatMap((section) => section.tools), MESSAGE_HOME];
 
-/** Look a tool up by id — onboarding picks, Home and the check-in store ids. */
 export function findTool(id) {
 	return ALL_TOOLS.find((tool) => tool.id === id);
 }
 
-/**
- * Breathing patterns (N2). Phase lengths come from the N1 card copy; the
- * cycle count fills the duration on the card. Only the "in" guidance line is
- * drawn in the frame — the rest are written to match it and need the same
- * clinical review as the rest of the copy.
- */
 export const BREATHING = {
 	box: {
 		name: 'Box breathing',
@@ -125,10 +102,6 @@ export const BREATHING = {
 	},
 };
 
-/**
- * Grounding steps (N3). Step 2 ("4 things you can feel") is the frame's copy;
- * the other four are written to match and need clinical review.
- */
 export const GROUNDING_STEPS = [
 	{
 		count: 5,

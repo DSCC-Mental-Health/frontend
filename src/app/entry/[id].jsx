@@ -4,6 +4,8 @@ import Button from '@/components/ui/Button';
 import Eyebrow from '@/components/ui/Eyebrow';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
+import { INK_FAINT } from '@/constants/colors';
+import { GUTTER } from '@/constants/layout';
 import { detachEntry } from '@/data/checkin-store';
 import {
 	bmtDay,
@@ -25,15 +27,12 @@ import {
 	View,
 } from 'react-native';
 
-const GUTTER = 20;
-const PLACEHOLDER = '#786c62';
-
 /** "YOU WERE ASKED" / "FOLLOW-UP" card (nodes 29:14, 29:20). */
 function PromptCard({ label, prompt }) {
 	return (
-		<View className="w-full gap-1.5 overflow-hidden rounded-control bg-avatar px-4 py-3.5">
+		<View className="w-full gap-2 overflow-hidden rounded-lg bg-avatar px-4 py-4">
 			<Eyebrow>{label}</Eyebrow>
-			<Text className="w-full font-inter-medium text-[14px] leading-[20.3px] text-ink">
+			<Text className="w-full font-inter-medium text-callout text-ink">
 				{prompt}
 			</Text>
 		</View>
@@ -44,26 +43,26 @@ function PromptCard({ label, prompt }) {
 function DeleteSheet({ visible, onConfirm, onCancel }) {
 	return (
 		<Sheet visible={visible} onClose={onCancel}>
-			<Text className="w-full font-inter-bold text-[20px] leading-[29px] text-ink">
+			<Text className="w-full font-inter-bold text-title-sm text-ink">
 				Delete this entry?
 			</Text>
 
-			<View className="h-2.5" />
+			<View className="h-3" />
 
 			{/* The frame also said "and from the patterns Steady shows you", but
 			    Insights doesn't use entries yet. */}
-			<Text className="w-full font-inter text-[14px] leading-[20.3px] text-ink-muted">
+			<Text className="w-full font-inter text-callout text-ink-muted">
 				It&rsquo;ll be removed from your journal. Your mood check-in stays. This
 				can&rsquo;t be undone.
 			</Text>
 
-			<View className="h-4.5" />
+			<View className="h-5" />
 
-			<View className="w-full gap-1 overflow-hidden rounded-control bg-danger-surface px-4 py-3.5">
-				<Text className="w-full font-inter-semibold text-[12px] leading-[17.4px] text-danger">
+			<View className="w-full gap-1 overflow-hidden rounded-lg bg-danger-surface px-4 py-4">
+				<Text className="w-full font-inter-semibold text-footnote text-danger">
 					Already anonymous in reporting
 				</Text>
-				<Text className="w-full font-inter text-[12px] leading-[17.4px] text-ink">
+				<Text className="w-full font-inter text-footnote text-ink">
 					This entry never appeared in any commander view, so nothing needs retracting
 					there.
 				</Text>
@@ -71,11 +70,11 @@ function DeleteSheet({ visible, onConfirm, onCancel }) {
 
 			<View className="h-5" />
 
-			<Button label="Delete entry" tone="danger" size="md" onPress={onConfirm} />
+			<Button label="Delete entry" tone="danger" onPress={onConfirm} />
 
-			<View className="h-2.5" />
+			<View className="h-3" />
 
-			<Button label="Cancel" tone="secondary" size="md" onPress={onCancel} />
+			<Button label="Cancel" tone="secondary" onPress={onCancel} />
 		</Sheet>
 	);
 }
@@ -168,25 +167,25 @@ export default function EntryScreen() {
 					showsVerticalScrollIndicator={false}
 					contentContainerStyle={{ flexGrow: 1, paddingHorizontal: GUTTER, paddingTop: 24 }}
 				>
-					<View className="w-full flex-row items-center gap-2.5">
+					<View className="w-full flex-row items-center gap-3">
 						{entry.mood ? (
 							<MoodMark mood={entry.mood} size={14} />
 						) : (
 							<View className="size-3.5 rounded-full border-1.5 border-dashed border-ink-faint" />
 						)}
-						<Text accessibilityRole="header" className="font-inter-semibold text-[16px] text-ink">
+						<Text accessibilityRole="header" className="font-inter-semibold text-body-lg text-ink">
 							{entry.mood ?? 'Free write'}
 						</Text>
 					</View>
 
-					<View className="h-1.5" />
+					<View className="h-2" />
 
-					<Text className="w-full font-inter text-[13px] leading-[18.85px] text-ink-faint">
+					<Text className="w-full font-inter text-subhead text-ink-faint">
 						{dayLabel(entry.createdAt)}, {timeLabel(entry.createdAt)} · Day{' '}
 						{bmtDay(entry.createdAt)} of BMT
 					</Text>
 
-					<View className="h-5.5" />
+					<View className="h-6" />
 
 					<View className="w-full gap-5">
 						{entry.parts.map((part, i) => (
@@ -198,7 +197,7 @@ export default function EntryScreen() {
 									/>
 								) : null}
 								{editing ? (
-									<View className="w-full overflow-hidden rounded-control border-1.5 border-accent bg-white px-4 py-3.5">
+									<View className="w-full overflow-hidden rounded-lg border-1.5 border-accent bg-white px-4 py-4">
 										<TextInput
 											value={draft[i]}
 											onChangeText={(value) =>
@@ -206,15 +205,15 @@ export default function EntryScreen() {
 											}
 											accessibilityLabel={part.prompt ?? 'Your entry'}
 											placeholder="Type here."
-											placeholderTextColor={PLACEHOLDER}
+											placeholderTextColor={INK_FAINT}
 											multiline
 											autoFocus={i === 0}
 											textAlignVertical="top"
-											className="min-h-24 w-full p-0 font-inter text-[15px] leading-[21.75px] text-ink"
+											className="min-h-24 w-full p-0 font-inter text-body text-ink"
 										/>
 									</View>
 								) : (
-									<Text className="w-full font-inter text-[15px] leading-[21.75px] text-ink">
+									<Text className="w-full font-inter text-body text-ink">
 										{part.text}
 									</Text>
 								)}
@@ -224,11 +223,11 @@ export default function EntryScreen() {
 
 					<View className="min-h-6 flex-1" />
 
-					<View className="w-full gap-1 overflow-hidden rounded-control bg-insight px-4 py-3.5">
-						<Text className="w-full font-inter-semibold text-[12px] leading-[17.4px] text-insight-ink">
+					<View className="w-full gap-1 overflow-hidden rounded-lg bg-insight px-4 py-4">
+						<Text className="w-full font-inter-semibold text-footnote text-insight-ink">
 							Private to you
 						</Text>
-						<Text className="w-full font-inter text-[12px] leading-[17.4px] text-ink-muted">
+						<Text className="w-full font-inter text-footnote text-ink-muted">
 							Not visible to commanders or your section.
 						</Text>
 					</View>
@@ -240,7 +239,6 @@ export default function EntryScreen() {
 							<Button
 								label="Delete this entry"
 								tone="dangerOutline"
-								size="md"
 								onPress={() => setConfirming(true)}
 							/>
 						</>

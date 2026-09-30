@@ -5,7 +5,7 @@ import TextButton from './TextButton';
 export default function SectionHeading({ title, action, onAction }) {
 	return (
 		<View className="w-full flex-row items-center justify-between">
-			<Text accessibilityRole="header" className="font-inter-semibold text-[15px] text-ink">
+			<Text accessibilityRole="header" className="font-inter-semibold text-body text-ink">
 				{title}
 			</Text>
 			{action ? (

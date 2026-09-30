@@ -3,6 +3,8 @@ import Button from '@/components/ui/Button';
 import Eyebrow from '@/components/ui/Eyebrow';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
+import { INK_FAINT } from '@/constants/colors';
+import { GUTTER } from '@/constants/layout';
 import {
 	FOLLOW_ON_TOOLS,
 	MAX_CHARS,
@@ -30,7 +32,6 @@ import {
 
 const breathingRings = require('@/assets/images/breathing-rings.svg');
 
-const PLACEHOLDER = '#786c62';
 
 /** Step dots (node 22:6) — 18x6 accent for the active step, 6x6 hairline otherwise. */
 function StepDots({ step }) {
@@ -40,13 +41,13 @@ function StepDots({ step }) {
 			accessibilityRole="progressbar"
 			accessibilityLabel={`Question ${step + 1} of 2`}
 			accessibilityValue={{ min: 1, max: 2, now: step + 1 }}
-			className="flex-row items-center gap-1.5"
+			className="flex-row items-center gap-2"
 		>
 			{[0, 1].map((i) =>
 				i === step ? (
-					<View key={i} className="h-1.5 w-4.5 rounded-progress bg-accent" />
+					<View key={i} className="h-1.5 w-4.5 rounded-full bg-accent" />
 				) : (
-					<View key={i} className="size-1.5 rounded-progress bg-hairline" />
+					<View key={i} className="size-1.5 rounded-full bg-hairline" />
 				),
 			)}
 		</View>
@@ -56,9 +57,9 @@ function StepDots({ step }) {
 /** The "A QUESTION FOR YOU" card (node 22:16). */
 function QuestionCard({ question }) {
 	return (
-		<View className="w-full gap-2.5 overflow-hidden rounded-prompt border border-hairline bg-white px-4.5 py-4">
+		<View className="w-full gap-3 overflow-hidden rounded-lg border border-hairline bg-white px-5 py-4">
 			<Eyebrow>A QUESTION FOR YOU</Eyebrow>
-			<Text className="w-full font-inter-semibold text-[19px] leading-[25.65px] text-ink">
+			<Text className="w-full font-inter-semibold text-headline text-ink">
 				{question}
 			</Text>
 		</View>
@@ -73,7 +74,7 @@ function Saved({ onDone, onOpenTool }) {
 		<ScrollView
 			className="flex-1 bg-aura-outer"
 			showsVerticalScrollIndicator={false}
-			contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, ...padding }}
+			contentContainerStyle={{ flexGrow: 1, paddingHorizontal: GUTTER, ...padding }}
 		>
 			{/* The frame's empty teal disc (node 23:4), given the welcome screen's rings. */}
 			<Image
@@ -87,33 +88,33 @@ function Saved({ onDone, onOpenTool }) {
 
 			<Text
 				accessibilityRole="header"
-				className="w-full font-inter-bold text-[28px] leading-[39.2px] text-ink"
+				className="w-full font-inter-bold text-large-title text-ink"
 			>
 				Saved.
 			</Text>
 
-			<View className="h-2.5" />
+			<View className="h-3" />
 
-			<Text className="w-full font-inter text-[15px] leading-[21px] text-ink-muted">
+			<Text className="w-full font-inter text-body text-ink-muted">
 				That&rsquo;s day {bmtDay(new Date())} logged. Writing it down is often the part
 				that helps most.
 			</Text>
 
-			<View className="h-6.5" />
+			<View className="h-7" />
 
-			<View className="w-full gap-2 overflow-hidden rounded-control bg-insight px-4.5 py-4">
-				<Text className="w-full font-inter-semibold text-[13px] leading-[18.2px] text-insight-ink">
+			<View className="w-full gap-2 overflow-hidden rounded-lg bg-insight px-5 py-4">
+				<Text className="w-full font-inter-semibold text-subhead text-insight-ink">
 					Not going anywhere
 				</Text>
-				<Text className="w-full font-inter text-[14px] leading-[19.6px] text-ink">
+				<Text className="w-full font-inter text-callout text-ink">
 					This entry is stored privately. Your commanders and section mates cannot see it.
 				</Text>
 			</View>
 
-			<View className="h-3.5" />
+			<View className="h-4" />
 
-			<View className="w-full gap-2.5 overflow-hidden rounded-control border border-hairline bg-white px-4.5 py-4">
-				<Text className="w-full font-inter-semibold text-[14px] leading-[19.6px] text-ink">
+			<View className="w-full gap-3 overflow-hidden rounded-lg border border-hairline bg-white px-5 py-4">
+				<Text className="w-full font-inter-semibold text-callout text-ink">
 					Feeling like doing one more thing?
 				</Text>
 				{FOLLOW_ON_TOOLS.map(findTool).map((tool) => (
@@ -256,7 +257,7 @@ export default function CheckInScreen() {
 			className="flex-1 bg-aura-outer"
 			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 		>
-			<View className="flex-1 px-6" style={padding}>
+			<View className="flex-1 px-5" style={padding}>
 				<View className="w-full flex-row items-center justify-between">
 					<TextButton label="Close" onPress={close} />
 
@@ -282,13 +283,13 @@ export default function CheckInScreen() {
 					<View className="w-full flex-row items-center justify-between gap-3">
 						<Text
 							accessibilityRole="header"
-							className="flex-1 font-inter-semibold text-[15px] text-ink"
+							className="flex-1 font-inter-semibold text-body text-ink"
 						>
 							{partOfDay(new Date())} check-in
 						</Text>
-						<View className={`overflow-hidden rounded-tag px-3 py-1.5 ${MOOD_CHIP_BG[mood]}`}>
+						<View className={`overflow-hidden rounded-full px-3 py-2 ${MOOD_CHIP_BG[mood]}`}>
 							{/* Bold: white on orange/teal only passes as bold text. */}
-							<Text className={`font-inter-bold text-[13px] ${MOOD_CHIP_TEXT[mood]}`}>
+							<Text className={`font-inter-bold text-subhead ${MOOD_CHIP_TEXT[mood]}`}>
 								Today: {mood}
 							</Text>
 						</View>
@@ -297,19 +298,19 @@ export default function CheckInScreen() {
 					<View className="h-4" />
 
 					{isFollowUp ? (
-						<View className="w-full gap-1.5 overflow-hidden rounded-field bg-avatar px-3.5 py-3">
+						<View className="w-full gap-2 overflow-hidden rounded-md bg-avatar px-4 py-3">
 							<Eyebrow>YOU WROTE</Eyebrow>
-							<Text className="w-full font-inter text-[13px] leading-[18.2px] text-ink-muted">
+							<Text className="w-full font-inter text-subhead text-ink-muted">
 								{answers[0].trim() || '—'}
 							</Text>
 						</View>
 					) : (
-						<Text className="w-full font-inter text-[15px] leading-[21px] text-ink-muted">
+						<Text className="w-full font-inter text-body text-ink-muted">
 							Thanks for logging that. Want to say a bit more?
 						</Text>
 					)}
 
-					<View className="h-4.5" />
+					<View className="h-5" />
 
 					<QuestionCard question={question} />
 
@@ -319,9 +320,9 @@ export default function CheckInScreen() {
 							<Pressable
 								accessibilityRole="button"
 								onPress={cyclePrompt}
-								className="min-h-11 justify-center self-start overflow-hidden rounded-tag border border-hairline bg-white px-3.5 active:opacity-80"
+								className="min-h-11 justify-center self-start overflow-hidden rounded-full border border-hairline bg-white px-4 active:opacity-80"
 							>
-								<Text className="font-inter-medium text-[13px] text-ink">
+								<Text className="font-inter-medium text-subhead text-ink">
 									Ask me something else
 								</Text>
 							</Pressable>
@@ -331,7 +332,7 @@ export default function CheckInScreen() {
 					<View className="h-4" />
 
 					<View
-						className={`w-full gap-2 overflow-hidden rounded-control bg-white px-4 py-3.5 ${
+						className={`w-full gap-2 overflow-hidden rounded-lg bg-white px-4 py-4 ${
 							hasText ? 'border-1.5 border-accent' : 'border border-hairline'
 						}`}
 					>
@@ -342,14 +343,14 @@ export default function CheckInScreen() {
 							placeholder={
 								isFollowUp ? 'Type here, or skip this one.' : 'Type here. A sentence is enough.'
 							}
-							placeholderTextColor={PLACEHOLDER}
+							placeholderTextColor={INK_FAINT}
 							multiline
 							maxLength={MAX_CHARS}
 							textAlignVertical="top"
-							className="w-full p-0 font-inter text-[15px] leading-[21.75px] text-ink"
+							className="w-full p-0 font-inter text-body text-ink"
 						/>
 						{hasText ? (
-							<Text className="w-full text-right font-inter text-[11px] text-ink-faint">
+							<Text className="w-full text-right font-inter text-caption text-ink-faint">
 								{MAX_CHARS - text.length} characters left
 							</Text>
 						) : null}
@@ -359,7 +360,7 @@ export default function CheckInScreen() {
 				</ScrollView>
 
 				{/* The same buttons whether or not they've started typing. */}
-				<Text className="w-full text-center font-inter text-[12px] leading-[16.8px] text-ink-muted">
+				<Text className="w-full text-center font-inter text-footnote text-ink-muted">
 					{isFollowUp
 						? "One more question, then you're done."
 						: 'Only you can read this. You can delete it anytime.'}
@@ -371,7 +372,7 @@ export default function CheckInScreen() {
 
 				{isFollowUp ? null : (
 					<>
-						<View className="h-2.5" />
+						<View className="h-3" />
 						<Button label="Next question" tone="secondary" onPress={() => setStep(1)} />
 					</>
 				)}

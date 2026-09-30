@@ -2,6 +2,7 @@ import MoodMark from '@/components/MoodMark';
 import ToolIcon from '@/components/ToolIcon';
 import SectionHeading from '@/components/ui/SectionHeading';
 import useScreenPadding from '@/components/ui/useScreenPadding';
+import { GUTTER } from '@/constants/layout';
 import { MOODS } from '@/data/check-in-prompts';
 import {
 	add as addCheckin,
@@ -64,19 +65,19 @@ function WeekDay({ day, onPress }) {
 			disabled={day.isFuture}
 			onPress={onPress}
 			// flex-1 splits the row seven ways (≈48pt each), well over 44pt.
-			className="min-h-11 flex-1 items-center gap-1.5 py-1 active:opacity-60"
+			className="min-h-11 flex-1 items-center gap-2 py-1 active:opacity-60"
 		>
 			<Text
 				className={
 					day.isToday
-						? 'font-inter-bold text-[11px] text-ink'
-						: 'font-inter-medium text-[11px] text-ink-muted'
+						? 'font-inter-bold text-caption text-ink'
+						: 'font-inter-medium text-caption text-ink-muted'
 				}
 			>
 				{day.letter}
 			</Text>
 			<View
-				className={`w-5.5 items-center justify-center gap-0.75 rounded-day ${track}`}
+				className={`w-5.5 items-center justify-center gap-1 rounded-md ${track}`}
 				style={{ height }}
 			>
 				{day.checkins.map((c) => (
@@ -96,9 +97,9 @@ function MoodKey() {
 			className="w-full flex-row flex-wrap items-center gap-x-3 gap-y-1"
 		>
 			{MOODS.map((mood) => (
-				<View key={mood} className="flex-row items-center gap-1.25">
+				<View key={mood} className="flex-row items-center gap-1">
 					<MoodMark mood={mood} size={9} />
-					<Text className="font-inter-medium text-[11px] text-ink-muted">{mood}</Text>
+					<Text className="font-inter-medium text-caption text-ink-muted">{mood}</Text>
 				</View>
 			))}
 		</View>
@@ -107,7 +108,7 @@ function MoodKey() {
 
 /** Home dashboard — "S2 Home dashboard (multi check-in)" (Figma node 178:2). */
 export default function HomeScreen() {
-	const padding = useScreenPadding({ top: 54, topGap: 8 });
+	const padding = useScreenPadding();
 	const { fontScale } = useWindowDimensions();
 	const { user } = useUser();
 	const router = useRouter();
@@ -143,16 +144,16 @@ export default function HomeScreen() {
 				showsVerticalScrollIndicator={false}
 				contentContainerStyle={{
 					...padding,
-					paddingBottom: 10,
-					paddingHorizontal: 18,
+					paddingBottom: 12,
+					paddingHorizontal: GUTTER,
 				}}
 			>
 				<View className="w-full flex-row items-center justify-between">
 					<View className="flex-1 flex-col gap-0.5">
-						<Text accessibilityRole="header" className="font-inter-bold text-[21px] text-ink">
+						<Text accessibilityRole="header" className="font-inter-bold text-large-title text-ink">
 							{greeting}
 						</Text>
-						<Text className="font-inter text-[12px] text-ink-muted">
+						<Text className="font-inter text-footnote text-ink-muted">
 							Day {bmtDay(now)} · Week {bmtWeek(now)} of {BMT_WEEKS}
 						</Text>
 					</View>
@@ -162,14 +163,14 @@ export default function HomeScreen() {
 						accessibilityLabel="Settings"
 						// 34pt circle + 5 each side = 44pt.
 						hitSlop={5}
-						className="size-8.5 items-center justify-center rounded-pill bg-avatar active:opacity-70"
+						className="size-8.5 items-center justify-center rounded-full bg-avatar active:opacity-70"
 						onPress={() => router.push('/settings')}
 					>
-						<Text className="font-inter-semibold text-[13px] text-ink-muted">{initials}</Text>
+						<Text className="font-inter-semibold text-subhead text-ink-muted">{initials}</Text>
 					</Pressable>
 				</View>
 
-				<View className="h-3.5" />
+				<View className="h-4" />
 
 				<View className="w-full flex-row items-end">
 					{week.map((day) => (
@@ -187,26 +188,26 @@ export default function HomeScreen() {
 
 				<View className="h-1" />
 
-				<Text className="w-full font-inter text-[11px] leading-[15.62px] text-ink-muted">
+				<Text className="w-full font-inter text-caption text-ink-muted">
 					Tap a day to open it in your journal.
 				</Text>
 
-				<View className="h-3.5" />
+				<View className="h-4" />
 
 				{/* Darker than the button orange so white text passes 4.5:1 (5.2:1). */}
-				<View className="w-full gap-2.5 overflow-hidden rounded-control bg-accent-strong px-3.75 py-3.5">
+				<View className="w-full gap-3 overflow-hidden rounded-lg bg-accent-strong px-4 py-4">
 					<Text
 						accessibilityRole="header"
-						className="w-full font-inter-bold text-[18px] leading-[25.56px] text-white"
+						className="w-full font-inter-bold text-headline text-white"
 					>
 						{latest ? 'Check in again?' : 'How’s today been?'}
 					</Text>
-					<Text className="w-full font-inter text-[12px] leading-[17.04px] text-white">
+					<Text className="w-full font-inter text-footnote text-white">
 						{latest
 							? `You logged "${latest.mood.toLowerCase()}" at ${timeLabel(latest.createdAt)}. Things can shift.`
 							: 'One tap is enough. Writing more is up to you.'}
 					</Text>
-					<View className={`w-full flex-row gap-1.75 ${chipsWrap ? 'flex-wrap' : ''}`}>
+					<View className={`w-full flex-row gap-2 ${chipsWrap ? 'flex-wrap' : ''}`}>
 						{MOODS.map((label) => {
 							const current = latest?.mood === label;
 							return (
@@ -217,12 +218,12 @@ export default function HomeScreen() {
 									accessibilityHint={current ? 'Your latest check-in today' : undefined}
 									accessibilityState={{ selected: current }}
 									onPress={() => logMood(label)}
-									className={`min-h-11 items-center justify-center overflow-hidden rounded-chip px-1 py-2.75 active:opacity-80 ${
+									className={`min-h-11 items-center justify-center overflow-hidden rounded-md px-1 py-3 active:opacity-80 ${
 										chipsWrap ? 'basis-[47%] grow' : 'flex-1'
 									} ${current ? 'bg-ink' : 'bg-white'}`}
 								>
 									<Text
-										className={`font-inter-semibold text-[12px] ${
+										className={`font-inter-semibold text-footnote ${
 											current ? 'text-white' : 'text-ink'
 										}`}
 									>
@@ -234,7 +235,7 @@ export default function HomeScreen() {
 					</View>
 				</View>
 
-				<View className="h-4.5" />
+				<View className="h-5" />
 
 				<SectionHeading
 					title="Insights"
@@ -242,19 +243,19 @@ export default function HomeScreen() {
 					onAction={() => router.push('/insights')}
 				/>
 
-				<View className="h-2.25" />
+				<View className="h-2" />
 
 				{/* TODO: placeholder insight until the insights API exists. */}
-				<View className="w-full gap-1.75 overflow-hidden rounded-control bg-insight px-3.75 py-3.5">
-					<Text className="w-full font-inter-semibold text-[15px] leading-[20.4px] text-ink">
+				<View className="w-full gap-2 overflow-hidden rounded-lg bg-insight px-4 py-4">
+					<Text className="w-full font-inter-semibold text-body text-ink">
 						{home.insight.title}
 					</Text>
-					<Text className="w-full font-inter text-[11px] leading-[15.62px] text-ink-muted">
+					<Text className="w-full font-inter text-caption text-ink-muted">
 						{home.insight.body}
 					</Text>
 				</View>
 
-				<View className="h-3.5" />
+				<View className="h-4" />
 
 				<SectionHeading
 					title="Your BMT"
@@ -262,7 +263,7 @@ export default function HomeScreen() {
 					onAction={() => router.push('/insights/timeline')}
 				/>
 
-				<View className="h-2.25" />
+				<View className="h-2" />
 
 				<ScrollView
 					horizontal
@@ -276,7 +277,7 @@ export default function HomeScreen() {
 							accessibilityLabel={`${milestone.name}, ${milestone.week}, ${
 								milestone.mood ?? 'coming up'
 							}`}
-							className="gap-1.75 overflow-hidden rounded-tile border border-hairline bg-white px-3 py-2.75"
+							className="gap-2 overflow-hidden rounded-md border border-hairline bg-white px-3 py-3"
 						>
 							{milestone.mood ? (
 								<MoodMark mood={milestone.mood} />
@@ -284,20 +285,20 @@ export default function HomeScreen() {
 								<View className="size-2.5 rounded-full border-1.5 border-dashed border-ink-faint" />
 							)}
 							<Text
-								className={`font-inter-semibold text-[13px] ${
+								className={`font-inter-semibold text-subhead ${
 									milestone.mood ? 'text-ink' : 'text-ink-muted'
 								}`}
 							>
 								{milestone.name}
 							</Text>
-							<Text className="font-inter-medium text-[11px] text-ink-faint">
+							<Text className="font-inter-medium text-caption text-ink-faint">
 								{milestone.week}
 							</Text>
 						</View>
 					))}
 				</ScrollView>
 
-				<View className="h-3.5" />
+				<View className="h-4" />
 
 				<SectionHeading
 					title="Quick tools"
@@ -305,23 +306,23 @@ export default function HomeScreen() {
 					onAction={() => router.push('/tools')}
 				/>
 
-				<View className="h-2.25" />
+				<View className="h-2" />
 
 				{/* Wraps to a second row when more than two tools were picked. */}
-				<View className="w-full flex-row flex-wrap gap-2.25">
+				<View className="w-full flex-row flex-wrap gap-2">
 					{quickTools(user).map((tool) => (
 						<Pressable
 							key={tool.id}
 							accessibilityRole="button"
 							accessibilityLabel={`${tool.name}, ${tool.duration}`}
 							onPress={() => router.push(tool.href)}
-							className="min-w-[45%] flex-1 gap-2 overflow-hidden rounded-control border border-hairline bg-white p-3.25 active:opacity-80"
+							className="min-w-[45%] flex-1 gap-2 overflow-hidden rounded-lg border border-hairline bg-white p-3 active:opacity-80"
 						>
 							<ToolIcon tool={tool} size={26} />
-							<Text className="w-full font-inter-semibold text-[13px] leading-[17.16px] text-ink">
+							<Text className="w-full font-inter-semibold text-subhead text-ink">
 								{tool.name}
 							</Text>
-							<Text className="font-inter-medium text-[11px] text-ink-faint">
+							<Text className="font-inter-medium text-caption text-ink-faint">
 								{tool.duration}
 							</Text>
 						</Pressable>
