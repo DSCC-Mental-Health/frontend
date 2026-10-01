@@ -16,10 +16,6 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-SplashScreen.preventAutoHideAsync().catch(() => {
-	// Already hidden — nothing to do.
-});
-
 export default function RootLayout() {
 	const [fontsLoaded, fontError] = useFonts({
 		Inter_400Regular,
@@ -45,10 +41,7 @@ export default function RootLayout() {
 		>
 			<SafeAreaProvider>
 				<Stack screenOptions={{ headerShown: false }}>
-					<Stack.Screen
-						name="check-in"
-						options={{ presentation: 'modal' }}
-					/>
+					<Stack.Screen name="check-in" options={{ presentation: 'modal' }} />
 					<Stack.Screen name="write" options={{ presentation: 'modal' }} />
 					<Stack.Screen
 						name="breathe"

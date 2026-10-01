@@ -12,12 +12,6 @@ import { Text, View } from 'react-native';
 import Chrome from './Chrome';
 import { InfoCard, OptionCard, OptionGroup, OptionRow } from './Options';
 
-/**
- * One component per Figma frame. Chrome draws the shared furniture and reads
- * the wording from `step`, so each one below is only what makes it different.
- */
-
-/** I1 Welcome (16:2) — no progress bar or back link, larger title, footnote under the CTA. */
 export function Welcome({ step, onNext }) {
 	return (
 		<Chrome
@@ -41,7 +35,6 @@ export function Welcome({ step, onNext }) {
 	);
 }
 
-/** I2 Privacy (16:12) — three tinted panels. */
 export function Privacy({ step, onNext, onBack }) {
 	return (
 		<Chrome step={step} onBack={onBack} onNext={onNext}>
@@ -50,7 +43,6 @@ export function Privacy({ step, onNext, onBack }) {
 	);
 }
 
-/** I3 Notice (16:34) — single-select mood. */
 export function Notice({ step, answers, setAnswer, onNext, onBack }) {
 	return (
 		<Chrome step={step} onBack={onBack} onNext={onNext}>
@@ -60,7 +52,9 @@ export function Notice({ step, answers, setAnswer, onNext, onBack }) {
 						key={mood}
 						label={mood}
 						selected={answers.mood === mood}
-						onPress={() => setAnswer('mood', answers.mood === mood ? null : mood)}
+						onPress={() =>
+							setAnswer('mood', answers.mood === mood ? null : mood)
+						}
 					/>
 				))}
 			</OptionGroup>
@@ -68,7 +62,6 @@ export function Notice({ step, answers, setAnswer, onNext, onBack }) {
 	);
 }
 
-/** I5 Cope (17:2) — multi-select; drives the I8 summary and the home screen tools. */
 export function Cope({ step, answers, setAnswer, onNext, onBack }) {
 	function toggle(id) {
 		const next = answers.coping.includes(id)
@@ -133,7 +126,10 @@ export function Reminder({ step, answers, setAnswer, onNext, onBack, busy }) {
 						label={option.label}
 						selected={answers.reminder === option.id}
 						onPress={() =>
-							setAnswer('reminder', answers.reminder === option.id ? null : option.id)
+							setAnswer(
+								'reminder',
+								answers.reminder === option.id ? null : option.id,
+							)
 						}
 					/>
 				))}
@@ -153,7 +149,8 @@ export function Ready({ step, answers, onNext, onBack, busy, error }) {
 		reminderLine =
 			answers.reminderStatus === 'scheduled'
 				? reminder.summary
-				: (REMINDER_PROBLEMS[answers.reminderStatus] ?? REMINDER_PROBLEMS.unavailable);
+				: (REMINDER_PROBLEMS[answers.reminderStatus] ??
+					REMINDER_PROBLEMS.unavailable);
 	}
 
 	return (
@@ -183,4 +180,12 @@ export function Ready({ step, answers, onNext, onBack, busy, error }) {
 }
 
 /** Ordered to match STEPS in src/data/onboarding.js. */
-export const STEP_COMPONENTS = [Welcome, Privacy, Notice, Cope, ReachOut, Reminder, Ready];
+export const STEP_COMPONENTS = [
+	Welcome,
+	Privacy,
+	Notice,
+	Cope,
+	ReachOut,
+	Reminder,
+	Ready,
+];

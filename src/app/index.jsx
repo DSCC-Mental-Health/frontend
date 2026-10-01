@@ -14,13 +14,6 @@ const AURA =
 	'radial-gradient(ellipse 40% 47.62% at 49.6% 76.19%, ' +
 	'#f9d8aa 0%, #fcecd7 45%, #fbf6ec 100%)';
 
-/**
- * Welcome screen — "V1 Login — warm aura" (Figma node 242:2).
- *
- * "Log in" pushes /login, where the email + password form lives; the second
- * button opens the privacy explainer. Scrolls so both stay reachable at the
- * largest text sizes.
- */
 export default function WelcomeScreen() {
 	const padding = useScreenPadding({
 		top: 90,

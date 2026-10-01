@@ -12,7 +12,6 @@ import { Text, View } from 'react-native';
 
 const FALLBACK = "Couldn't log in. Check your email and password.";
 
-/** Shown after the log-out flow (X3, node 274:60) so the sign-out is confirmed. */
 function LoggedOutBanner() {
 	return (
 		<View className="w-full flex-row items-center gap-2 overflow-hidden rounded-md border-2 border-calm bg-calm-surface px-4 py-3">
@@ -24,7 +23,6 @@ function LoggedOutBanner() {
 	);
 }
 
-/** Log in — "W1 Log in" (node 248:2), with its focused and error states. */
 export default function LogInScreen() {
 	const router = useRouter();
 	const { loggedOut } = useLocalSearchParams();

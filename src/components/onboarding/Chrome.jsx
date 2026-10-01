@@ -15,16 +15,7 @@ const SIZES = {
 	large: { title: 'font-inter-bold text-display', top: 24, gap: 16 },
 };
 
-/**
- * Shared frame for every onboarding step (I1–I8).
- *
- * Every frame is the same stack: back link, progress bar, eyebrow, title, body,
- * content, footnote, flex spacer, full-width CTA. The wording comes from the
- * step itself (src/data/onboarding.js); a step only passes what makes it
- * different. 60/44/28 padding, floored by the device insets.
- */
 export default function Chrome({
-	/** The entry from STEPS: progress, eyebrow, title, body, footnote, cta. */
 	step,
 	size = 'default',
 	/** Size of the breathing rings above the title (I1, I8). */
@@ -108,7 +99,10 @@ export default function Chrome({
 					</>
 				) : null}
 
-				<Text accessibilityRole="header" className={`w-full ${look.title} text-ink`}>
+				<Text
+					accessibilityRole="header"
+					className={`w-full ${look.title} text-ink`}
+				>
 					{step.title}
 				</Text>
 
