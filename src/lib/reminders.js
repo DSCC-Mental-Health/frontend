@@ -1,11 +1,5 @@
 import { Platform } from 'react-native';
 
-/**
- * The daily check-in reminder picked on I7.
- *
- * expo-notifications is a native module. It's required lazily so a dev build
- * made before it was added reports "unavailable" instead of crashing at import.
- */
 let notifications;
 
 function load() {
