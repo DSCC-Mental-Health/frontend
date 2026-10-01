@@ -41,10 +41,6 @@ export default function WelcomeScreen() {
 		router.push('/login');
 	}
 
-	function handleOpenPrivacy() {
-		router.push('/privacy');
-	}
-
 	return (
 		<View
 			className="flex-1 bg-canvas"
@@ -79,7 +75,7 @@ export default function WelcomeScreen() {
 				<View className="h-3" />
 
 				<Text className="text-center font-inter text-body-lg text-ink-muted">
-					A quieter way to keep track of how you&rsquo;re doing through BMT.
+					A way to keep track of how you&rsquo;re doing through BMT.
 				</Text>
 
 				<View className="shrink grow basis-28" />
