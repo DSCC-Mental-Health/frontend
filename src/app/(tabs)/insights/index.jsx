@@ -50,7 +50,7 @@ function RangeToggle({ value, onChange }) {
 	return (
 		<View
 			accessibilityRole="radiogroup"
-			className="w-full flex-row gap-1 overflow-hidden rounded-md bg-avatar p-1"
+			className="w-full flex-row gap-1 overflow-hidden rounded-md bg-surface-muted p-1"
 		>
 			{RANGES.map((range) => {
 				const selected = value === range.id;
@@ -61,7 +61,7 @@ function RangeToggle({ value, onChange }) {
 						accessibilityState={{ checked: selected }}
 						onPress={() => onChange(range.id)}
 						className={`min-h-11 flex-1 items-center justify-center overflow-hidden rounded-sm ${
-							selected ? 'bg-white' : 'bg-avatar active:opacity-70'
+							selected ? 'bg-white' : 'bg-surface-muted active:opacity-70'
 						}`}
 					>
 						<Text
@@ -90,12 +90,12 @@ function Stats({ range, stacked }) {
 		{
 			value: counts.steadier,
 			label: week ? 'steadier days\nthis week' : 'steadier days\nso far',
-			tone: 'text-insight-ink',
+			tone: 'text-calm-strong',
 		},
 		{
 			value: counts.rough,
 			label: week ? `rough days\n(${counts.lastWeekRough} last week)` : 'rough days\nso far',
-			tone: 'text-accent-text',
+			tone: 'text-accent-strong',
 		},
 		{
 			value: counts.checkins,
@@ -129,11 +129,11 @@ function Stats({ range, stacked }) {
 function SummaryCard({ enabled, set, saving, error, onSettings }) {
 	if (enabled === null) {
 		return (
-			<View className="w-full gap-3 overflow-hidden rounded-lg bg-insight-ink px-4 py-4">
+			<View className="w-full gap-3 overflow-hidden rounded-lg bg-calm-strong px-4 py-4">
 				<Text accessibilityRole="header" className="w-full font-inter-bold text-headline text-white">
 					Want a weekly summary?
 				</Text>
-				<Text className="w-full font-inter text-subhead text-insight-body">
+				<Text className="w-full font-inter text-subhead text-on-dark">
 					Steady can send this week&rsquo;s check-ins and journal entries to an AI model
 					(Claude) to write a short summary of your patterns. It describes; it
 					doesn&rsquo;t diagnose. Your unit never sees it, and you can turn it off any time
@@ -151,7 +151,7 @@ function SummaryCard({ enabled, set, saving, error, onSettings }) {
 						onPress={() => set(true)}
 						className="min-h-11 flex-1 items-center justify-center overflow-hidden rounded-md bg-white active:opacity-80"
 					>
-						<Text className="font-inter-bold text-callout text-insight-ink">
+						<Text className="font-inter-bold text-callout text-calm-strong">
 							{saving ? 'Saving…' : 'Turn on'}
 						</Text>
 					</Pressable>
@@ -159,7 +159,7 @@ function SummaryCard({ enabled, set, saving, error, onSettings }) {
 						accessibilityRole="button"
 						disabled={saving}
 						onPress={() => set(false)}
-						className="min-h-11 flex-1 items-center justify-center overflow-hidden rounded-md border border-insight-meta active:opacity-80"
+						className="min-h-11 flex-1 items-center justify-center overflow-hidden rounded-md border border-on-dark-muted active:opacity-80"
 					>
 						<Text className="font-inter-semibold text-callout text-white">Not now</Text>
 					</Pressable>
@@ -180,17 +180,17 @@ function SummaryCard({ enabled, set, saving, error, onSettings }) {
 	}
 
 	return (
-		<View className="w-full gap-3 overflow-hidden rounded-lg bg-insight-ink px-4 py-4">
-			<View className="self-start overflow-hidden rounded-sm bg-insight-tag px-2 py-1">
+		<View className="w-full gap-3 overflow-hidden rounded-lg bg-calm-strong px-4 py-4">
+			<View className="self-start overflow-hidden rounded-sm bg-white/15 px-2 py-1">
 				<Eyebrow className="text-white">EXAMPLE SUMMARY</Eyebrow>
 			</View>
 			<Text className="w-full font-inter-bold text-headline text-white">
 				{EXAMPLE_SUMMARY.headline}
 			</Text>
-			<Text className="w-full font-inter text-subhead text-insight-body">
+			<Text className="w-full font-inter text-subhead text-on-dark">
 				{EXAMPLE_SUMMARY.body}
 			</Text>
-			<Text className="w-full font-inter text-caption text-insight-meta">
+			<Text className="w-full font-inter text-caption text-on-dark-muted">
 				Your own summary appears here after a week of check-ins. AI-written, describes
 				patterns only.
 			</Text>
@@ -214,7 +214,7 @@ function Driver({ label, effect, strength }) {
 				</Text>
 				<Text
 					className={`font-inter-semibold text-caption ${
-						steadier ? 'text-insight-ink' : 'text-accent-text'
+						steadier ? 'text-calm-strong' : 'text-accent-strong'
 					}`}
 				>
 					{effect}
@@ -225,7 +225,7 @@ function Driver({ label, effect, strength }) {
 					<View
 						key={i}
 						// Empty segments are outlined, not a pale fill, so they stay visible.
-						className={`h-1.25 flex-1 rounded-full ${
+						className={`h-1 flex-1 rounded-full ${
 							i < strength
 								? steadier
 									? 'bg-calm'
@@ -249,7 +249,7 @@ export default function InsightsScreen() {
 
 	return (
 		<ScrollView
-			className="flex-1 bg-aura-outer"
+			className="flex-1 bg-canvas"
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{
 				...padding,

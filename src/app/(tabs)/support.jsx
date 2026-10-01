@@ -10,7 +10,7 @@ export default function SupportScreen() {
 
 	return (
 		<View
-			className="flex-1 bg-aura-outer px-5"
+			className="flex-1 bg-canvas px-5"
 			style={padding}
 		>
 			<Text className="font-inter-bold text-large-title text-ink">

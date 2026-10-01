@@ -30,7 +30,7 @@ import {
 /** "YOU WERE ASKED" / "FOLLOW-UP" card (nodes 29:14, 29:20). */
 function PromptCard({ label, prompt }) {
 	return (
-		<View className="w-full gap-2 overflow-hidden rounded-lg bg-avatar px-4 py-4">
+		<View className="w-full gap-2 overflow-hidden rounded-lg bg-surface-muted px-4 py-4">
 			<Eyebrow>{label}</Eyebrow>
 			<Text className="w-full font-inter-medium text-callout text-ink">
 				{prompt}
@@ -134,7 +134,7 @@ export default function EntryScreen() {
 
 	return (
 		<KeyboardAvoidingView
-			className="flex-1 bg-aura-outer"
+			className="flex-1 bg-canvas"
 			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 		>
 			<View className="flex-1" style={padding}>
@@ -171,7 +171,7 @@ export default function EntryScreen() {
 						{entry.mood ? (
 							<MoodMark mood={entry.mood} size={14} />
 						) : (
-							<View className="size-3.5 rounded-full border-1.5 border-dashed border-ink-faint" />
+							<View className="size-3.5 rounded-full border-2 border-dashed border-ink-faint" />
 						)}
 						<Text accessibilityRole="header" className="font-inter-semibold text-body-lg text-ink">
 							{entry.mood ?? 'Free write'}
@@ -197,7 +197,7 @@ export default function EntryScreen() {
 									/>
 								) : null}
 								{editing ? (
-									<View className="w-full overflow-hidden rounded-lg border-1.5 border-accent bg-white px-4 py-4">
+									<View className="w-full overflow-hidden rounded-lg border-2 border-accent bg-white px-4 py-4">
 										<TextInput
 											value={draft[i]}
 											onChangeText={(value) =>
@@ -223,8 +223,8 @@ export default function EntryScreen() {
 
 					<View className="min-h-6 flex-1" />
 
-					<View className="w-full gap-1 overflow-hidden rounded-lg bg-insight px-4 py-4">
-						<Text className="w-full font-inter-semibold text-footnote text-insight-ink">
+					<View className="w-full gap-1 overflow-hidden rounded-lg bg-calm-surface px-4 py-4">
+						<Text className="w-full font-inter-semibold text-footnote text-calm-strong">
 							Private to you
 						</Text>
 						<Text className="w-full font-inter text-footnote text-ink-muted">

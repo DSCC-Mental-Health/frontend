@@ -9,7 +9,7 @@ import { ScrollView, Text, View } from 'react-native';
 const breathingRings = require('@/assets/images/breathing-rings.svg');
 
 // nativewind cannot compile a radial-gradient into a utility, so the aura
-// stays an inline RN style. Base colour mirrors `aura-outer` in tailwind.config.js.
+// stays an inline RN style. It fades out to `canvas` in src/theme/palette.js.
 const AURA =
 	'radial-gradient(ellipse 40% 47.62% at 49.6% 76.19%, ' +
 	'#f9d8aa 0%, #fcecd7 45%, #fbf6ec 100%)';
@@ -22,7 +22,12 @@ const AURA =
  * largest text sizes.
  */
 export default function WelcomeScreen() {
-	const padding = useScreenPadding({ top: 90, topGap: 24, bottom: 48, bottomGap: 16 });
+	const padding = useScreenPadding({
+		top: 90,
+		topGap: 24,
+		bottom: 48,
+		bottomGap: 16,
+	});
 	const router = useRouter();
 	const { isLoaded, isSignedIn } = useAuth();
 
@@ -41,7 +46,10 @@ export default function WelcomeScreen() {
 	}
 
 	return (
-		<View className="flex-1 bg-aura-outer" style={{ experimental_backgroundImage: AURA }}>
+		<View
+			className="flex-1 bg-canvas"
+			style={{ experimental_backgroundImage: AURA }}
+		>
 			<ScrollView
 				className="flex-1"
 				showsVerticalScrollIndicator={false}
@@ -74,15 +82,15 @@ export default function WelcomeScreen() {
 					A quieter way to keep track of how you&rsquo;re doing through BMT.
 				</Text>
 
-				<View className="shrink grow basis-29" />
+				<View className="shrink grow basis-28" />
 
-				<View className="gap-2 overflow-hidden rounded-lg bg-surface px-4 py-4">
+				<View className="gap-2 overflow-hidden rounded-lg bg-white/65 px-4 py-4">
 					<Text className="text-center font-inter-semibold text-subhead text-ink">
 						Your check-ins stay yours
 					</Text>
 					<Text className="text-center font-inter text-footnote text-ink-muted">
-						Your account only confirms you&rsquo;re an NSF. Your commanders never
-						see what you write.
+						Your account only confirms you&rsquo;re an NSF. Your commanders
+						never see what you write.
 					</Text>
 				</View>
 
@@ -91,18 +99,10 @@ export default function WelcomeScreen() {
 				<Button label="Log in" onPress={handleLogIn} />
 
 				<View className="h-3" />
-
-				<Button
-					label="How Steady handles your data"
-					tone="secondary"
-					role="link"
-					onPress={handleOpenPrivacy}
-				/>
-
 				<View className="h-5" />
 
 				<Text className="text-center font-inter text-caption text-ink-faint">
-					Hosted in Singapore · PDPA compliant
+					Footer
 				</Text>
 			</ScrollView>
 		</View>

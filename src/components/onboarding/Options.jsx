@@ -80,11 +80,11 @@ export function OptionCard({ title, body, selected, onPress }) {
 				body={body}
 				indicator={
 					selected ? (
-						<View className="size-5.5 items-center justify-center rounded-full bg-accent">
+						<View className="size-6 items-center justify-center rounded-full bg-accent">
 							<Text className="font-inter-bold text-footnote text-white">✓</Text>
 						</View>
 					) : (
-						<View className="size-5.5 rounded-full border-1.5 border-hairline" />
+						<View className="size-6 rounded-full border-2 border-hairline" />
 					)
 				}
 			/>

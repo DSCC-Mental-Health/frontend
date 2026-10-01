@@ -22,7 +22,7 @@ export default function Sheet({ visible, onClose, dismissable = true, children }
 			onRequestClose={close ?? (() => {})}
 		>
 			<Pressable
-				className="bg-scrim"
+				className="bg-ink/45"
 				// Layout inline so the sheet stays bottom-anchored regardless of
 				// whether the utility classes have compiled.
 				style={{
@@ -36,7 +36,7 @@ export default function Sheet({ visible, onClose, dismissable = true, children }
 				{/* Swallow taps on the sheet itself so they don't dismiss it. */}
 				<Pressable
 					onPress={() => {}}
-					className="w-full overflow-hidden rounded-xl bg-aura-outer px-6 pb-6 pt-7"
+					className="w-full overflow-hidden rounded-xl bg-canvas px-6 pb-6 pt-7"
 				>
 					{children}
 				</Pressable>

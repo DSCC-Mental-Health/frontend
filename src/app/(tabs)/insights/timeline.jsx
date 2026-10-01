@@ -34,7 +34,7 @@ function Milestone({ milestone, isLast }) {
 		>
 			<View className="w-3.5 items-center">
 				{upcoming ? (
-					<View className="size-3.5 rounded-full border-1.5 border-dashed border-ink-faint" />
+					<View className="size-3.5 rounded-full border-2 border-dashed border-ink-faint" />
 				) : (
 					<MoodMark mood={milestone.mood} size={14} />
 				)}
@@ -45,7 +45,7 @@ function Milestone({ milestone, isLast }) {
 			<View className="flex-1 pb-4">
 				<View
 					className={`w-full gap-1 overflow-hidden rounded-md border px-3 py-3 ${
-						upcoming ? 'border-avatar bg-avatar' : 'border-hairline bg-white'
+						upcoming ? 'border-surface-muted bg-surface-muted' : 'border-hairline bg-white'
 					}`}
 				>
 					<View className="w-full flex-row items-center justify-between">
@@ -91,7 +91,7 @@ export default function TimelineScreen() {
 
 	return (
 		<ScrollView
-			className="flex-1 bg-aura-outer"
+			className="flex-1 bg-canvas"
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{
 				...padding,

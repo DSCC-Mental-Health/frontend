@@ -50,7 +50,7 @@ export default function Chrome({
 	const note = footnote ?? step.footnote;
 
 	return (
-		<View className="flex-1 bg-aura-outer px-5" style={padding}>
+		<View className="flex-1 bg-canvas px-5" style={padding}>
 			{onBack ? (
 				<>
 					<TextButton
@@ -101,7 +101,7 @@ export default function Chrome({
 
 				{step.eyebrow ? (
 					<>
-						<Text className="w-full font-inter-semibold text-footnote tracking-[0.96px] text-accent-text">
+						<Text className="w-full font-inter-semibold text-footnote tracking-eyebrow text-accent-strong">
 							{step.eyebrow}
 						</Text>
 						<View className="h-3" />

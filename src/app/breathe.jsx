@@ -19,23 +19,17 @@ import {
 	View,
 } from 'react-native';
 
-// 240/180/124px (nodes 33:8–33:10) aren't on Tailwind v3's spacing scale.
 const OUTER_RING = 240;
 const MIDDLE_RING = 180;
 const CORE = 124;
-// Where the ring rests before the first breath in, so that breath visibly grows.
 const EMPTY_SCALE = 0.72;
-// Under Reduce Motion the ring holds still and the core fades between these.
 const DIM = 0.55;
-/** Text scale at which the ring shrinks to leave room for the words. */
 const LARGE_TEXT = 1.35;
-/** The words inside the ring can't outgrow the 124pt core. */
 const RING_TEXT_MAX = 1.3;
 
 /** Vibration on phase change, remembered for the rest of the session. */
 let vibratePreference = true;
 
-/** One second passes: count down, or move to the next phase, cycle, or finish. */
 function tick(state, { phases, cycles }) {
 	if (state.done) return state;
 	if (state.left > 1) return { ...state, left: state.left - 1 };
@@ -58,20 +52,15 @@ function useReduceMotion() {
 		AccessibilityInfo.isReduceMotionEnabled()
 			.then(setReduce)
 			.catch(() => {});
-		const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduce);
+		const sub = AccessibilityInfo.addEventListener(
+			'reduceMotionChanged',
+			setReduce,
+		);
 		return () => sub.remove();
 	}, []);
 	return reduce;
 }
 
-/**
- * Breathing player — "N2 Breathing (active)" (node 33:2).
- *
- * Runs `?pattern=box|exhale` from the tools library. Ticks once a second; the
- * middle ring eases toward each phase's size over that phase's length, or —
- * with Reduce Motion on — stays still while the core fades. Each phase change
- * is announced to VoiceOver and, if on, marked with one light vibration.
- */
 export default function BreatheScreen() {
 	const padding = useScreenPadding({ bottom: 40, bottomGap: 16 });
 	const router = useRouter();
@@ -137,7 +126,16 @@ export default function BreatheScreen() {
 		else fade.setValue(1);
 		animation.start();
 		return () => animation.stop();
-	}, [running, done, cycle, phaseIndex, phase.scale, reduceMotion, scale, fade]);
+	}, [
+		running,
+		done,
+		cycle,
+		phaseIndex,
+		phase.scale,
+		reduceMotion,
+		scale,
+		fade,
+	]);
 
 	// Phase changes are the one thing people must not miss: tell VoiceOver (the
 	// live region below only works on Android) and tap once if they want it.
@@ -146,7 +144,9 @@ export default function BreatheScreen() {
 			AccessibilityInfo.announceForAccessibility('Done. That’s the set.');
 			return;
 		}
-		AccessibilityInfo.announceForAccessibility(`${phase.label}, ${phase.seconds}`);
+		AccessibilityInfo.announceForAccessibility(
+			`${phase.label}, ${phase.seconds}`,
+		);
 		if (vibrateRef.current) lightTap();
 	}, [cycle, phaseIndex, done, phase.label, phase.seconds]);
 
@@ -173,13 +173,17 @@ export default function BreatheScreen() {
 	const ring = fontScale >= LARGE_TEXT ? 0.75 : 1;
 
 	return (
-		<View className="flex-1 bg-insight-ink">
+		<View className="flex-1 bg-calm-strong">
 			<StatusBar style="light" />
 
 			<ScrollView
 				className="flex-1"
 				showsVerticalScrollIndicator={false}
-				contentContainerStyle={{ flexGrow: 1, paddingHorizontal: GUTTER, ...padding }}
+				contentContainerStyle={{
+					flexGrow: 1,
+					paddingHorizontal: GUTTER,
+					...padding,
+				}}
 			>
 				<View className="w-full flex-row items-center justify-between">
 					<TextButton label="Close" variant="navLight" onPress={close} />
@@ -199,7 +203,7 @@ export default function BreatheScreen() {
 
 				<View className="w-full items-center justify-center">
 					<View
-						className="items-center justify-center rounded-full bg-breath-ring-outer"
+						className="items-center justify-center rounded-full bg-white/15"
 						style={{ width: OUTER_RING * ring, height: OUTER_RING * ring }}
 					>
 						{/* Inline styles only: className isn't wired up on Animated.View. */}
@@ -210,7 +214,7 @@ export default function BreatheScreen() {
 								transform: [{ scale }],
 							}}
 						>
-							<View className="size-full items-center justify-center rounded-full bg-breath-ring-inner">
+							<View className="size-full items-center justify-center rounded-full bg-white/30">
 								<Animated.View
 									style={{
 										width: CORE * ring,
@@ -252,12 +256,14 @@ export default function BreatheScreen() {
 				<View className="h-10" />
 
 				<Text className="w-full text-center font-inter text-body-lg text-white">
-					{done ? 'That’s the set. Take one normal breath before you get up.' : phase.guide}
+					{done
+						? 'That’s the set. Take one normal breath before you get up.'
+						: phase.guide}
 				</Text>
 
 				<View className="h-3" />
 
-				<Text className="w-full text-center font-inter text-subhead text-breath-meta">
+				<Text className="w-full text-center font-inter text-subhead text-on-dark">
 					{done
 						? `All ${cycles} cycles done`
 						: `Cycle ${cycle + 1} of ${cycles}  ·  ${
@@ -275,7 +281,7 @@ export default function BreatheScreen() {
 
 				<View className="h-3" />
 
-				<Text className="w-full text-center font-inter text-footnote text-breath-hint">
+				<Text className="w-full text-center font-inter text-footnote text-on-dark-muted">
 					You can stop whenever. Nothing is logged.
 				</Text>
 			</ScrollView>

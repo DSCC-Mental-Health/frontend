@@ -36,7 +36,7 @@ const TONES = {
 	},
 	/** On the dark breathing screen. */
 	onDark: {
-		box: 'border-1.5 border-breath-outline active:opacity-70',
+		box: 'border-2 border-white/50 active:opacity-70',
 		label: 'font-inter-semibold text-white',
 	},
 };

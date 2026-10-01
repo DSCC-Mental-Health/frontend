@@ -13,7 +13,7 @@ const TINT = '#73675d';
 export default function ToolIcon({ tool, size = 40 }) {
 	return (
 		<View
-			className="items-center justify-center rounded-md bg-avatar"
+			className="items-center justify-center rounded-md bg-surface-muted"
 			style={{ width: size, height: size }}
 		>
 			<SymbolView

@@ -2,14 +2,14 @@ import { PRIVACY_PANELS } from '@/data/onboarding';
 import { Text, View } from 'react-native';
 
 const PANEL_BG = {
-	sand: 'bg-avatar',
-	teal: 'bg-insight',
+	sand: 'bg-surface-muted',
+	teal: 'bg-calm-surface',
 	white: 'bg-white',
 };
 
 const PANEL_TITLE = {
 	sand: 'text-ink',
-	teal: 'text-insight-ink',
+	teal: 'text-calm-strong',
 	white: 'text-ink',
 };
 

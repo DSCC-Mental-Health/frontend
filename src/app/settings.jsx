@@ -112,7 +112,7 @@ function LogOutSheet({ visible, busy, onConfirm, onCancel }) {
 
 			<View className="h-5" />
 
-			<View className="w-full gap-1 overflow-hidden rounded-lg border-1.5 border-calm bg-insight px-4 py-4">
+			<View className="w-full gap-1 overflow-hidden rounded-lg border-2 border-calm bg-calm-surface px-4 py-4">
 				<Text className="font-inter-semibold text-subhead text-ink">
 					Nothing is deleted
 				</Text>
@@ -192,7 +192,7 @@ export default function SettingsScreen() {
 	}
 
 	return (
-		<View className="flex-1 bg-aura-outer">
+		<View className="flex-1 bg-canvas">
 			<View
 				className="w-full gap-2 overflow-hidden"
 				style={{

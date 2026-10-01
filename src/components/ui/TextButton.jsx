@@ -11,12 +11,12 @@ import { Pressable, Text } from 'react-native';
  */
 const VARIANTS = {
 	nav: 'font-inter-medium text-callout text-ink-muted',
-	navStrong: 'font-inter-semibold text-callout text-accent-text',
-	navAccent: 'font-inter-medium text-callout text-accent-text',
+	navStrong: 'font-inter-semibold text-callout text-accent-strong',
+	navAccent: 'font-inter-medium text-callout text-accent-strong',
 	navLight: 'font-inter-medium text-callout text-white',
 	small: 'font-inter-medium text-footnote text-ink-muted',
-	link: 'font-inter-medium text-subhead text-accent-text',
-	linkStrong: 'font-inter-semibold text-subhead text-accent-text',
+	link: 'font-inter-medium text-subhead text-accent-strong',
+	linkStrong: 'font-inter-semibold text-subhead text-accent-strong',
 };
 
 const DISABLED = 'font-inter-medium text-callout text-ink-faint';

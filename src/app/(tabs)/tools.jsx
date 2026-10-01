@@ -40,7 +40,7 @@ export default function ToolsScreen() {
 	const router = useRouter();
 
 	return (
-		<View className="flex-1 bg-aura-outer">
+		<View className="flex-1 bg-canvas">
 			<View
 				className="w-full"
 				style={{ ...padding, paddingHorizontal: GUTTER, paddingBottom: 12 }}

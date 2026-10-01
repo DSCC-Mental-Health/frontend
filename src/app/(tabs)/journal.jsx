@@ -100,7 +100,7 @@ function Empty({ onWrite }) {
 
 	return (
 		<View
-			className="flex-1 bg-aura-outer"
+			className="flex-1 bg-canvas"
 			style={{ ...padding, paddingHorizontal: GUTTER, paddingBottom: 16 }}
 		>
 			<Text
@@ -113,7 +113,7 @@ function Empty({ onWrite }) {
 			{/* 60px (node 27:86) — not on Tailwind v3's spacing scale. */}
 			<View style={{ height: 60 }} />
 
-			<View className="w-full items-center gap-4 overflow-hidden rounded-lg bg-avatar px-6 py-7">
+			<View className="w-full items-center gap-4 overflow-hidden rounded-lg bg-surface-muted px-6 py-7">
 				{/* The frame's empty square (node 27:88) read as a missing image. */}
 				<Image
 					source={breathingRings}
@@ -188,7 +188,7 @@ export default function JournalScreen() {
 	const groups = groupByDay(visible);
 
 	return (
-		<View className="flex-1 bg-aura-outer">
+		<View className="flex-1 bg-canvas">
 			<View
 				className="w-full"
 				style={{ ...padding, paddingHorizontal: GUTTER, paddingBottom: 16 }}
@@ -210,7 +210,7 @@ export default function JournalScreen() {
 				{query === null ? null : (
 					<>
 						<View className="h-3" />
-						<View className="w-full flex-row items-center rounded-md border-1.6 border-accent bg-white px-4 py-3">
+						<View className="w-full flex-row items-center rounded-md border-2 border-accent bg-white px-4 py-3">
 							<TextInput
 								value={query}
 								onChangeText={setQuery}
@@ -268,7 +268,7 @@ export default function JournalScreen() {
 				{dayDate ? (
 					<>
 						<View className="h-3" />
-						<View className="w-full flex-row items-center justify-between gap-3 overflow-hidden rounded-md bg-avatar px-4 py-3">
+						<View className="w-full flex-row items-center justify-between gap-3 overflow-hidden rounded-md bg-surface-muted px-4 py-3">
 							<Text className="flex-1 font-inter-semibold text-subhead text-ink">
 								Showing {dayLabel(dayDate)}
 							</Text>
@@ -328,7 +328,7 @@ export default function JournalScreen() {
 			</ScrollView>
 
 			<View
-				className="w-full bg-aura-outer"
+				className="w-full bg-canvas"
 				style={{ paddingHorizontal: GUTTER, paddingTop: 12, paddingBottom: 12 }}
 			>
 				<Button label="Write something" onPress={write} />

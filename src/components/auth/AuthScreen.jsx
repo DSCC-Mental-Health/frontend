@@ -15,7 +15,7 @@ export default function AuthScreen({ onBack, title, body, banner, children }) {
 	const padding = useScreenPadding({ bottom: 24, bottomGap: 8 });
 	return (
 		<KeyboardAvoidingView
-			className="flex-1 bg-aura-outer"
+			className="flex-1 bg-canvas"
 			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 		>
 			<ScrollView

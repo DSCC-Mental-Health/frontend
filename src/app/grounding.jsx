@@ -22,12 +22,12 @@ function NamedRow({ ticked, onPress }) {
 			accessibilityState={{ checked: ticked }}
 			onPress={onPress}
 			className={`w-full flex-row items-center gap-3 overflow-hidden rounded-md border px-4 py-3 active:opacity-80 ${
-				ticked ? 'border-insight bg-insight' : 'border-hairline bg-white'
+				ticked ? 'border-calm-surface bg-calm-surface' : 'border-hairline bg-white'
 			}`}
 		>
 			<View
 				className={`size-5 items-center justify-center rounded-full ${
-					ticked ? 'bg-calm' : 'border-1.5 border-ink-faint'
+					ticked ? 'bg-calm' : 'border-2 border-ink-faint'
 				}`}
 			>
 				{ticked ? <Text className="font-inter-bold text-caption text-white">✓</Text> : null}
@@ -46,7 +46,7 @@ function Finished({ onDone }) {
 	const padding = useScreenPadding({ top: 80, topGap: 36, bottom: 40, bottomGap: 16 });
 
 	return (
-		<View className="flex-1 bg-aura-outer px-5" style={padding}>
+		<View className="flex-1 bg-canvas px-5" style={padding}>
 			<Image
 				source={breathingRings}
 				style={{ width: 56, height: 56 }}
@@ -116,7 +116,7 @@ export default function GroundingScreen() {
 	}
 
 	return (
-		<View className="flex-1 bg-aura-outer" style={padding}>
+		<View className="flex-1 bg-canvas" style={padding}>
 			<View className="w-full px-5">
 				<View className="w-full flex-row items-center justify-between">
 					<TextButton label="Close" onPress={close} />

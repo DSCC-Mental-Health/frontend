@@ -1,11 +1,13 @@
+import palette from '@/theme/palette';
+
 /**
- * The few palette values needed as plain colours rather than classes —
- * placeholder text, tinted icons, `Switch` tracks. Keep in step with the
- * matching tokens in tailwind.config.js.
+ * Palette colours as plain values, for props that take a colour rather than a
+ * class — placeholder text, icon tints, `Switch` tracks. Defined once in
+ * src/theme/palette.js.
  */
-export const INK = '#2e2721';
-export const INK_MUTED = '#73675d';
-/** `ink-faint`: placeholder text and unselected tab icons. */
-export const INK_FAINT = '#786c62';
-export const ACCENT = '#d9682d';
-export const CALM = '#4d8a81';
+export const INK = palette.ink;
+export const INK_MUTED = palette['ink-muted'];
+/** Placeholder text and unselected tab icons. */
+export const INK_FAINT = palette['ink-faint'];
+export const ACCENT = palette.accent;
+export const CALM = palette.calm;

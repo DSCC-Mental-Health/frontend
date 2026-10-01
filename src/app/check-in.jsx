@@ -45,7 +45,7 @@ function StepDots({ step }) {
 		>
 			{[0, 1].map((i) =>
 				i === step ? (
-					<View key={i} className="h-1.5 w-4.5 rounded-full bg-accent" />
+					<View key={i} className="h-1.5 w-5 rounded-full bg-accent" />
 				) : (
 					<View key={i} className="size-1.5 rounded-full bg-hairline" />
 				),
@@ -72,7 +72,7 @@ function Saved({ onDone, onOpenTool }) {
 
 	return (
 		<ScrollView
-			className="flex-1 bg-aura-outer"
+			className="flex-1 bg-canvas"
 			showsVerticalScrollIndicator={false}
 			contentContainerStyle={{ flexGrow: 1, paddingHorizontal: GUTTER, ...padding }}
 		>
@@ -102,8 +102,8 @@ function Saved({ onDone, onOpenTool }) {
 
 			<View className="h-7" />
 
-			<View className="w-full gap-2 overflow-hidden rounded-lg bg-insight px-5 py-4">
-				<Text className="w-full font-inter-semibold text-subhead text-insight-ink">
+			<View className="w-full gap-2 overflow-hidden rounded-lg bg-calm-surface px-5 py-4">
+				<Text className="w-full font-inter-semibold text-subhead text-calm-strong">
 					Not going anywhere
 				</Text>
 				<Text className="w-full font-inter text-callout text-ink">
@@ -254,7 +254,7 @@ export default function CheckInScreen() {
 
 	return (
 		<KeyboardAvoidingView
-			className="flex-1 bg-aura-outer"
+			className="flex-1 bg-canvas"
 			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 		>
 			<View className="flex-1 px-5" style={padding}>
@@ -298,7 +298,7 @@ export default function CheckInScreen() {
 					<View className="h-4" />
 
 					{isFollowUp ? (
-						<View className="w-full gap-2 overflow-hidden rounded-md bg-avatar px-4 py-3">
+						<View className="w-full gap-2 overflow-hidden rounded-md bg-surface-muted px-4 py-3">
 							<Eyebrow>YOU WROTE</Eyebrow>
 							<Text className="w-full font-inter text-subhead text-ink-muted">
 								{answers[0].trim() || '—'}
@@ -333,7 +333,7 @@ export default function CheckInScreen() {
 
 					<View
 						className={`w-full gap-2 overflow-hidden rounded-lg bg-white px-4 py-4 ${
-							hasText ? 'border-1.5 border-accent' : 'border border-hairline'
+							hasText ? 'border-2 border-accent' : 'border border-hairline'
 						}`}
 					>
 						<TextInput

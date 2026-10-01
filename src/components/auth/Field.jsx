@@ -23,8 +23,8 @@ export default function Field({
 	const [shown, setShown] = useState(false);
 
 	let border = 'border border-hairline';
-	if (error) border = 'border-1.6 border-danger';
-	else if (focused) border = 'border-1.6 border-accent';
+	if (error) border = 'border-2 border-danger';
+	else if (focused) border = 'border-2 border-accent';
 
 	return (
 		<View className="w-full gap-2">

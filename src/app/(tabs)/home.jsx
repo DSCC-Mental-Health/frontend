@@ -11,20 +11,38 @@ import {
 	useCheckins,
 	weekOf,
 } from '@/data/checkin-store';
-import { BMT_WEEKS, bmtDay, bmtWeek, dayKey, partOfDay, timeLabel } from '@/data/dates';
+import {
+	BMT_WEEKS,
+	bmtDay,
+	bmtWeek,
+	dayKey,
+	partOfDay,
+	timeLabel,
+} from '@/data/dates';
 import home from '@/data/home-placeholder';
 import { COPING } from '@/data/onboarding';
 import { findTool } from '@/data/tools';
 import { useUser } from '@clerk/expo';
 import { useRouter } from 'expo-router';
-import { Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
+import {
+	Pressable,
+	ScrollView,
+	Text,
+	useWindowDimensions,
+	View,
+} from 'react-native';
 
 /** Shown when onboarding recorded no coping picks. */
 const DEFAULT_TOOLS = ['box', 'worry'];
 
-/** Mood marks are 10pt with 3pt between; the track pads 6pt and never goes below 22pt. */
+/**
+ * Mood marks are 10pt with 4pt between (the track's `gap-1`); the track pads
+ * 8pt and never goes below its 24pt width, so an empty day is a circle.
+ */
 const MARK = 10;
-const MARK_GAP = 3;
+const MARK_GAP = 4;
+const TRACK_PAD = 8;
+const TRACK_MIN = 24;
 
 /** Text scale at which the four mood chips stop fitting on one row. */
 const LARGE_TEXT = 1.35;
@@ -50,17 +68,22 @@ function dayA11yLabel(day) {
  */
 function WeekDay({ day, onPress }) {
 	const count = day.checkins.length;
-	const height = Math.max(22, count * MARK + (count - 1) * MARK_GAP + 6);
+	const height = Math.max(
+		TRACK_MIN,
+		count * MARK + (count - 1) * MARK_GAP + TRACK_PAD,
+	);
 
-	let track = 'border border-ink-faint bg-white';
-	if (day.isToday) track = 'border-2 border-ink bg-white';
+	let track = '';
+	if (day.isToday) track = '';
 	else if (day.isFuture) track = 'border border-dashed border-ink-faint';
 
 	return (
 		<Pressable
 			accessibilityRole="button"
 			accessibilityLabel={dayA11yLabel(day)}
-			accessibilityHint={day.isFuture ? undefined : 'Opens this day in your journal'}
+			accessibilityHint={
+				day.isFuture ? undefined : 'Opens this day in your journal'
+			}
 			accessibilityState={{ disabled: day.isFuture }}
 			disabled={day.isFuture}
 			onPress={onPress}
@@ -77,7 +100,7 @@ function WeekDay({ day, onPress }) {
 				{day.letter}
 			</Text>
 			<View
-				className={`w-5.5 items-center justify-center gap-1 rounded-md ${track}`}
+				className={`w-6 items-center justify-center gap-1 rounded-md ${track}`}
 				style={{ height }}
 			>
 				{day.checkins.map((c) => (
@@ -99,7 +122,9 @@ function MoodKey() {
 			{MOODS.map((mood) => (
 				<View key={mood} className="flex-row items-center gap-1">
 					<MoodMark mood={mood} size={9} />
-					<Text className="font-inter-medium text-caption text-ink-muted">{mood}</Text>
+					<Text className="font-inter-medium text-caption text-ink-muted">
+						{mood}
+					</Text>
 				</View>
 			))}
 		</View>
@@ -135,11 +160,14 @@ export default function HomeScreen() {
 	// adds words to it.
 	function logMood(mood) {
 		const checkin = addCheckin(mood);
-		router.push({ pathname: '/check-in', params: { mood, checkin: checkin.id } });
+		router.push({
+			pathname: '/check-in',
+			params: { mood, checkin: checkin.id },
+		});
 	}
 
 	return (
-		<View className="flex-1 bg-aura-outer">
+		<View className="flex-1 bg-canvas">
 			<ScrollView
 				showsVerticalScrollIndicator={false}
 				contentContainerStyle={{
@@ -150,7 +178,10 @@ export default function HomeScreen() {
 			>
 				<View className="w-full flex-row items-center justify-between">
 					<View className="flex-1 flex-col gap-0.5">
-						<Text accessibilityRole="header" className="font-inter-bold text-large-title text-ink">
+						<Text
+							accessibilityRole="header"
+							className="font-inter-bold text-large-title text-ink"
+						>
 							{greeting}
 						</Text>
 						<Text className="font-inter text-footnote text-ink-muted">
@@ -161,12 +192,14 @@ export default function HomeScreen() {
 					<Pressable
 						accessibilityRole="button"
 						accessibilityLabel="Settings"
-						// 34pt circle + 5 each side = 44pt.
-						hitSlop={5}
-						className="size-8.5 items-center justify-center rounded-full bg-avatar active:opacity-70"
+						// 36pt circle + 4 each side = 44pt.
+						hitSlop={4}
+						className="size-9 items-center justify-center rounded-full bg-surface-muted active:opacity-70"
 						onPress={() => router.push('/settings')}
 					>
-						<Text className="font-inter-semibold text-subhead text-ink-muted">{initials}</Text>
+						<Text className="font-inter-semibold text-subhead text-ink-muted">
+							{initials}
+						</Text>
 					</Pressable>
 				</View>
 
@@ -207,7 +240,9 @@ export default function HomeScreen() {
 							? `You logged "${latest.mood.toLowerCase()}" at ${timeLabel(latest.createdAt)}. Things can shift.`
 							: 'One tap is enough. Writing more is up to you.'}
 					</Text>
-					<View className={`w-full flex-row gap-2 ${chipsWrap ? 'flex-wrap' : ''}`}>
+					<View
+						className={`w-full flex-row gap-2 ${chipsWrap ? 'flex-wrap' : ''}`}
+					>
 						{MOODS.map((label) => {
 							const current = latest?.mood === label;
 							return (
@@ -215,7 +250,9 @@ export default function HomeScreen() {
 									key={label}
 									accessibilityRole="button"
 									accessibilityLabel={`Log ${label}`}
-									accessibilityHint={current ? 'Your latest check-in today' : undefined}
+									accessibilityHint={
+										current ? 'Your latest check-in today' : undefined
+									}
 									accessibilityState={{ selected: current }}
 									onPress={() => logMood(label)}
 									className={`min-h-11 items-center justify-center overflow-hidden rounded-md px-1 py-3 active:opacity-80 ${
@@ -246,7 +283,7 @@ export default function HomeScreen() {
 				<View className="h-2" />
 
 				{/* TODO: placeholder insight until the insights API exists. */}
-				<View className="w-full gap-2 overflow-hidden rounded-lg bg-insight px-4 py-4">
+				<View className="w-full gap-2 overflow-hidden rounded-lg bg-calm-surface px-4 py-4">
 					<Text className="w-full font-inter-semibold text-body text-ink">
 						{home.insight.title}
 					</Text>
@@ -282,7 +319,7 @@ export default function HomeScreen() {
 							{milestone.mood ? (
 								<MoodMark mood={milestone.mood} />
 							) : (
-								<View className="size-2.5 rounded-full border-1.5 border-dashed border-ink-faint" />
+								<View className="size-2.5 rounded-full border-2 border-dashed border-ink-faint" />
 							)}
 							<Text
 								className={`font-inter-semibold text-subhead ${

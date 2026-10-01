@@ -15,7 +15,7 @@ const FALLBACK = "Couldn't log in. Check your email and password.";
 /** Shown after the log-out flow (X3, node 274:60) so the sign-out is confirmed. */
 function LoggedOutBanner() {
 	return (
-		<View className="w-full flex-row items-center gap-2 overflow-hidden rounded-md border-1.5 border-calm bg-insight px-4 py-3">
+		<View className="w-full flex-row items-center gap-2 overflow-hidden rounded-md border-2 border-calm bg-calm-surface px-4 py-3">
 			<Text className="font-inter-semibold text-callout text-calm">✓</Text>
 			<Text className="flex-1 font-inter-medium text-footnote text-ink">
 				You&rsquo;ve been logged out. Your data is safe.

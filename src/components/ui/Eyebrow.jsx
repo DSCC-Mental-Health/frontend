@@ -7,7 +7,7 @@ import { Text } from 'react-native';
  */
 export default function Eyebrow({ children, className = 'text-ink-faint' }) {
 	return (
-		<Text className={`font-inter-semibold text-caption tracking-[0.8px] ${className}`}>
+		<Text className={`font-inter-semibold text-caption tracking-eyebrow ${className}`}>
 			{children}
 		</Text>
 	);

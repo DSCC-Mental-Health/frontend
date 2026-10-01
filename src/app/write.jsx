@@ -106,7 +106,7 @@ export default function WriteScreen() {
 
 	return (
 		<KeyboardAvoidingView
-			className="flex-1 bg-aura-outer"
+			className="flex-1 bg-canvas"
 			behavior={Platform.OS === 'ios' ? 'padding' : undefined}
 		>
 			<View className="flex-1" style={padding}>
@@ -144,7 +144,7 @@ export default function WriteScreen() {
 
 					{prompt ? (
 						<>
-							<View className="w-full gap-2 overflow-hidden rounded-lg bg-avatar px-4 py-4">
+							<View className="w-full gap-2 overflow-hidden rounded-lg bg-surface-muted px-4 py-4">
 								<View className="w-full flex-row items-center justify-between">
 									<Eyebrow>A QUESTION FOR YOU</Eyebrow>
 									<TextButton
