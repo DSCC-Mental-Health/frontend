@@ -98,8 +98,6 @@ export default function ToolsScreen() {
 
 				<View className="h-5" />
 
-				{/* TODO: the Support tab is still a placeholder — build O1/T1 (nodes
-				    34:2, 181:2) so this link reaches real people. */}
 				<Text className="w-full font-inter text-caption text-ink-faint">
 					These are self-help techniques, not treatment. If something
 					isn&rsquo;t shifting, there are people you can talk to.

@@ -10,6 +10,7 @@ import { detachEntry } from '@/data/checkin-store';
 import {
 	bmtDay,
 	dayLabel,
+	kindLabel,
 	remove,
 	timeLabel,
 	update,
@@ -174,7 +175,7 @@ export default function EntryScreen() {
 							<View className="size-3.5 rounded-full border-2 border-dashed border-ink-faint" />
 						)}
 						<Text accessibilityRole="header" className="font-inter-semibold text-body-lg text-ink">
-							{entry.mood ?? 'Free write'}
+							{entry.mood ?? kindLabel(entry.kind)}
 						</Text>
 					</View>
 

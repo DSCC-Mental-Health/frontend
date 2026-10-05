@@ -4,39 +4,51 @@ import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
 import { GUTTER } from '@/constants/layout';
 import { BMT_WEEKS, bmtDay, bmtWeek } from '@/data/dates';
+import { useJournal } from '@/data/journal-store';
+import {
+	MILESTONES,
+	expectationOf,
+	isOver,
+	milestoneMood,
+	milestoneWeek,
+	reflectionFor,
+	relativeLabel,
+} from '@/data/milestones';
 import { useRouter } from 'expo-router';
 import { ScrollView, Text, View } from 'react-native';
 
-// TODO: placeholder milestones from the frame — these should come from the
-// schedule entered at setup and the user's own check-ins.
-const MILESTONES = [
-	{ week: 1, mood: 'Mixed', title: 'Confinement', note: '5 entries. Mostly about missing home.' },
-	{ week: 2, mood: 'Rough', title: 'First 4 km route march', note: 'Two rough days either side of it.' },
-	{ week: 3, mood: 'Mixed', title: 'SOC', note: 'Tense before, okay after.' },
-	{ week: 4, mood: 'Good', title: 'Live firing', note: 'Logged "good" the same evening.' },
-	{ week: 5, mood: null, title: 'Field camp', note: 'Starts Monday. 4 days away.' },
-];
+/**
+ * What a stop's card says: a saved reflection's result, a sample note for past
+ * milestones nobody reflected on, or how far away it is.
+ */
+function noteFor(entries, milestone, now) {
+	const saved = reflectionFor(entries, milestone.id);
+	if (saved) return `${expectationOf(saved.answers.expectation)?.result ?? 'Reflected on'}.`;
+	if (isOver(milestone, now) && milestone.sampleNote) return milestone.sampleNote;
+	return relativeLabel(milestone, now);
+}
 
 /**
  * One stop on the timeline (node 176:15). The marker uses the same mood shapes
- * as Home; stops still ahead get a dashed ring and no mood.
+ * as Home; stops with no mood yet (today, or still ahead) get a dashed ring.
  */
-function Milestone({ milestone, isLast }) {
-	const upcoming = milestone.mood === null;
+function Milestone({ milestone, mood, note, isLast }) {
+	const upcoming = mood === null;
+	const week = milestoneWeek(milestone);
 
 	return (
 		<View
 			accessible
-			accessibilityLabel={`Week ${milestone.week}, ${milestone.title}${
-				upcoming ? ', coming up' : `, ${milestone.mood}`
-			}. ${milestone.note}`}
+			accessibilityLabel={`Week ${week}, ${milestone.title}${
+				upcoming ? '' : `, ${mood}`
+			}. ${note}`}
 			className="w-full flex-row gap-3"
 		>
 			<View className="w-3.5 items-center">
 				{upcoming ? (
 					<View className="size-3.5 rounded-full border-2 border-dashed border-ink-faint" />
 				) : (
-					<MoodMark mood={milestone.mood} size={14} />
+					<MoodMark mood={mood} size={14} />
 				)}
 				{/* Stretches to the card's height rather than the frame's fixed 62px. */}
 				{isLast ? null : <View className="w-0.5 flex-1 bg-hairline" />}
@@ -49,14 +61,12 @@ function Milestone({ milestone, isLast }) {
 					}`}
 				>
 					<View className="w-full flex-row items-center justify-between">
-						<Eyebrow>WEEK {milestone.week}</Eyebrow>
+						<Eyebrow>WEEK {week}</Eyebrow>
 						{upcoming ? null : (
 							// Ink, not the mood colour: amber text was 1.9:1 on white.
 							<View className="flex-row items-center gap-1">
-								<MoodMark mood={milestone.mood} size={9} />
-								<Text className="font-inter-semibold text-caption text-ink">
-									{milestone.mood}
-								</Text>
+								<MoodMark mood={mood} size={9} />
+								<Text className="font-inter-semibold text-caption text-ink">{mood}</Text>
 							</View>
 						)}
 					</View>
@@ -68,7 +78,7 @@ function Milestone({ milestone, isLast }) {
 						{milestone.title}
 					</Text>
 					<Text className="w-full font-inter text-footnote text-ink-muted">
-						{milestone.note}
+						{note}
 					</Text>
 				</View>
 			</View>
@@ -81,6 +91,7 @@ export default function TimelineScreen() {
 	const padding = useScreenPadding();
 	const router = useRouter();
 
+	const entries = useJournal();
 	const now = new Date();
 	const week = bmtWeek(now);
 
@@ -138,8 +149,10 @@ export default function TimelineScreen() {
 			<View className="w-full">
 				{MILESTONES.map((milestone, i) => (
 					<Milestone
-						key={milestone.week}
+						key={milestone.id}
 						milestone={milestone}
+						mood={milestoneMood(entries, milestone, now)}
+						note={noteFor(entries, milestone, now)}
 						isLast={i === MILESTONES.length - 1}
 					/>
 				))}

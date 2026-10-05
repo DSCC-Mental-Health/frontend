@@ -64,6 +64,6 @@ export async function cancelDailyReminder() {
 	try {
 		await Notifications.cancelAllScheduledNotificationsAsync();
 	} catch {
-		// Nothing was scheduled, or the module isn't in this build.
+		
 	}
 }
