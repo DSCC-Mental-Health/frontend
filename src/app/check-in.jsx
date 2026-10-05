@@ -1,9 +1,10 @@
 import DiscardSheet from '@/components/DiscardSheet';
+import AnswerBox from '@/components/ui/AnswerBox';
 import Button from '@/components/ui/Button';
 import Eyebrow from '@/components/ui/Eyebrow';
+import StepDots from '@/components/ui/StepDots';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
-import { INK_FAINT } from '@/constants/colors';
 import { GUTTER } from '@/constants/layout';
 import {
 	FOLLOW_ON_TOOLS,
@@ -26,33 +27,10 @@ import {
 	Pressable,
 	ScrollView,
 	Text,
-	TextInput,
 	View,
 } from 'react-native';
 
 const breathingRings = require('@/assets/images/breathing-rings.svg');
-
-
-/** Step dots (node 22:6) — 18x6 accent for the active step, 6x6 hairline otherwise. */
-function StepDots({ step }) {
-	return (
-		<View
-			accessible
-			accessibilityRole="progressbar"
-			accessibilityLabel={`Question ${step + 1} of 2`}
-			accessibilityValue={{ min: 1, max: 2, now: step + 1 }}
-			className="flex-row items-center gap-2"
-		>
-			{[0, 1].map((i) =>
-				i === step ? (
-					<View key={i} className="h-1.5 w-5 rounded-full bg-accent" />
-				) : (
-					<View key={i} className="size-1.5 rounded-full bg-hairline" />
-				),
-			)}
-		</View>
-	);
-}
 
 /** The "A QUESTION FOR YOU" card (node 22:16). */
 function QuestionCard({ question }) {
@@ -164,7 +142,6 @@ export default function CheckInScreen() {
 	const [prompts, setPrompts] = useState([0, 1]);
 
 	const text = answers[step];
-	const hasText = text.trim().length > 0;
 	const dirty = answers.some((a) => a.trim().length > 0);
 	const question = bank[prompts[step]];
 	// Step 1 can swap with any other prompt; step 2 only with ones step 1 didn't use.
@@ -331,30 +308,15 @@ export default function CheckInScreen() {
 
 					<View className="h-4" />
 
-					<View
-						className={`w-full gap-2 overflow-hidden rounded-lg bg-white px-4 py-4 ${
-							hasText ? 'border-2 border-accent' : 'border border-hairline'
-						}`}
-					>
-						<TextInput
-							value={text}
-							onChangeText={setText}
-							accessibilityLabel={question}
-							placeholder={
-								isFollowUp ? 'Type here, or skip this one.' : 'Type here. A sentence is enough.'
-							}
-							placeholderTextColor={INK_FAINT}
-							multiline
-							maxLength={MAX_CHARS}
-							textAlignVertical="top"
-							className="w-full p-0 font-inter text-body text-ink"
-						/>
-						{hasText ? (
-							<Text className="w-full text-right font-inter text-caption text-ink-faint">
-								{MAX_CHARS - text.length} characters left
-							</Text>
-						) : null}
-					</View>
+					<AnswerBox
+						value={text}
+						onChangeText={setText}
+						accessibilityLabel={question}
+						placeholder={
+							isFollowUp ? 'Type here, or skip this one.' : 'Type here. A sentence is enough.'
+						}
+						maxLength={MAX_CHARS}
+					/>
 
 					<View className="min-h-4 flex-1" />
 				</ScrollView>
