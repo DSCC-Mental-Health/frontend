@@ -236,6 +236,10 @@ export default function ReflectScreen() {
 							onPress={() => setStep(0)}
 						/>
 					)}
+
+					{/* Centred in the header, as in the daily check-in. */}
+					<StepDots step={step} />
+
 					<TextButton
 						label="Skip"
 						accessibilityLabel="Skip this question"
@@ -339,8 +343,6 @@ export default function ReflectScreen() {
 					<View className="min-h-6 flex-1" />
 				</ScrollView>
 
-				<StepDots step={step} />
-				<View className="h-4" />
 				{step === 0 ? (
 					<Button label="Next" onPress={() => setStep(1)} />
 				) : (
