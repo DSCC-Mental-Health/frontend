@@ -1,15 +1,17 @@
 import Sheet from '@/components/Sheet';
 import BackButton from '@/components/ui/BackButton';
 import Button from '@/components/ui/Button';
+import ListRow from '@/components/ui/ListRow';
 import useScreenPadding from '@/components/ui/useScreenPadding';
 import { CALM } from '@/constants/colors';
 import { GUTTER } from '@/constants/layout';
+import { usePlatoon } from '@/data/platoon-store';
 import { useAiSummaries } from '@/lib/ai-summaries';
 import { cancelDailyReminder } from '@/lib/reminders';
 import { useAuth, useUser } from '@clerk/expo';
 import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
+import { ScrollView, Switch, Text, View } from 'react-native';
 
 /**
  * Horizontal gutter for both the header and the scrolling body (nodes 274:3 and
@@ -17,33 +19,6 @@ import { Pressable, ScrollView, Switch, Text, View } from 'react-native';
  * contentContainerStyle, so the header matches it from the same constant rather
  * than a parallel `px-5` class that could drift.
  */
-
-function Row({ label, value, onPress, disabled }) {
-	return (
-		<Pressable
-			accessibilityRole="button"
-			accessibilityState={{ disabled: Boolean(disabled) }}
-			onPress={onPress}
-			disabled={disabled}
-			className="w-full flex-row items-center justify-between overflow-hidden rounded-lg border border-hairline bg-white px-4 py-4 active:opacity-80"
-		>
-			<Text className="font-inter-semibold text-body text-ink">{label}</Text>
-			<View className="flex-row items-center gap-2">
-				{value ? (
-					<Text
-						numberOfLines={1}
-						className="font-inter text-subhead text-ink-faint"
-					>
-						{value}
-					</Text>
-				) : null}
-				<Text className="font-inter-semibold text-body text-ink-faint">
-					›
-				</Text>
-			</View>
-		</Pressable>
-	);
-}
 
 /**
  * The AI summaries consent from Insights. Off until they say yes; never
@@ -149,6 +124,7 @@ export default function SettingsScreen() {
 	const { isLoaded: authLoaded, isSignedIn, signOut } = useAuth();
 	const { isLoaded: userLoaded, user } = useUser();
 
+	const platoon = usePlatoon();
 	const [confirming, setConfirming] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [deleting, setDeleting] = useState(false);
@@ -223,14 +199,22 @@ export default function SettingsScreen() {
 					gap: 24,
 				}}
 			>
-				{/* Only "Log out" is wired — the rest have no frames yet. */}
+				{/* Email and Change password have no frames yet, so they do nothing. */}
 				<Section title="ACCOUNT">
-					<Row
+					<ListRow
 						label="Email"
 						value={user?.primaryEmailAddress?.emailAddress}
 						onPress={() => {}}
 					/>
-					<Row label="Change password" onPress={() => {}} />
+					<ListRow label="Change password" onPress={() => {}} />
+				</Section>
+
+				<Section title="PLATOON">
+					<ListRow
+						label="Your platoon"
+						value={platoon ? `${platoon.company.split(' ')[0]} · Platoon ${platoon.platoon}` : 'Not joined'}
+						onPress={() => router.push(platoon ? '/platoon' : '/join?from=settings')}
+					/>
 				</Section>
 
 				<Section title="PRIVACY">

@@ -77,7 +77,8 @@ export default function OnboardingScreen() {
 			await user.updateMetadata({
 				unsafeMetadata: { onboardingComplete: true, onboarding: answers },
 			});
-			router.replace('/home');
+			// Q4 comes last: joining a platoon is optional, and Skip goes to Home.
+			router.replace('/join?from=onboarding');
 		} catch {
 			// Stay on I8 with the button live so they can retry.
 			setError("Couldn't save your setup. Check your connection and try again.");
