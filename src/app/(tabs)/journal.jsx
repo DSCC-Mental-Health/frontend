@@ -11,6 +11,7 @@ import {
 	bmtDay,
 	dayLabel,
 	groupByDay,
+	kindLabel,
 	timeLabel,
 	useJournal,
 } from '@/data/journal-store';
@@ -44,7 +45,7 @@ function matches(entry, query) {
 /** One entry card (node 28:23): first prompt and the start of its answer. */
 function EntryCard({ entry, onPress }) {
 	const first = entry.parts[0] ?? { text: '' };
-	const kind = entry.kind === 'free' ? 'Free write' : 'Prompted';
+	const kind = kindLabel(entry.kind);
 
 	return (
 		<Pressable

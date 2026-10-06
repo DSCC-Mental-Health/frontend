@@ -9,8 +9,23 @@ import { daysAgoAt, startOfDay } from './dates';
  *
  * Entry shape:
  *   { id, mood: 'Rough'|'Mixed'|'Okay'|'Good'|null, createdAt: Date,
- *     kind: 'prompted'|'free', parts: [{ prompt?: string, text: string }] }
+ *     kind: 'prompted'|'free'|'reflection'|'expectation',
+ *     parts: [{ prompt?: string, text: string }] }
+ * Reflections and expectations also carry `milestoneId` and structured
+ * `answers` (see data/milestones.js).
  */
+
+const KIND_LABELS = {
+	free: 'Free write',
+	prompted: 'Prompted',
+	reflection: 'Reflection',
+	expectation: 'Before the event',
+};
+
+/** How an entry's kind reads on its card and detail screen. */
+export function kindLabel(kind) {
+	return KIND_LABELS[kind] ?? 'Prompted';
+}
 
 // Re-exported so existing screens keep importing date helpers from here.
 export { BMT_START, bmtDay, dayLabel, timeLabel } from './dates';

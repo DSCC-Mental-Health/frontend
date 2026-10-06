@@ -1,4 +1,5 @@
 import MoodMark from '@/components/MoodMark';
+import MilestonePrompt from '@/components/reflection/MilestonePrompt';
 import ToolIcon from '@/components/ToolIcon';
 import SectionHeading from '@/components/ui/SectionHeading';
 import useScreenPadding from '@/components/ui/useScreenPadding';
@@ -20,10 +21,21 @@ import {
 	timeLabel,
 } from '@/data/dates';
 import home from '@/data/home-placeholder';
+import { useJournal } from '@/data/journal-store';
+import {
+	MILESTONES,
+	daysSinceEnd,
+	dismissPrompt,
+	duePrompt,
+	milestoneMood,
+	milestoneWeek,
+	relativeLabel,
+} from '@/data/milestones';
 import { COPING } from '@/data/onboarding';
 import { findTool } from '@/data/tools';
 import { useUser } from '@clerk/expo';
-import { useRouter } from 'expo-router';
+import { useIsFocused, useRouter } from 'expo-router';
+import { useReducer } from 'react';
 import {
 	Pressable,
 	ScrollView,
@@ -138,8 +150,27 @@ export default function HomeScreen() {
 	const { user } = useUser();
 	const router = useRouter();
 	const checkins = useCheckins();
+	const entries = useJournal();
+	// The prompt sheet is a modal, so it must not open while another tab is showing.
+	const focused = useIsFocused();
+	// Dismissals live in data/milestones.js; this re-renders Home after one.
+	const [, refresh] = useReducer((n) => n + 1, 0);
 
 	const now = new Date();
+	const prompt = focused ? duePrompt(entries, now) : null;
+
+	// Every way out of the sheet means "not today", including going on to the
+	// flow — closing that flow shouldn't bring the sheet straight back.
+	function dismiss() {
+		dismissPrompt(prompt.kind, prompt.milestone.id, now);
+		refresh();
+	}
+
+	function open(pathname) {
+		const { id } = prompt.milestone;
+		dismiss();
+		router.push({ pathname, params: { id } });
+	}
 	const week = weekOf(checkins, now);
 	const latest = latestToday(checkins, now);
 	const chipsWrap = fontScale >= LARGE_TEXT;
@@ -307,32 +338,36 @@ export default function HomeScreen() {
 					showsHorizontalScrollIndicator={false}
 					contentContainerStyle={{ gap: 8 }}
 				>
-					{home.milestones.map((milestone) => (
-						<View
-							key={milestone.name}
-							accessible
-							accessibilityLabel={`${milestone.name}, ${milestone.week}, ${
-								milestone.mood ?? 'coming up'
-							}`}
-							className="gap-2 overflow-hidden rounded-md border border-hairline bg-white px-3 py-3"
-						>
-							{milestone.mood ? (
-								<MoodMark mood={milestone.mood} />
-							) : (
-								<View className="size-2.5 rounded-full border-2 border-dashed border-ink-faint" />
-							)}
-							<Text
-								className={`font-inter-semibold text-subhead ${
-									milestone.mood ? 'text-ink' : 'text-ink-muted'
+					{/* The last week's milestones and the ones ahead. */}
+					{MILESTONES.filter((m) => daysSinceEnd(m, now) <= 7).map((milestone) => {
+						const mood = milestoneMood(entries, milestone, now);
+						return (
+							<View
+								key={milestone.id}
+								accessible
+								accessibilityLabel={`${milestone.title}, week ${milestoneWeek(milestone)}, ${
+									mood ?? relativeLabel(milestone, now)
 								}`}
+								className="gap-2 overflow-hidden rounded-md border border-hairline bg-white px-3 py-3"
 							>
-								{milestone.name}
-							</Text>
-							<Text className="font-inter-medium text-caption text-ink-faint">
-								{milestone.week}
-							</Text>
-						</View>
-					))}
+								{mood ? (
+									<MoodMark mood={mood} />
+								) : (
+									<View className="size-2.5 rounded-full border-2 border-dashed border-ink-faint" />
+								)}
+								<Text
+									className={`font-inter-semibold text-subhead ${
+										mood ? 'text-ink' : 'text-ink-muted'
+									}`}
+								>
+									{milestone.title}
+								</Text>
+								<Text className="font-inter-medium text-caption text-ink-faint">
+									Wk {milestoneWeek(milestone)}
+								</Text>
+							</View>
+						);
+					})}
 				</ScrollView>
 
 				<View className="h-4" />
@@ -366,6 +401,13 @@ export default function HomeScreen() {
 					))}
 				</View>
 			</ScrollView>
+
+			<MilestonePrompt
+				prompt={prompt}
+				onReflect={() => open('/reflect/[id]')}
+				onExpect={() => open('/expect/[id]')}
+				onDismiss={dismiss}
+			/>
 		</View>
 	);
 }

@@ -43,6 +43,8 @@ export default function RootLayout() {
 				<Stack screenOptions={{ headerShown: false }}>
 					<Stack.Screen name="check-in" options={{ presentation: 'modal' }} />
 					<Stack.Screen name="write" options={{ presentation: 'modal' }} />
+					<Stack.Screen name="reflect/[id]" options={{ presentation: 'modal' }} />
+					<Stack.Screen name="expect/[id]" options={{ presentation: 'modal' }} />
 					<Stack.Screen
 						name="breathe"
 						options={{ presentation: 'fullScreenModal' }}
