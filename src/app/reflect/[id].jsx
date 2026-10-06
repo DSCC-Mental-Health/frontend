@@ -44,6 +44,16 @@ function Label({ children }) {
 	return <Text className="w-full font-inter-semibold text-body text-ink">{children}</Text>;
 }
 
+/** The two-line insight panel (U2 result, U4 "third time running"). */
+function Callout({ title, body }) {
+	return (
+		<View className="w-full gap-1 overflow-hidden rounded-md bg-calm-surface px-4 py-3">
+			<Text className="w-full font-inter-semibold text-body text-calm-strong">{title}</Text>
+			{body ? <Text className="w-full font-inter text-footnote text-ink">{body}</Text> : null}
+		</View>
+	);
+}
+
 /** "U4 Reflection saved" (node 187:46). */
 function Saved({ milestone, answers, run, onTimeline, onDone }) {
 	const padding = useScreenPadding({ top: 80, topGap: 36, bottom: 20, bottomGap: 8 });
