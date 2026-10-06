@@ -1,6 +1,7 @@
 import DiscardSheet from '@/components/DiscardSheet';
 import EventTag from '@/components/reflection/EventTag';
 import Button from '@/components/ui/Button';
+import Callout from '@/components/ui/Callout';
 import ChoiceChip, { ChoiceGroup } from '@/components/ui/ChoiceChip';
 import TextButton from '@/components/ui/TextButton';
 import useScreenPadding from '@/components/ui/useScreenPadding';
@@ -168,14 +169,10 @@ export default function ExpectScreen() {
 				{easier >= 2 ? (
 					<>
 						<View className="h-5" />
-						<View className="w-full gap-2 overflow-hidden rounded-md bg-calm-surface px-4 py-4">
-							<Text className="w-full font-inter-semibold text-footnote text-calm-strong">
-								From your own logs
-							</Text>
-							<Text className="w-full font-inter text-callout text-ink">
-								The waiting has been harder than the event itself {easier} times so far.
-							</Text>
-						</View>
+						<Callout
+							title="From your own logs"
+							body={`The waiting has been harder than the event itself ${easier} times so far.`}
+						/>
 					</>
 				) : null}
 

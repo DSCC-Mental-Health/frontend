@@ -1,5 +1,5 @@
 import { GUTTER } from '@/constants/layout';
-import { Modal, Pressable } from 'react-native';
+import { Modal, Pressable, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
@@ -29,6 +29,7 @@ export default function Sheet({ visible, onClose, dismissable = true, children }
 					flex: 1,
 					justifyContent: 'flex-end',
 					paddingHorizontal: GUTTER,
+					paddingTop: insets.top + 8,
 					paddingBottom: Math.max(20, insets.bottom + 8),
 				}}
 				onPress={close}
@@ -36,9 +37,17 @@ export default function Sheet({ visible, onClose, dismissable = true, children }
 				{/* Swallow taps on the sheet itself so they don't dismiss it. */}
 				<Pressable
 					onPress={() => {}}
-					className="w-full overflow-hidden rounded-xl bg-canvas px-6 pb-6 pt-7"
+					className="w-full overflow-hidden rounded-xl bg-canvas"
+					style={{ maxHeight: '100%' }}
 				>
-					{children}
+					{/* Scrolls only when a long sheet (T2) meets a small phone or large text. */}
+					<ScrollView
+						bounces={false}
+						showsVerticalScrollIndicator={false}
+						contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 28, paddingBottom: 24 }}
+					>
+						{children}
+					</ScrollView>
 				</Pressable>
 			</Pressable>
 		</Modal>
